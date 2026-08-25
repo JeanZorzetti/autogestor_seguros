@@ -120,5 +120,22 @@
       "cls": 0
     },
     "verificado": "npm run build && node logos/verificar.mjs — 6 secoes, tudo passa. node logos/contraste.mjs — todos os pares passam (a troca de fonte nao mexeu em cor; rodado como regressao)."
+  },
+  {
+    "data": "2026-08-25",
+    "projeto": "seguros",
+    "pagina": "/ e o site inteiro",
+    "direcao": "corte seco",
+    "tipo": "CONSTRUIDA E RECUSADA — revertida",
+    "eixos": {
+      "materia": "geometria",
+      "motor": "estado",
+      "banda": "clara"
+    },
+    "resultado": "RECUSADA PELO DONO ASSIM QUE VIU. Construida no site inteiro, verificada (33/33 gates, LCP 920ms, CLS 0, todos os pares de contraste passando) e revertida no mesmo dia por git revert (cc7c0d1 -> 70dd7cf). O site voltou para `rastro`. Esta entrada existe para a regra de anti-repeticao: NAO propor Corte Seco de novo, e nao propor direcao de banda `clara` para esta familia de sites sem ele pedir.",
+    "o_que_ele_recusou": "Os tracos, nao o nome: banda clara (papel no lugar do navy), blocos chapados sem profundidade, canto reto em tudo (border-radius 0), zero sombra, zero gradiente, movimento que corta em vez de suavizar (clip-path, steps(1), hover em 0ms) e estrutura de lista numerada densa. Ele nao disse qual dos tracos pesou mais.",
+    "padrao_do_log": "Quarta recusa visual seguida, e nas quatro eu tinha escolhido a opcao mais severa do leque: Big Shoulders Display, Anton e a Chivo em 5.25rem cairam por 'muito exagerada', e agora a direcao inteira. O que sobrevive nas tres entradas anteriores e `rastro` — escuro, laranja da marca, uma linha de luz que acende com a rolagem. Filtrar as 3 propostas por banda escura/media e materia luz/campo ANTES de qualquer outro criterio.",
+    "erro_de_processo": "O escopo escolhido foi 'site inteiro' e eu construi os treze arquivos antes de mostrar uma tela. A opcao 'Prototipo primeiro' estava na mesa na mesma pergunta e eu nao insisti nela. Numa troca de direcao que muda as tres bandas ao mesmo tempo, a primeira tela em IMAGEM tem de vir antes da propagacao — o custo desta recusa foi um site refeito e desfeito.",
+    "o_que_sobreviveu_a_reversao": "Nada no codigo — o revert e completo, inclusive contraste.mjs, verificar.mjs, gerar-og.mjs e o og.png. Vale registrar o que se perdeu junto, caso algum dia seja util fora desta direcao: (1) contraste.mjs tinha passado a converter OKLCH em vez de guardar uma copia em hex da paleta, o que eliminava a duplicata que diverge sem ninguem ver; (2) verificar.mjs tinha ganhado a comparacao do theme-color com o pixel que o cabecalho realmente pinta; (3) o truque de ler cor resolvida por fillRect + getImageData, porque getComputedStyle devolve a cor na sintaxe em que ela foi escrita e comparar string contra string reprova inversao que funcionou. As tres sao independentes da direcao e podem voltar sozinhas."
   }
 ]

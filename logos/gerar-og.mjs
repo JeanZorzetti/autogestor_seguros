@@ -2,7 +2,7 @@
 //   node logos/gerar-og.mjs
 //
 // Renderiza no navegador em vez de montar o PNG no sharp por um motivo só: a
-// fonte. A Anton não está instalada no sistema, então um SVG rasterizado pelo
+// fonte. A Chivo não está instalada no sistema, então um SVG rasterizado pelo
 // sharp cairia numa grotesca qualquer — e o cartão de compartilhamento é
 // justamente onde a marca aparece para quem ainda NÃO entrou no site. Aqui a
 // página carrega a MESMA fonte e os MESMOS tokens do site.
@@ -44,11 +44,11 @@ const simbolo = readFileSync("public/img/logo.svg", "utf8");
 const simboloMono = readFileSync("public/img/logo-mono.svg", "utf8");
 
 const html = `<!doctype html><html><head><meta charset="utf-8">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&display=block">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chivo:wght@800&display=block">
 <style>
   *{margin:0;padding:0;box-sizing:border-box}
   body{width:${L}px;height:${A}px;background:${FUNDO};color:${TEXTO};
-       font-family:"Anton",sans-serif;overflow:hidden;position:relative}
+       font-family:"Chivo",sans-serif;overflow:hidden;position:relative}
 
   /* O RASTRO, parado. É o gesto do site — a linha incandescente que na página
      acende com a rolagem — congelado no quadro. Um cartão de compartilhamento
@@ -68,8 +68,11 @@ const html = `<!doctype html><html><head><meta charset="utf-8">
   .quadro{position:relative;height:100%;padding:60px 72px 56px 92px;
           display:flex;flex-direction:column;justify-content:space-between}
   .olho{font-size:21px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:${LARANJA}}
-  h1{font-size:82px;font-weight:800;line-height:.98;letter-spacing:.005em;
-     text-transform:uppercase;max-width:15ch;margin-top:20px}
+  /* Espelha o H1 da home depois da troca de fonte: caixa mista, tracking
+     negativo e menor — a Chivo é mais larga que a Anton, e 82px em caixa alta
+     não cabia mais em três linhas. */
+  h1{font-size:64px;font-weight:800;line-height:1.06;letter-spacing:-.015em;
+     max-width:17ch;margin-top:20px}
   h1 em{font-style:normal;color:${BRASA}}
   .sub{font-family:ui-sans-serif,system-ui,"Segoe UI",Arial,sans-serif;
        font-size:25px;line-height:1.45;color:${TEXTO_SUAVE};max-width:34ch;margin-top:20px}

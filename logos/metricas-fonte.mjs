@@ -17,15 +17,20 @@ import { chromium } from "playwright";
 
 // A frase é o H1 da home: é ele que reflui e empurra a página inteira.
 const FRASE = "Seu seguro de carro, moto ou caminhão cotado em 8 seguradoras de uma vez";
-const PESO = 400;
-const FAMILIA = "Anton";
+const PESO = 800;
+const FAMILIA = "Chivo";
+// A pilha local do fallback acompanha a LARGURA da fonte de exibição. Enquanto
+// a capa era condensada (Anton, Big Shoulders) esta lista começava por Arial
+// Narrow; com uma grotesca de largura normal, começar por uma condensada faz o
+// size-adjust ter que esticar 30% e a métrica casada fica pior que sem ela.
+const LOCAIS = 'local("Segoe UI"), local("Roboto"), local("Helvetica Neue"), local("Arial")';
 const PILHA_SISTEMA =
   'ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
 
 const navegador = await chromium.launch();
 const pagina = await navegador.newPage();
 await pagina.setContent(`<!doctype html><html><head>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=${FAMILIA.replace(/ /g, "+")}&display=block">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=${FAMILIA.replace(/ /g, "+")}:wght@${PESO}&display=block">
 <style>
   span { position:absolute; white-space:nowrap; font-size:100px; font-weight:${PESO}; }
   #capa { font-family:"${FAMILIA}"; }
@@ -76,7 +81,7 @@ console.log(`  sistema${" ".repeat(16)} ${m.sistema.largura.toFixed(2)}px  (sobe
 console.log(`\n  size-adjust = ${m.capa.largura.toFixed(2)} / ${m.sistema.largura.toFixed(2)} = ${pct(fator)}`);
 console.log("\n@font-face {");
 console.log('  font-family: "Capa fallback";');
-console.log('  src: local("Arial Narrow"), local("Roboto Condensed"), local("Segoe UI"), local("Roboto"), local("Arial");');
+console.log(`  src: ${LOCAIS};`);
 console.log(`  size-adjust: ${pct(fator)};`);
 console.log(`  ascent-override: ${pct(m.capa.sobe / 100 / fator)};`);
 console.log(`  descent-override: ${pct(m.capa.desce / 100 / fator)};`);

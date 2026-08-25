@@ -153,18 +153,18 @@ const grafo: Record<string, unknown>[] = [
     <link rel="icon" href="/favicon.png" type="image/png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 
-    {/* Anton: a fonte de exibição, e a fonte que separa este site do hub
-         (Archivo) e do coopluz (Outfit). Condensada e de peso único (não é
-         variável como a Big Shoulders Display que ela substituiu — só existe
-         a variação "black"), o que não é detalhe estético: é o que deixa o
-         H1 evitar quebra extra sem enterrar o formulário (ver o comentário em
-         global.css). `preconnect` para o handshake TLS não competir com o
-         CSS; o Google já entrega só o subset latin para quem lê português.
-         `display=optional` porque com o fallback de métrica casada medido não
-         há ganho em bloquear a pintura esperando o arquivo chegar. */}
+    {/* Uma requisição de fonte, um peso. Chivo substitui a Anton (e a Big
+         Shoulders antes dela) porque as duas eram condensada de cartaz e o
+         dono recusou as duas — o raciocínio inteiro está em global.css, no
+         bloco `--display`. Pedimos `wght@800` e não a faixa variável: 800 é o
+         único peso que o site usa, inclusive na sobrancelha. `preconnect` para
+         o handshake TLS não competir com o CSS; o Google já entrega só o
+         subset latin para quem lê português. `display=optional` porque com o
+         fallback de métrica casada medido não há ganho em bloquear a pintura
+         esperando o arquivo chegar. */}
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Anton&display=optional" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Chivo:wght@800&display=optional" rel="stylesheet" />
 
     {/* Um valor só, sem par claro/escuro: este site não tem tema alternativo
          (decisão de direção — ver o carimbo em global.css). É o próprio

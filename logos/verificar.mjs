@@ -21,6 +21,8 @@ const SAIDA = "logos/_verificacao";
 const LARGURAS = [360, 768, 1440];
 const ROLAGENS = [0, 0.33, 0.66, 1];
 const LCP_ALVO_MS = 2000; // faixa "captação" do orçamento declarado
+const DESCRICAO_MAX = 155; // acima disso o Google corta a <meta description>
+const TITULO_AVISO = 62; // acima disso o <title> trunca — avisa, não reprova
 
 const TIPOS = {
   ".html": "text/html; charset=utf-8",
@@ -231,6 +233,29 @@ const falhar = (msg) => {
   else console.log(`  ok     LCP mediano ${mediana}ms`);
   if (clsMax > 0.1) falhar(`CLS ${clsMax.toFixed(3)} acima de 0.1`);
   else console.log(`  ok     CLS ${clsMax.toFixed(3)}`);
+}
+
+// ------------------------------------------------- 6. corte no resultado de busca
+// Existe porque a auditoria de 25/08/2026 achou uma <meta description> de 208
+// caracteres na home: o Google cortava em ~155 e o trecho perdido era o serviço
+// pós-venda, que é o argumento que separa corretora de comparador de preço.
+// Ninguém tinha percebido porque nada media. Só a descrição FALHA; o título é
+// reportado e não barrado — quando ele estoura, quem some é o sufixo da marca,
+// que é a truncagem menos ruim das duas.
+{
+  const pagina = await navegador.newPage({ viewport: { width: 1440, height: 900 } });
+  console.log("\n6. corte no resultado de busca");
+  for (const rota of ["/", "/sobre", "/privacidade", "/termos"]) {
+    await pagina.goto(BASE + rota, { waitUntil: "domcontentloaded" });
+    const m = await pagina.evaluate(() => ({
+      titulo: document.title,
+      descricao: document.querySelector('meta[name="description"]')?.content ?? "",
+    }));
+    if (!m.descricao) falhar(`${rota} sem <meta description>`);
+    else if (m.descricao.length > DESCRICAO_MAX) falhar(`${rota} descrição ${m.descricao.length} chars (teto ${DESCRICAO_MAX})`);
+    else console.log(`  ok     ${rota.padEnd(14)} descrição ${String(m.descricao.length).padStart(3)}  título ${String(m.titulo.length).padStart(3)}${m.titulo.length > TITULO_AVISO ? "  ← a marca vai truncar" : ""}`);
+  }
+  await pagina.close();
 }
 
 await navegador.close();

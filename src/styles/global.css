@@ -32,16 +32,21 @@
    banda escura não ser gosto. */
 
 /* Fallback de métrica casada da fonte de exibição. Os quatro números saem de
-   `node logos/metricas-fonte.mjs` (Anton 3137.30px contra 3453.17px da pilha
-   do sistema, na frase do H1, peso 400 — a única variação que a Anton tem)
-   — nenhum é estimado. Sem isto o H1 rebobina a quebra de linha quando a
-   fonte troca, e é CLS na primeira tela da página de captação. */
+   `node logos/metricas-fonte.mjs` (Chivo 3757.80px contra 3803.37px da pilha
+   do sistema, na frase do H1, peso 800) — nenhum é estimado. Sem isto o H1
+   rebobina a quebra de linha quando a fonte troca, e é CLS na primeira tela
+   da página de captação.
+
+   A pilha local mudou junto com a família: enquanto a capa era condensada
+   (Big Shoulders, depois Anton) ela começava por Arial Narrow. Com uma
+   grotesca de largura normal, o desvio caiu de 9,1% para 1,2% — o fallback
+   agora é quase a própria fonte, que é o melhor caso deste mecanismo. */
 @font-face {
   font-family: "Capa fallback";
-  src: local("Arial Narrow"), local("Roboto Condensed"), local("Segoe UI"), local("Roboto"), local("Arial");
-  size-adjust: 90.9%;
-  ascent-override: 129.9%;
-  descent-override: 36.3%;
+  src: local("Segoe UI"), local("Roboto"), local("Helvetica Neue"), local("Arial");
+  size-adjust: 98.8%;
+  ascent-override: 95.1%;
+  descent-override: 25.3%;
   line-gap-override: 0%;
 }
 
@@ -162,25 +167,37 @@
      Outfit é do coopluz, e um site que existe para não parecer os irmãos não
      pode começar pela mesma letra.
 
-     Anton troca a Big Shoulders Display por outra condensada de peso forte,
-     de propósito (peça do dono, 25/08/2026: "não gostei da fonte"). Ela é
-     mais estreita que a pilha do sistema, só que menos que a família
-     anterior — medida, ocupa 90,9% contra os 75,3% da Big Shoulders — então
-     o H1 tem menos folga antes de quebrar de linha num notebook de 900px do
-     que tinha antes. Se `node logos/verificar.mjs` mostrar o formulário
-     empurrado para fora da primeira tela, é aqui ou em `--t-3xl` que se
-     ajusta, não decorando por cima. Anton só existe em um peso (a variação
-     "black" já é a regular) — não há 400..800 para escalar como havia na
-     Big Shoulders. */
-  --display: "Anton", "Capa fallback", ui-sans-serif, system-ui, sans-serif;
+     TERCEIRA FONTE, E A PRIMEIRA QUE NÃO É DE CARTAZ. Big Shoulders Display e
+     depois Anton foram recusadas pelo dono (25/08/2026: "muito exagerada"), e
+     as duas eram a mesma aposta — condensada de peso máximo, caixa alta, 5.25
+     rem. O que incomodava não era a família, era a CLASSE de letra: título de
+     pôster numa página cujo trabalho é fazer alguém confiar dinheiro a uma
+     corretora. Chivo é grotesca de largura normal: tem peso e tem osso, mas
+     não grita. O gesto da página (o rastro) e o laranja da marca voltam a ser
+     o que dá impacto — antes eles competiam com a própria letra.
+
+     Três coisas mudaram JUNTAS e nenhuma sozinha resolve: a família, a caixa
+     (H1/H2 saíram de `uppercase` para caixa mista, ver abaixo) e o tamanho
+     (--t-3xl caiu de 5.25rem para 3.5rem, porque a Chivo ocupa 98,8% da
+     largura da pilha do sistema contra os 90,9% da Anton e os 75,3% da Big
+     Shoulders — medido em logos/metricas-fonte.mjs, não estimado). Manter
+     5.25rem com esta largura enterraria o formulário abaixo da dobra num
+     notebook de 900px.
+
+     Chivo é variável (300..900); o site pede só o peso 800, que é o único que
+     usa — inclusive na sobrancelha `.olho`, que era 700 e virou 800 para não
+     obrigar uma segunda instância na requisição. */
+  --display: "Chivo", "Capa fallback", ui-sans-serif, system-ui, sans-serif;
   --corpo: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 
   --t-sm: 0.875rem;
   --t-base: 1rem;
   --t-lg: 1.125rem;
   --t-xl: clamp(1.375rem, 1.15rem + 1vw, 1.75rem);
-  --t-2xl: clamp(1.875rem, 1.3rem + 2.6vw, 3rem);
-  --t-3xl: clamp(2.75rem, 1.4rem + 6.2vw, 5.25rem);
+  /* O H2 desceu junto com o H1: com o H1 em 3.5rem, um H2 de 3rem deixava os
+     dois níveis a um passo de distância e a hierarquia sumia. */
+  --t-2xl: clamp(1.625rem, 1.25rem + 1.7vw, 2.25rem);
+  --t-3xl: clamp(2.25rem, 1.35rem + 4vw, 3.5rem);
 
   /* --- espaço, raio, sombra, tempo ------------------------------------- */
   --e-1: 0.25rem;
@@ -243,19 +260,25 @@ svg {
 }
 
 /* --------------------------------------------------------- tipografia */
+/* Caixa MISTA, e isso é metade da correção da fonte: caixa alta num H1 de 72
+   caracteres é o que fazia a primeira tela gritar, e ainda custa legibilidade
+   — sem ascendente nem descendente, a palavra perde a silhueta que o olho usa
+   para reconhecê-la sem soletrar. A caixa alta continua onde ela é rótulo e
+   não frase: sobrancelha, botão, lockup, cabeçalho de tabela. */
 h1,
 h2,
 h3 {
   font-family: var(--display);
   font-weight: 800;
-  line-height: 1.02;
-  /* A Big Shoulders é condensada e tem contraforma apertada: sem abrir o
-     tracking, o título grande fecha e vira mancha. Positivo, e não o negativo
-     de praxe em grotesca larga. */
-  letter-spacing: 0.005em;
+  /* 1.08 e não os 1.02 de antes: caixa mista tem descendente, e 1.02 fazia o
+     "g" de "seguro" encostar na linha seguinte. */
+  line-height: 1.08;
+  /* Negativo agora, e não o positivo de antes: aquele tracking aberto existia
+     para a contraforma apertada da condensada. Grotesca de largura normal em
+     corpo grande pede o contrário — sem fechar, as palavras do H1 boiam. */
+  letter-spacing: -0.015em;
   text-wrap: balance;
   margin: 0 0 var(--e-4);
-  text-transform: uppercase;
 }
 
 h1 {
@@ -266,8 +289,8 @@ h2 {
 }
 h3 {
   font-size: var(--t-xl);
-  text-transform: none;
-  letter-spacing: 0;
+  /* O -0.015em do bloco acima é calibrado para 56px; a 24px ele aperta. */
+  letter-spacing: -0.005em;
 }
 
 p {
@@ -289,7 +312,7 @@ p {
 .olho {
   display: block;
   font-family: var(--display);
-  font-weight: 700;
+  font-weight: 800;
   font-size: var(--t-sm);
   letter-spacing: 0.18em;
   text-transform: uppercase;
@@ -454,12 +477,18 @@ a:hover {
 }
 
 /* O número da estação. É o marcador que o rastro acende ao passar: nasce
-   apagado (só contorno) e preenche quando a seção entra na janela. */
+   apagado (só contorno) e preenche quando a seção entra na janela.
+
+   2.5rem e não os 3.5rem de antes. O número é MARCADOR, não título, e precisa
+   ficar abaixo do H2 que ele acompanha. Enquanto o H1 tinha 5.25rem e o H2
+   3rem esses 3.5rem passavam; com a escala nova (H1 3.5rem, H2 2.25rem) o
+   número empatava com o H1 da capa e era 1.55x o título da própria seção —
+   a estação passava a ser anunciada pelo algarismo em vez do assunto. */
 .estacao__n {
   display: block;
   font-family: var(--display);
   font-weight: 800;
-  font-size: 3.5rem;
+  font-size: 2.5rem;
   line-height: 1;
   letter-spacing: 0.02em;
   margin-bottom: var(--e-4);

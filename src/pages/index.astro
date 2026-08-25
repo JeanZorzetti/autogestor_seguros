@@ -404,10 +404,16 @@ const schema = [
 
 <style>
   /* ------------------------------------------------------------ capa ---
-     Grade 5/7 assimétrica, a mesma proporção das estações: o formulário fica
-     na coluna larga porque ele é o objetivo da página, não um apêndice do
-     texto. A 900px ele desce para baixo do texto — mas o H1 condensado cabe em
-     3 linhas, então o botão continua a menos de uma tela do topo. */
+     Grade 6/5 assimétrica: o texto fica na coluna larga e o formulário na
+     estreita, que é o suficiente para os três campos. Abaixo de 900px ele
+     desce para baixo do texto e o botão sai da primeira tela — quem cobre
+     esse trecho é a BarraAcao fixa, que existe exatamente até 899px.
+
+     A proporção mudou de 5/7 para 6/5 e o comentário tinha ficado para trás;
+     junto com ele estava a frase "o H1 condensado cabe em 3 linhas", que
+     morreu quando a fonte de exibição deixou de ser condensada (25/08/2026,
+     ver o bloco `--display` em global.css). Medido depois da troca: o botão
+     de envio fica em y=589 numa janela de 900px. */
   .capa {
     position: relative;
     padding-block: var(--e-16) var(--e-24);

@@ -41,8 +41,12 @@ export const SEGURO: Solucao = {
   curto: "Seguro",
   resumo: "Cotação de carro, moto, camionete e caminhão comparada entre seguradoras, com assistência 24h.",
   titulo: "Seguro de carro, moto e caminhão comparado entre seguradoras | Autogestor Seguros",
+  // 155 caracteres é o teto: acima disso o Google corta, e o que estava sendo
+  // cortado desta linha era justamente o serviço pós-venda (assistência e
+  // acompanhamento do sinistro) — o argumento que separa corretora de
+  // comparador de preço. Ele foi movido para o começo da segunda frase.
   descricao:
-    "Corretora com registro SUSEP desde 2004. Comparamos seguro e proteção veicular para carro, moto, camionete e caminhão entre as principais companhias, com assistência 24h nacional e acompanhamento do sinistro.",
+    "Corretora com registro SUSEP desde 2004. Cotamos seguro e proteção veicular de carro, moto e caminhão em várias companhias e cuidamos do seu sinistro.",
   abrangencia: "BR",
   campo: { rotulo: "Marca e modelo do veículo", exemplo: "ex.: Onix 2021" },
   cta: "Quero minha cotação",

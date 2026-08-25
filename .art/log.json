@@ -5,7 +5,11 @@
     "pagina": "/ (e toda capa: /sobre, legais, recibo, 404)",
     "direcao": "rastro",
     "tipo": "custom",
-    "eixos": { "materia": "luz", "motor": "scroll", "banda": "escura" },
+    "eixos": {
+      "materia": "luz",
+      "motor": "scroll",
+      "banda": "escura"
+    },
     "estrutura": "Percurso — a home e uma sequencia de ESTACOES numeradas em grade assimetrica 5/7, com a cabeca presa (sticky) enquanto o corpo rola. NAO e a pilha `.secao > .container > olho + h2 + chamada` que o hub autogestor e o coopluz compartilham. Fechar isso era o gate G33 que ficou aberto nas tres entradas do log do coopluz. Paginas internas usam `.secao` simples de proposito: sao documentos, nao jornadas.",
     "pedido": "Usuario pediu site proprio para a vertical de seguro veicular, com layout, paleta e logo originais, citando o coopluz como precedente. Primeira rodada de 3 direcoes (Pericia / Apolice impressa / Camara escura) foi recusada: ele pediu 3 novas BASEADAS em duas imagens que colocou em docs/seguros/ do hub. As imagens sao pecas de captacao reais da Auto Gestor Seguros (agosto/2026).",
     "decisao": "As imagens mudaram a premissa e isso foi declarado antes de construir: a Autogestor Seguros JA TEM marca (hexagono biselado com vortice, 'SEGUROS' em laranja, 'DESDE 2004'), entao 'paleta original' deixa de significar inventar uma paleta alheia. A paleta foi AMOSTRADA EM PIXEL das duas pecas com Pillow (mediancut por regiao do lockup): laranja #fb7402, azul do hexagono #004485/#1266b8, navy #010d1e, dourado #f5be5b, prata #d4d4d5. O que e original passa a ser direcao, estrutura e tipografia. Usuario interrompeu a segunda rodada de propostas com 'Continue' — direcao escolhida por mim entre as tres, com as duas recusadas declaradas ao usuario.",
@@ -52,7 +56,13 @@
       "nota_peso": "Zero JS proprio para a coreografia inteira: scroll(), view() e @view-transition sao nativos. O unico script da home e o do formulario e o da barra fixa, herdados do hub.",
       "lcp_ms": {
         "mediana": 712,
-        "amostras": [540, 688, 712, 740, 784],
+        "amostras": [
+          540,
+          688,
+          712,
+          740,
+          784
+        ],
         "alvo": 2000,
         "condicao": "build servido estatico, CPU 4x estrangulada, 1440x900"
       },
@@ -60,5 +70,55 @@
       "inp": "nao remedido: a direcao nao adiciona um listener. A camada de ponteiro e :hover com transicao de cor."
     },
     "divida_declarada": "Sem blog: o hub tem a colecao vazia e nao ha cluster de conteudo escrito para seguro. A faixa de prova social usa TIPOGRAFIA e nao logotipo das seguradoras — nao ha ativo licenciado no repositorio, mesma decisao do coopluz com os logos de emissora. A camada de ponteiro e a mais fraca das quatro (so acende o numero), e isso e coerente com o trafego ser majoritariamente celular, mas se um dia o desktop pesar, e onde ha espaco para crescer."
+  },
+  {
+    "data": "2026-08-25",
+    "projeto": "seguros",
+    "pagina": "/ (e toda capa)",
+    "direcao": "rastro",
+    "tipo": "ajuste tipografico",
+    "eixos": {
+      "materia": "luz",
+      "motor": "scroll",
+      "banda": "escura"
+    },
+    "pedido": "Dono, terceira vez sobre a mesma coisa: \"nao gostei da fonte utilizada nos titulos, muito exagerada\". Antes dele ja tinham caido Big Shoulders Display (entrada de 24/08) e Anton (25/08, mais cedo).",
+    "decisao": "Parar de trocar de FAMILIA e trocar de CLASSE de letra. As duas recusadas eram a mesma aposta — condensada de peso maximo, caixa alta, 5.25rem — entao a terceira condensada seria a terceira recusa. Chivo 800: grotesca de largura normal, caixa mista. Escolha confirmada com o dono ANTES de codar, com 4 direcoes na mesa (grotesca solida / sem fonte de exibicao / serifa editorial / condensada domada) — depois de duas recusas, perguntar custa menos que uma terceira.",
+    "o_que_mudou_junto": "TRES coisas, e nenhuma resolve sozinha: (1) familia Anton -> Chivo 800; (2) caixa, H1/H2 sairam de text-transform:uppercase para caixa mista — caixa alta num H1 de 72 caracteres era metade do grito, e ainda custa a silhueta que o olho usa para reconhecer a palavra sem soletrar; (3) escala, --t-3xl de 5.25rem para 3.5rem e --t-2xl de 3rem para 2.25rem. A escala TEVE que cair: Chivo ocupa 98.8% da largura da pilha do sistema contra 90.9% da Anton e 75.3% da Big Shoulders (logos/metricas-fonte.mjs), entao manter 5.25rem enterraria o formulario abaixo da dobra.",
+    "ajustes_de_arrasto": [
+      "letter-spacing dos titulos de +0.005em para -0.015em: o tracking positivo existia para a contraforma apertada da condensada; grotesca larga em corpo grande pede o contrario.",
+      "line-height de 1.02 para 1.08: caixa mista tem descendente, e 1.02 fazia o 'g' de 'seguro' encostar na linha seguinte.",
+      ".olho de peso 700 para 800 — 800 e o unico peso que o site pede ao Google, e manter 700 obrigaria uma segunda instancia na requisicao.",
+      ".estacao__n de 3.5rem para 2.5rem. Achado da auditoria, nao do pedido: com a escala nova o numero da estacao empatava com o H1 da capa e ficava 1.55x o H2 da propria secao — a estacao passava a ser anunciada pelo algarismo em vez do assunto. O numero e marcador, nao titulo.",
+      "@font-face 'Capa fallback' remedido: size-adjust 90.9% -> 98.8%, ascent 129.9% -> 95.1%, descent 36.3% -> 25.3%. A pilha local tambem mudou (Arial Narrow saiu da frente): fallback condensado para uma capa de largura normal e pior que fallback nenhum. CLS seguiu em 0.000.",
+      "logos/gerar-og.mjs acompanhou — o cartao de compartilhamento e onde a marca aparece para quem ainda NAO entrou no site, e deixa-lo na fonte velha e exatamente como um PNG de marca fica desatualizado sem ninguem perceber."
+    ],
+    "gate_g3_revisado": "G3 salto tipografico cai de 5.25x para 3.5x, e a entrada de 24/08 que comemorava os 5.25x fica CORRIGIDA por esta. O gate media a coisa errada: salto tipografico e meio para hierarquia, nao fim, e os 5.25x conquistados com condensada de cartaz custaram tres rodadas de recusa do dono. 3.5x sobre corpo de 1rem continua forte, e agora quem carrega o impacto e o gesto (o rastro) e o laranja da marca — que antes competiam com a propria letra.",
+    "achados_da_auditoria_pos_troca": [
+      "meta description da home com 208 caracteres: o Google corta em ~155 e o trecho perdido era o servico pos-venda (assistencia 24h e acompanhamento do sinistro), que e o argumento que separa corretora de comparador de preco. /sobre (169) e /termos (175) tinham o mesmo defeito. Os tres reescritos.",
+      "Nada media isso. Virou a secao 6 de logos/verificar.mjs: descricao acima de 155 REPROVA; titulo acima de 62 avisa e nao barra, porque quando o titulo estoura quem some e o sufixo da marca, a truncagem menos ruim das duas.",
+      "Comentario da .capa em index.astro afirmava grade 5/7 (e 6/5) e 'o H1 condensado cabe em 3 linhas' — as duas frases mortas. Substituidas por medicao: botao de envio em y=589 numa janela de 900px.",
+      "Nada achado em acessibilidade, responsivo e movimento: passagem de Tab limpa com anel visivel em 14 focos, sem sangramento horizontal em 360/768/1440, e a tela sobrevive parada sob prefers-reduced-motion. Silencio aqui e resultado, nao esquecimento."
+    ],
+    "custo": {
+      "faixa": "captacao",
+      "js_gzip_kb": 0,
+      "deps_novas": [],
+      "nota_peso": "A fonte ficou MAIS LEVE: subset latin da Chivo:wght@800 = 14.9 KB contra 18.6 KB da Anton (Content-Length do woff2 que o Google serve). Continua uma requisicao, um peso, display=optional.",
+      "lcp_ms": {
+        "mediana": 1100,
+        "amostras": [
+          892,
+          1096,
+          1100,
+          1352,
+          1388
+        ],
+        "alvo": 2000,
+        "condicao": "build servido estatico, CPU 4x estrangulada, 1440x900"
+      },
+      "cls": 0
+    },
+    "verificado": "npm run build && node logos/verificar.mjs — 6 secoes, tudo passa. node logos/contraste.mjs — todos os pares passam (a troca de fonte nao mexeu em cor; rodado como regressao)."
   }
 ]

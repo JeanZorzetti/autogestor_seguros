@@ -44,20 +44,20 @@ const { solucao, rotulo = "Pedir cotação", alvo = "pedir", mensagem = `Olá! Q
     display: flex;
     gap: var(--e-2);
     padding: var(--e-2) var(--e-4) calc(var(--e-2) + env(safe-area-inset-bottom));
-    background: var(--fundo);
-    border-top: 2px solid var(--fio-forte);
+    background: var(--superficie-alta);
+    border-top: 1px solid var(--borda);
+    box-shadow: var(--sombra-md);
   }
   /* Só anima depois do primeiro veredito do observer (`data-pronta`, via
      script abaixo) — sem isso a barra nasce visível e desliza para fora no
-     primeiro carregamento, quando o CTA do herói já está na tela. */
+     primeiro carregamento, quando o CTA do herói já está na tela.
+     `visibility` junto do transform: só o transform deixaria os dois links
+     focáveis por trás do formulário que a barra acabou de liberar. */
   .barra[data-pronta] {
-    transition: clip-path 160ms var(--ease-corte), visibility 160ms;
+    transition: transform 160ms ease, visibility 160ms;
   }
-  /* Corta de baixo para cima em vez de deslizar: mesmo verbo do resto da
-     página. `visibility` junto do clip-path — só o recorte deixaria os dois
-     links focáveis por trás do formulário que a barra acabou de liberar. */
   .barra[data-oculta] {
-    clip-path: inset(100% 0 0 0);
+    transform: translateY(100%);
     visibility: hidden;
   }
   .barra__acao {

@@ -119,52 +119,36 @@ const id = `lead-${solucao.slug}-${instancia}`;
 </div>
 
 <style>
-  /* Era cartão: fundo próprio, borda de 1px, raio de 14px e sombra. Agora é um
-     BLOCO CORTADO — fio de 2px, canto reto, zero sombra. O fundo é
-     `var(--fundo)`, então ele acompanha a banda em que estiver: papel na capa,
-     tinta dentro de uma seção invertida, sem uma linha de CSS a mais. */
   .form {
-    background: var(--fundo);
-    border: 2px solid var(--fio-forte);
+    background: var(--superficie-alta);
+    border: 1px solid var(--borda);
+    border-radius: var(--r-4);
     padding: var(--e-6);
+    box-shadow: var(--sombra-sm);
   }
-  /* O formulário de fechamento leva a marca no topo: 6px de laranja chapado.
-     É o que substitui a sombra mais forte que separava os dois antes. */
-  .form--destaque { border-top: 6px solid var(--acento); }
+  .form--destaque { box-shadow: var(--sombra-md); }
   .form h2 { font-size: var(--t-xl); margin-bottom: var(--e-2); color: var(--texto); }
   .form__sub { font-size: var(--t-sm); color: var(--texto-suave); margin-bottom: var(--e-6); }
   .form__campos { display: grid; gap: var(--e-4); }
   .campo { display: grid; gap: var(--e-2); margin: 0; }
   /* Label sempre visível acima do campo: placeholder-como-label some ao digitar
      e destrói a revisão do formulário. */
-  .campo label {
-    font-family: var(--display);
-    font-weight: 800;
-    font-size: var(--t-sm);
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-  }
+  .campo label { font-weight: 600; font-size: var(--t-sm); }
   .campo input, .campo select {
     font: inherit;
     /* 16px é o mínimo: abaixo disso o iOS dá zoom ao focar o campo. */
     font-size: var(--t-base);
     min-height: 48px;
     padding: var(--e-3);
-    /* Fio de 2px em tinta cheia — 17.22:1, muito acima do 3:1 que WCAG 1.4.11
-       exige para o contorno de um componente. Na direção anterior este era o
-       par que mais apertava (borda discreta sobre cartão escuro); aqui o
-       contorno do campo é o mesmo objeto que o resto da página. */
-    border: 2px solid var(--fio-forte);
+    border: 1px solid var(--cinza-500);
+    border-radius: var(--r-2);
     background: var(--fundo);
     color: var(--texto);
     width: 100%;
   }
-  /* `--erro-fio` e não `--erro`: este formulário existe em papel (capa) e em
-     tinta (fechamento), e o vermelho escuro do texto dá 2.48:1 sobre a tinta.
-     Ver o comentário do token em global.css. */
   .campo input[aria-invalid="true"], .campo select[aria-invalid="true"] {
-    border-color: var(--erro-fio);
-    border-width: 3px;
+    border-color: var(--erro);
+    border-width: 2px;
   }
   .campo__dica { font-size: var(--t-sm); color: var(--texto-suave); }
 
@@ -175,19 +159,14 @@ const id = `lead-${solucao.slug}-${instancia}`;
   .form__aviso {
     margin: 0;
     padding: var(--e-3);
+    border-radius: var(--r-2);
     font-size: var(--t-sm);
-    /* Par fechado, independente da banda: fundo claro do estado com o texto
-       escuro do mesmo estado (6.31:1 no erro, 5.95:1 no ok). Funciona igual
-       dentro de uma seção invertida, onde herdar `--texto` deixaria texto
-       claro sobre fundo claro. */
     background: var(--erro-fundo);
-    color: var(--erro);
-    border-left: 6px solid var(--erro);
+    color: var(--erro-texto);
+    border-left: 4px solid var(--erro);
   }
-  .form__aviso[data-ok] { background: var(--ok-fundo); color: var(--ok); border-left-color: var(--ok); }
+  .form__aviso[data-ok] { background: var(--ok-fundo); color: var(--ok-texto); border-left-color: var(--ok); }
   .form__aviso a { color: inherit; font-weight: 700; }
-  .form__aviso a:hover, .form__aviso a:focus-visible { background: var(--erro); color: var(--erro-fundo); }
-  .form__aviso[data-ok] a:hover, .form__aviso[data-ok] a:focus-visible { background: var(--ok); color: var(--ok-fundo); }
 
   .form__legal { font-size: var(--t-sm); color: var(--texto-suave); margin: 0; }
   .form__alternativa { margin: var(--e-6) 0 0; font-size: var(--t-sm); color: var(--texto-suave); }

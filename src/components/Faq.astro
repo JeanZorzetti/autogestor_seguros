@@ -25,29 +25,22 @@ const { perguntas, titulo = "Perguntas frequentes" } = Astro.props;
 </section>
 
 <style>
-  .faq__lista { display: grid; gap: 0; max-width: 78ch; align-items: start; border-top: 2px solid var(--fio-forte); }
+  .faq__lista { display: grid; gap: var(--e-2); max-width: 78ch; align-items: start; }
   /* Acima de 900px, 78ch deixava ~430px vazios no container de 1120px. Duas
-     colunas usam o espaço sem esticar a resposta além do confortável de ler.
-     `gap: 0` nas duas: quem separa é a régua de 2px de cada item, e um vão
-     entre eles quebraria a lista em cartões soltos — que é exatamente o que
-     esta direção não tem. A coluna da direita ganha o fio à esquerda. */
+     colunas usam o espaço sem esticar a resposta além do confortável de ler. */
   @media (min-width: 900px) {
-    .faq__lista { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: none; }
-    .faq__item:nth-child(even) { border-left: 2px solid var(--fio-forte); }
+    .faq__lista { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--e-2) var(--e-6); max-width: none; }
   }
-  /* Era cartão com borda de 1px, raio e fundo próprio. Agora é linha de lista:
-     uma régua embaixo e nada mais. */
   .faq__item {
-    border-bottom: 2px solid var(--fio-forte);
+    border: 1px solid var(--borda);
+    border-radius: var(--r-3);
+    background: var(--superficie-alta);
   }
   .faq__item summary {
     cursor: pointer;
     list-style: none;
     padding: var(--e-4);
-    font-family: var(--display);
-    font-weight: 800;
-    font-size: var(--t-base);
-    letter-spacing: -0.005em;
+    font-weight: 600;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -62,20 +55,15 @@ const { perguntas, titulo = "Perguntas frequentes" } = Astro.props;
   .faq__item summary::after {
     content: "+";
     content: "+" / "";
-    font-family: var(--display);
     font-size: var(--t-xl);
     line-height: 1;
+    color: var(--marca);
     flex: none;
   }
   .faq__item[open] summary::after {
     content: "−";
     content: "−" / "";
   }
-  /* Camada de ponteiro na escala do item: inverte, em 0ms. Nada de fundo
-     levemente mais claro. */
-  .faq__item summary:hover { background: var(--texto); color: var(--fundo); }
+  .faq__item summary:hover { background: var(--superficie); }
   .faq__resposta { padding: 0 var(--e-4) var(--e-4); color: var(--texto-suave); }
-  /* O item aberto ganha o laranja da marca na lateral: é o único lugar do FAQ
-     onde a cor aparece, e ela marca o estado em vez de decorar a lista. */
-  .faq__item[open] { border-left: 2px solid var(--acento); }
 </style>

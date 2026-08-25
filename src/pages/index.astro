@@ -125,80 +125,62 @@ const schema = [
 ];
 ---
 
-{/* ESTRUTURA: ÍNDICE (direção `corte seco`, 25/08/2026).
-
-    A página é quatro macroblocos, e não os oito da versão anterior: CAPA,
-    PROVA, o ÍNDICE inteiro (cinco linhas numeradas, o FAQ virou a 05) e a
-    AÇÃO. O que era "estação de um percurso" — grade 5/7, cabeça presa, uma
-    linha de luz atravessando o documento — virou linha de lista: número na
-    calha, régua de 2px separando, densidade no lugar da assimetria.
-
-    A ordem de leitura não mudou e a cópia é a mesma: quem decide o que a
-    página diz é o dono, quem decide como ela se apresenta é a direção. */}
-
 <Base titulo={SEGURO.titulo} descricao={SEGURO.descricao} schema={schema}>
-  {/* ---------------------------------------------------------- capa ---
-       TRÊS blocos de entrada, não sete — a spec da direção é explícita, e uma
-       entrada de sete tempos vira cortina. Cada um corta por máscara da
-       esquerda para a direita, 60ms depois do anterior (`--i`). */}
+  {/* ---------------------------------------------------------- capa --- */}
   <section class="capa">
     <div class="container capa__grade">
       <div class="capa__texto">
-        <div class="corta" style="--i: 0">
-          <span class="olho">Corretora independente · desde {EMPRESA.fundacao}</span>
-          <h1>Seu seguro de carro, moto ou caminhão cotado em {N} seguradoras de uma vez</h1>
-        </div>
+        <span class="olho">Corretora independente · desde {EMPRESA.fundacao}</span>
+        <h1>Seu seguro de carro, moto ou caminhão cotado em {N} seguradoras de uma vez</h1>
+        <p class="chamada">
+          Você preenche uma vez. A gente cota nas {N} companhias, coloca as propostas lado a lado e mostra o que
+          cada apólice deixa de fora — inclusive quando a mais barata é a pior para o seu caso.
+        </p>
+        <ul class="lista-check capa__destaques" role="list">
+          <li>Comparação entre companhias, não proposta de uma só</li>
+          <li>Em até 12x no cartão, sem custo para cotar</li>
+          <li>Assistência 24h nacional e acompanhamento do sinistro</li>
+        </ul>
 
-        <div class="corta" style="--i: 1">
-          <p class="chamada">
-            Você preenche uma vez. A gente cota nas {N} companhias, coloca as propostas lado a lado e mostra o que
-            cada apólice deixa de fora — inclusive quando a mais barata é a pior para o seu caso.
-          </p>
-          <ul class="lista-check capa__destaques" role="list">
-            <li>Comparação entre companhias, não proposta de uma só</li>
-            <li>Em até 12x no cartão, sem custo para cotar</li>
-            <li>Assistência 24h nacional e acompanhamento do sinistro</li>
-          </ul>
-
-          {/* Atalho para quem já sabe o que quer: o formulário de 3 campos é o
-               caminho curto, estes são as fichas completas da corretora. Fica
-               abaixo dos destaques, não acima, para não competir com o CTA
-               principal — mas existe, porque mandar quem já decidiu preencher
-               três campos e esperar WhatsApp é fazê-lo esperar à toa. */}
-          <p class="capa__atalho">
-            Prefere preencher a ficha completa agora?
-            {
-              veiculos.map((v, i) => (
-                <>
-                  {i > 0 ? " · " : " "}
-                  <a
-                    class="externo"
-                    href={v.href}
-                    target="_blank"
-                    rel="noopener"
-                    aria-label={`Cotação completa de seguro de ${v.nome.toLowerCase()} — site do parceiro, abre em nova aba`}
-                  >
-                    {v.nome}
-                  </a>
-                </>
-              ))
-            }
-          </p>
-        </div>
+        {/* Atalho para quem já sabe o que quer: o formulário de 3 campos é o
+             caminho curto, estes são as fichas completas da corretora. Fica
+             abaixo dos destaques, não acima, para não competir com o CTA
+             principal — mas existe, porque mandar quem já decidiu preencher
+             três campos e esperar WhatsApp é fazê-lo esperar à toa. */}
+        <p class="capa__atalho">
+          Prefere preencher a ficha completa agora?
+          {
+            veiculos.map((v, i) => (
+              <>
+                {i > 0 ? " · " : " "}
+                <a
+                  class="externo"
+                  href={v.href}
+                  target="_blank"
+                  rel="noopener"
+                  aria-label={`Cotação completa de seguro de ${v.nome.toLowerCase()} — site do parceiro, abre em nova aba`}
+                >
+                  {v.nome}
+                </a>
+              </>
+            ))
+          }
+        </p>
       </div>
 
-      <div class="capa__form corta" style="--i: 2">
+      <div class="capa__form">
         <LeadForm solucao={SEGURO} titulo="Peça sua cotação" instancia="topo" />
       </div>
     </div>
   </section>
 
   {/* --------------------------------------------- faixa de prova social ---
-       Os logotipos perderam a placa clara que tinham na direção anterior, e
-       não por economia: eles foram desenhados para fundo branco, e a faixa
-       agora É papel (--fundo-2). A placa existia só porque a página
-       era navy. Uma direção que troca a banda apaga o problema em vez de
-       resolvê-lo — ver a ressalva de licença em SEGURADORAS_LOGO, consts.ts. */}
+       O logotipo de cada companhia, não mais o nome em tipografia (peça do
+       dono, 25/08/2026) — ver a ressalva de licença em SEGURADORAS_LOGO,
+       consts.ts. Cada marca senta numa placa clara: as oito vieram desenhadas
+       para fundo branco, e a maioria (Allianz #003781, HDI verde #006B2D)
+       lê mal direto sobre o navy da página — a placa não é estética, é o
+       fundo que cada marca já espera. */}
   <section class="prova" aria-labelledby="prova-titulo">
     <div class="container">
       <h2 id="prova-titulo" class="prova__titulo">
@@ -220,219 +202,190 @@ const schema = [
     </div>
   </section>
 
-  {/* ============================================================ índice ===
-       Uma <ol> de verdade: o número de cada linha é conteúdo da lista, não um
-       algarismo desenhado ao lado. A régua de 2px de cada item corta da
-       esquerda para a direita conforme ele sobe (camada de scroll).
-
-       DUAS linhas invertem no cruzamento (02 e 04), e o número é decisão: com
-       quatro ou cinco, alguém rolando rápido no celular recebe mudança
-       repetida de luminância em tela cheia. Duas é ritmo; cinco é estrobo. */}
-  <ol class="indice" role="list">
-    <li class="item">
-      <span class="regua" aria-hidden="true"></span>
-      <div class="container item__grade">
-        <header class="item__cabeca">
-          <span class="item__n" aria-hidden="true">01</span>
-          <span class="olho">Por que corretora</span>
-          <h2>O site da seguradora só mostra a proposta dela</h2>
-        </header>
-        <div class="item__corpo">
-          <p class="chamada">
-            Cotar direto na companhia é rápido e devolve um preço. O que ele não devolve é a resposta que importa:
-            esse preço é bom? Sem as outras {N} na mesma tela, não dá para saber.
-          </p>
-          <div class="grade grade--2 item__blocos">
-            <div class="cartao">
-              <h3>Antes de contratar</h3>
-              <ul class="lista-check" role="list">
-                <li>Cotação nas {N} companhias com o mesmo perfil, na mesma hora</li>
-                <li>Análise de risco: uso do veículo, garagem, condutor jovem, região</li>
-                <li>Franquia, carro reserva e vidros comparados linha a linha</li>
-                <li>Leitura das exclusões — o que a apólice <em>não</em> cobre</li>
-              </ul>
-            </div>
-            <div class="cartao">
-              <h3>Depois de contratar</h3>
-              <ul class="lista-check" role="list">
-                <li>Abertura e acompanhamento do sinistro, por nossa conta</li>
-                <li>Assistência 24h nacional por 0800</li>
-                <li>Renovação com nova comparação de mercado, não renovação automática</li>
-                <li>Troca de condutor, endereço e coberturas durante a vigência</li>
-              </ul>
-            </div>
+  {/* ------------------------------------------------------ estação 01 --- */}
+  <section class="estacao">
+    <div class="container estacao__grade">
+      <header class="estacao__cabeca">
+        <span class="estacao__n" aria-hidden="true">01</span>
+        <span class="olho">Por que corretora</span>
+        <h2>O site da seguradora só mostra a proposta dela</h2>
+      </header>
+      <div class="estacao__corpo">
+        <p class="chamada">
+          Cotar direto na companhia é rápido e devolve um preço. O que ele não devolve é a resposta que importa:
+          esse preço é bom? Sem as outras {N} na mesma tela, não dá para saber.
+        </p>
+        <div class="grade grade--2">
+          <div class="cartao">
+            <h3>Antes de contratar</h3>
+            <ul class="lista-check" role="list">
+              <li>Cotação nas {N} companhias com o mesmo perfil, na mesma hora</li>
+              <li>Análise de risco: uso do veículo, garagem, condutor jovem, região</li>
+              <li>Franquia, carro reserva e vidros comparados linha a linha</li>
+              <li>Leitura das exclusões — o que a apólice <em>não</em> cobre</li>
+            </ul>
           </div>
-          <p class="item__nota">
-            A corretagem é remunerada por comissão da seguradora quando a apólice sai. Você não paga para cotar, e o
-            preço da apólice é o mesmo que teria indo direto na companhia.
-          </p>
-        </div>
-      </div>
-    </li>
-
-    {/* A 02 é o pico argumentativo da página — é onde a corretora ganha — e é
-         uma das duas que INVERTEM no cruzamento. */}
-    <li class="item inverte-no-scroll">
-      <span class="regua" aria-hidden="true"></span>
-      <div class="container item__grade">
-        <header class="item__cabeca">
-          <span class="item__n" aria-hidden="true">02</span>
-          <span class="olho">Tá na dúvida?</span>
-          <h2>Seguro ou proteção veicular</h2>
-        </header>
-        <div class="item__corpo">
-          <p class="chamada">
-            As duas coisas cobrem seu veículo e são <strong>juridicamente diferentes</strong>. A resposta depende do
-            seu perfil — e escolher errado só aparece no dia do sinistro.
-          </p>
-
-          {/* Tabela de verdade, com `scope` nos cabeçalhos: numa comparação, quem
-               usa leitor de tela precisa ouvir "Quem fiscaliza, Seguro: SUSEP", e
-               isso só acontece com a relação célula/cabeçalho declarada.
-               O `role="region"` + `tabindex="0"` existem porque a tabela rola na
-               horizontal a 360px: container rolável sem foco é conteúdo que o
-               teclado não alcança. */}
-          <div class="tabela-rolagem" role="region" aria-labelledby="cmp-titulo" tabindex="0">
-            <table class="cmp">
-              <caption id="cmp-titulo" class="visualmente-oculto">
-                Comparação entre seguro e proteção veicular, por dimensão
-              </caption>
-              <thead>
-                <tr>
-                  <th scope="col">O quê</th>
-                  <th scope="col" class="cmp__seguro">Seguro <small>seguradoras</small></th>
-                  <th scope="col" class="cmp__protecao">Proteção veicular <small>associações</small></th>
-                </tr>
-              </thead>
-              <tbody>
-                {
-                  comparacao.map((l) => (
-                    <tr>
-                      <th scope="row">{l.dimensao}</th>
-                      <td>{l.seguro}</td>
-                      <td>{l.protecao}</td>
-                    </tr>
-                  ))
-                }
-              </tbody>
-            </table>
+          <div class="cartao">
+            <h3>Depois de contratar</h3>
+            <ul class="lista-check" role="list">
+              <li>Abertura e acompanhamento do sinistro, por nossa conta</li>
+              <li>Assistência 24h nacional por 0800</li>
+              <li>Renovação com nova comparação de mercado, não renovação automática</li>
+              <li>Troca de condutor, endereço e coberturas durante a vigência</li>
+            </ul>
           </div>
-
-          <p class="item__nota">
-            Trabalhamos com as duas modalidades. A que a gente recomenda é a que protege melhor o seu caso, não a que
-            paga melhor — e a diferença acima é dita antes da proposta, sempre.
-          </p>
         </div>
+        <p class="estacao__nota">
+          A corretagem é remunerada por comissão da seguradora quando a apólice sai. Você não paga para cotar, e o
+          preço da apólice é o mesmo que teria indo direto na companhia.
+        </p>
       </div>
-    </li>
+    </div>
+  </section>
 
-    <li class="item">
-      <span class="regua" aria-hidden="true"></span>
-      <div class="container item__grade">
-        <header class="item__cabeca">
-          <span class="item__n" aria-hidden="true">03</span>
-          <span class="olho">O que a gente cota</span>
-          <h2>Carro, moto, camionete e caminhão</h2>
-        </header>
-        <div class="item__corpo">
-          <ul class="veiculos lista-limpa" role="list">
-            {
-              veiculos.map((v) => (
-                <li class="veiculo">
-                  <svg
-                    viewBox="0 0 24 24"
-                    width="32"
-                    height="32"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="1.5"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    aria-hidden="true"
-                    set:html={v.icone}
-                  />
-                  <h3>{v.nome}</h3>
-                  <p>{v.nota}</p>
-                  <a class="externo veiculo__ficha" href={v.href} target="_blank" rel="noopener">
-                    Ficha completa
-                    <span class="visualmente-oculto"> de {v.nome.toLowerCase()} — site do parceiro, abre em nova aba</span>
-                  </a>
-                </li>
-              ))
-            }
-          </ul>
-          <p class="item__nota">
-            Camionete entra na mesma cotação de carro. Para frota, o atendimento é por WhatsApp — a ficha padrão não
-            dá conta de mais de um veículo.
-          </p>
+  {/* ------------------------------------------------------ estação 02 --- */}
+  <section class="estacao estacao--suave estacao--tabela">
+    <div class="container estacao__grade">
+      <header class="estacao__cabeca">
+        <span class="estacao__n" aria-hidden="true">02</span>
+        <span class="olho">Tá na dúvida?</span>
+        <h2>Seguro ou proteção veicular</h2>
+      </header>
+      <div class="estacao__corpo">
+        <p class="chamada">
+          As duas coisas cobrem seu veículo e são <strong>juridicamente diferentes</strong>. A resposta depende do
+          seu perfil — e escolher errado só aparece no dia do sinistro.
+        </p>
+
+        {/* Tabela de verdade, com `scope` nos cabeçalhos: numa comparação, quem
+             usa leitor de tela precisa ouvir "Quem fiscaliza, Seguro: SUSEP", e
+             isso só acontece com a relação célula/cabeçalho declarada.
+             O `role="region"` + `tabindex="0"` existem porque a tabela rola na
+             horizontal a 360px: container rolável sem foco é conteúdo que o
+             teclado não alcança. */}
+        <div class="tabela-rolagem" role="region" aria-labelledby="cmp-titulo" tabindex="0">
+          <table class="cmp">
+            <caption id="cmp-titulo" class="visualmente-oculto">
+              Comparação entre seguro e proteção veicular, por dimensão
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">O quê</th>
+                <th scope="col" class="cmp__seguro">Seguro <small>seguradoras</small></th>
+                <th scope="col" class="cmp__protecao">Proteção veicular <small>associações</small></th>
+              </tr>
+            </thead>
+            <tbody>
+              {
+                comparacao.map((l) => (
+                  <tr>
+                    <th scope="row">{l.dimensao}</th>
+                    <td>{l.seguro}</td>
+                    <td>{l.protecao}</td>
+                  </tr>
+                ))
+              }
+            </tbody>
+          </table>
         </div>
-      </div>
-    </li>
 
-    {/* A segunda e última inversão no cruzamento. */}
-    <li class="item inverte-no-scroll">
-      <span class="regua" aria-hidden="true"></span>
-      <div class="container item__grade">
-        <header class="item__cabeca">
-          <span class="item__n" aria-hidden="true">04</span>
-          <span class="olho">Como funciona</span>
-          <h2>Três campos e uma conversa</h2>
-        </header>
-        <div class="item__corpo">
-          <ol class="passos" role="list">
-            <li>
-              <h3>Você manda nome, WhatsApp e o veículo</h3>
-              <p>
-                Só isso. Não pedimos CPF nem documento no formulário — o que falta a gente pergunta na conversa, e só
-                o que a companhia realmente exige.
-              </p>
-            </li>
-            <li>
-              <h3>A gente cota nas {N} companhias</h3>
-              <p>
-                Mesmo perfil, mesmas coberturas, {N} propostas. Você recebe a comparação com prêmio, franquia, o que
-                está incluso e o que ficou de fora, {ATENDIMENTO.prazo}.
-              </p>
-            </li>
-            <li>
-              <h3>Você escolhe e a apólice é emitida</h3>
-              <p>
-                Pagamento em até 12x no cartão, débito ou boleto. Depois disso, sinistro, alteração e renovação
-                passam por nós — não pelo 0800.
-              </p>
-            </li>
-          </ol>
-        </div>
+        <p class="estacao__nota">
+          Trabalhamos com as duas modalidades. A que a gente recomenda é a que protege melhor o seu caso, não a que
+          paga melhor — e a diferença acima é dita antes da proposta, sempre.
+        </p>
       </div>
-    </li>
+    </div>
+  </section>
 
-    {/* O FAQ virou a linha 05 do índice em vez de uma seção solta: é o que
-         mantém a página em quatro macroblocos em vez de oito, e um bloco de
-         perguntas É uma lista — não precisava de moldura própria. O h2 vem do
-         componente e cai exatamente na coluna em que os outros h2 caem. */}
-    <li class="item">
-      <span class="regua" aria-hidden="true"></span>
-      <div class="container item__grade">
-        <header class="item__cabeca">
-          <span class="item__n" aria-hidden="true">05</span>
-          <span class="olho">Antes de decidir</span>
-        </header>
-        <div class="item__corpo">
-          <Faq perguntas={perguntas} />
-        </div>
+  {/* ------------------------------------------------------ estação 03 --- */}
+  <section class="estacao">
+    <div class="container estacao__grade">
+      <header class="estacao__cabeca">
+        <span class="estacao__n" aria-hidden="true">03</span>
+        <span class="olho">O que a gente cota</span>
+        <h2>Carro, moto, camionete e caminhão</h2>
+      </header>
+      <div class="estacao__corpo">
+        <ul class="veiculos lista-limpa" role="list">
+          {
+            veiculos.map((v) => (
+              <li class="cartao veiculo">
+                <svg
+                  viewBox="0 0 24 24"
+                  width="32"
+                  height="32"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                  set:html={v.icone}
+                />
+                <h3>{v.nome}</h3>
+                <p>{v.nota}</p>
+                <a class="externo veiculo__ficha" href={v.href} target="_blank" rel="noopener">
+                  Ficha completa
+                  <span class="visualmente-oculto"> de {v.nome.toLowerCase()} — site do parceiro, abre em nova aba</span>
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+        <p class="estacao__nota">
+          Camionete entra na mesma cotação de carro. Para frota, o atendimento é por WhatsApp — a ficha padrão não
+          dá conta de mais de um veículo.
+        </p>
       </div>
-    </li>
-  </ol>
+    </div>
+  </section>
 
-  {/* ------------------------------------------------------ fechamento ---
-       A ação no fim da lista, que é onde a macroestrutura Índice a coloca.
-       Invertida ESTATICAMENTE e não no cruzamento: é o último bloco da página
-       e, com a rolagem no fim, ele nunca chegaria ao ponto de cruzamento que
-       dispara a troca — a inversão simplesmente não aconteceria. Estática ela
-       também emenda com o rodapé (também tinta), e a página fecha num bloco
-       escuro só, separado do rodapé pela régua laranja dele. */}
-  <section class="fechamento inverso" id="pedir" tabindex="-1">
-    <div class="container fechamento__grade">
+  {/* ------------------------------------------------------ estação 04 --- */}
+  <section class="estacao estacao--suave">
+    <div class="container estacao__grade">
+      <header class="estacao__cabeca">
+        <span class="estacao__n" aria-hidden="true">04</span>
+        <span class="olho">Como funciona</span>
+        <h2>Três campos e uma conversa</h2>
+      </header>
+      <div class="estacao__corpo">
+        <ol class="passos" role="list">
+          <li>
+            <h3>Você manda nome, WhatsApp e o veículo</h3>
+            <p>
+              Só isso. Não pedimos CPF nem documento no formulário — o que falta a gente pergunta na conversa, e só
+              o que a companhia realmente exige.
+            </p>
+          </li>
+          <li>
+            <h3>A gente cota nas {N} companhias</h3>
+            <p>
+              Mesmo perfil, mesmas coberturas, {N} propostas. Você recebe a comparação com prêmio, franquia, o que
+              está incluso e o que ficou de fora, {ATENDIMENTO.prazo}.
+            </p>
+          </li>
+          <li>
+            <h3>Você escolhe e a apólice é emitida</h3>
+            <p>
+              Pagamento em até 12x no cartão, débito ou boleto. Depois disso, sinistro, alteração e renovação
+              passam por nós — não pelo 0800.
+            </p>
+          </li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  {/* ------------------------------------------------------------- faq --- */}
+  <section class="estacao">
+    <div class="container">
+      <Faq perguntas={perguntas} />
+    </div>
+  </section>
+
+  {/* ------------------------------------------------------ fechamento --- */}
+  <section class="estacao estacao--suave" id="pedir" tabindex="-1">
+    <div class="container fechamento">
       <div>
         <span class="olho">Próximo passo</span>
         <h2>{SEGURO.fechamento}</h2>
@@ -451,16 +404,20 @@ const schema = [
 
 <style>
   /* ------------------------------------------------------------ capa ---
-     Grade 6/5 assimétrica: o texto na coluna larga, o formulário na estreita,
-     que é o suficiente para os três campos. Abaixo de 900px ele desce para
-     baixo do texto e o botão sai da primeira tela — quem cobre esse trecho é a
-     BarraAcao fixa, que existe exatamente até 899px.
+     Grade 6/5 assimétrica: o texto fica na coluna larga e o formulário na
+     estreita, que é o suficiente para os três campos. Abaixo de 900px ele
+     desce para baixo do texto e o botão sai da primeira tela — quem cobre
+     esse trecho é a BarraAcao fixa, que existe exatamente até 899px.
 
-     SEM GRADIENTE. A capa tinha um `linear-gradient` do navy para o fundo;
-     gradiente é transição suave, e esta direção não tem nenhuma. O que separa
-     a capa da faixa de prova agora é a troca de superfície, chapada. */
+     A proporção mudou de 5/7 para 6/5 e o comentário tinha ficado para trás;
+     junto com ele estava a frase "o H1 condensado cabe em 3 linhas", que
+     morreu quando a fonte de exibição deixou de ser condensada (25/08/2026,
+     ver o bloco `--display` em global.css). Medido depois da troca: o botão
+     de envio fica em y=589 numa janela de 900px. */
   .capa {
-    padding-block: var(--e-12) var(--e-16);
+    position: relative;
+    padding-block: var(--e-16) var(--e-24);
+    background: linear-gradient(180deg, var(--capa-topo), var(--fundo) 70%);
   }
   .capa__grade {
     display: grid;
@@ -473,34 +430,29 @@ const schema = [
       align-items: start;
     }
   }
-  .capa__texto {
-    display: grid;
-    gap: var(--e-6);
-    align-content: start;
-  }
   .capa__destaques {
     margin-top: var(--e-6);
     font-weight: 600;
   }
   .capa__atalho {
-    margin: var(--e-6) 0 0;
+    margin-top: var(--e-6);
     font-size: var(--t-sm);
     color: var(--texto-suave);
   }
 
   /* ------------------------------------------------ faixa de prova --- */
   .prova {
-    background: var(--fundo-2);
-    border-block: 2px solid var(--fio-forte);
+    background: var(--superficie);
+    border-block: 1px solid var(--borda);
     padding-block: var(--e-8);
   }
   .prova__titulo {
     font-size: var(--t-sm);
-    font-family: var(--display);
-    font-weight: 800;
-    letter-spacing: 0.12em;
+    font-family: var(--corpo);
+    font-weight: 600;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: var(--texto);
+    color: var(--texto-suave);
     margin-bottom: var(--e-4);
   }
   /* `flex-wrap` e não grade de colunas fixas: os logotipos têm proporções
@@ -512,18 +464,24 @@ const schema = [
     gap: var(--e-4);
     align-items: stretch;
   }
+  /* A placa clara: cada logotipo foi desenhado para fundo branco, não para o
+     navy da página (ver o comentário acima do <ul>). Altura fixa e `object-fit:
+     contain` porque as oito chegam em proporções diferentes — a placa não
+     pode esticar a marca de ninguém para preencher a caixa. */
   .prova__lista li {
     display: flex;
     align-items: center;
     justify-content: center;
     height: 56px;
     padding-inline: var(--e-4);
+    background: var(--prata-050);
+    border-radius: var(--r-3);
   }
   /* Largura e altura FIXAS, não `max-*` + `auto`: o SVG da Mapfre não declara
      `width`/`height` no elemento raiz (só `viewBox`), e nessa combinação o
      Chromium some com a caixa da imagem — mede 0×0 mesmo com o arquivo
-     carregado. Com dimensão definida o tamanho nunca depende do que cada
-     arquivo declarou. */
+     carregado (visto em `logos/_tmp-diag2.mjs` durante a verificação). Com
+     dimensão definida o tamanho nunca depende do que cada arquivo declarou. */
   .prova__lista img {
     display: block;
     width: 108px;
@@ -537,23 +495,27 @@ const schema = [
     max-width: 72ch;
   }
 
-  /* ---------------------------------------------------------- índice --- */
-  .item__blocos {
-    margin-top: var(--e-8);
+  /* -------------------------------------------------------- estações --- */
+  .estacao__nota {
+    margin: var(--e-6) 0 0;
+    font-size: var(--t-sm);
+    color: var(--texto-suave);
+    max-width: 72ch;
+  }
+  .estacao__corpo .grade {
+    margin-top: var(--e-6);
   }
   .cartao h3 {
     margin-bottom: var(--e-4);
   }
 
-  /* --------------------------------------------- tabela comparativa ---
-     Sem fundo próprio, sem raio, sem borda de 1px: a tabela é um bloco de
-     réguas dentro da superfície em que estiver. Como o item 02 inverte no
-     cruzamento e tudo aqui lê `--texto`/`--fundo`, ela vira negativo junto com
-     a linha, sem uma regra a mais. */
+  /* --------------------------------------------- tabela comparativa --- */
   .tabela-rolagem {
     margin-top: var(--e-8);
     overflow-x: auto;
-    border-top: 2px solid var(--fio-forte);
+    border: 1px solid var(--borda);
+    border-radius: var(--r-4);
+    background: var(--superficie-alta);
   }
   .cmp {
     border-collapse: collapse;
@@ -569,7 +531,11 @@ const schema = [
     padding: var(--e-4);
     text-align: left;
     vertical-align: top;
-    border-bottom: 2px solid var(--fio);
+    border-bottom: 1px solid var(--borda);
+  }
+  .cmp tbody tr:last-child th,
+  .cmp tbody tr:last-child td {
+    border-bottom: 0;
   }
   .cmp thead th {
     font-family: var(--display);
@@ -578,7 +544,7 @@ const schema = [
     letter-spacing: 0.03em;
     text-transform: uppercase;
     color: var(--texto);
-    border-bottom-color: var(--fio-forte);
+    background: var(--noite-700);
     white-space: nowrap;
   }
   .cmp thead th small {
@@ -590,17 +556,15 @@ const schema = [
     text-transform: none;
     color: var(--texto-suave);
   }
-  /* Os dois lados eram separados por um filete `inset box-shadow`. Sombra não
-     existe nesta direção: virou borda chapada de 6px no topo da coluna. O
-     seguro leva a própria tinta da página, a proteção veicular leva o laranja
-     da marca — dois valores que se distinguem em qualquer uma das duas bandas,
-     e nenhum deles pinta a coluna inteira (texto sobre laranja cheio obrigaria
-     a tabela a ter dois esquemas de cor). */
+  /* Os dois lados ganham a cor que já os separava na peça impressa: navy para
+     o seguro, laranja para a proteção veicular. Uma faixa no topo da coluna,
+     não a coluna inteira colorida — texto sobre laranja cheio exigiria trocar
+     a cor do texto e a tabela passaria a ter dois esquemas. */
   .cmp__seguro {
-    border-top: 6px solid var(--fio-forte);
+    box-shadow: inset 0 4px 0 var(--azul-400);
   }
   .cmp__protecao {
-    border-top: 6px solid var(--acento);
+    box-shadow: inset 0 4px 0 var(--acento);
   }
   .cmp tbody th {
     font-family: var(--corpo);
@@ -612,22 +576,14 @@ const schema = [
     color: var(--texto-suave);
   }
 
-  /* ------------------------------------------------------- veículos ---
-     O ícone leva a tinta cheia e não o laranja: sobre papel o laranja da marca
-     dá 2.55:1, e um traço de 1.5px nesse contraste some. Quem carrega a cor da
-     marca aqui é o fio de 2px na lateral do bloco, que é superfície e não
-     traço fino. */
+  /* ------------------------------------------------------- veículos --- */
   .veiculos {
     display: grid;
-    gap: var(--e-6);
+    gap: var(--e-4);
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   }
-  .veiculo {
-    border-left: 2px solid var(--acento);
-    padding: var(--e-1) 0 var(--e-1) var(--e-6);
-  }
   .veiculo svg {
-    color: var(--texto);
+    color: var(--marca);
     margin-bottom: var(--e-3);
   }
   .veiculo h3 {
@@ -642,10 +598,7 @@ const schema = [
     font-weight: 700;
   }
 
-  /* --------------------------------------------------------- passos ---
-     O número era um círculo (`--r-full`). Com o raio zerado no sistema ele já
-     seria um quadrado; a declaração de largura/altura fica para o quadrado ser
-     um quadrado de verdade e não um retângulo do tamanho do algarismo. */
+  /* --------------------------------------------------------- passos --- */
   .passos {
     display: grid;
     gap: var(--e-8);
@@ -669,6 +622,7 @@ const schema = [
     justify-content: center;
     width: 44px;
     height: 44px;
+    border-radius: var(--r-full);
     background: var(--acento);
     color: var(--acento-texto);
     font-family: var(--display);
@@ -682,15 +636,11 @@ const schema = [
 
   /* ----------------------------------------------------- fechamento --- */
   .fechamento {
-    padding-block: var(--e-16);
-    scroll-margin-top: var(--e-4);
-  }
-  .fechamento__grade {
     display: grid;
     gap: var(--e-8);
   }
   @media (min-width: 900px) {
-    .fechamento__grade {
+    .fechamento {
       grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
       gap: var(--e-16);
       align-items: start;

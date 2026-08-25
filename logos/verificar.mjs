@@ -169,86 +169,29 @@ const falhar = (msg) => {
 }
 
 // ------------------------------- 4. movimento reduzido: sobrevive parada
-// O piso da direção `corte seco`: com movimento reduzido NADA fica pela
-// metade. Todo bloco cortado (`.corta`) e toda régua (`.regua`) nascem
-// inteiros, e as duas linhas que invertem no cruzamento ficam no estado
-// invertido — que é um dos dois estados legíveis do sistema, não um meio-termo.
-//
-// Esta seção media o rastro até 25/08/2026 (`.rastro` inteiro, transform em
-// scaleY(1)). O gesto não existe mais: a direção anterior era luz/scroll, esta
-// é geometria/estado. O que se mede agora é o recorte e a inversão.
 {
   const pagina = await navegador.newPage({ viewport: { width: 1440, height: 900 }, reducedMotion: "reduce" });
   await pagina.goto(BASE + "/", { waitUntil: "networkidle" });
   await pagina.waitForTimeout(400);
-
-  const estado = await pagina.evaluate(() => {
-    const recortado = (el) => {
-      const c = getComputedStyle(el).clipPath;
-      // `none` (a animação não rodou) e `inset(0px)` (rodou até o fim) são os
-      // dois jeitos de estar inteiro. Qualquer porcentagem é bloco cortado
-      // pela metade, e aí a tela NÃO sobrevive parada.
-      return c !== "none" && !/inset\(0px( 0px)*\)/.test(c);
-    };
-    const blocos = [...document.querySelectorAll(".corta")];
-    const reguas = [...document.querySelectorAll(".regua")];
-    const invertidas = [...document.querySelectorAll(".inverte-no-scroll")];
-    return {
-      blocos: blocos.length,
-      blocosCortados: blocos.filter(recortado).length,
-      reguas: reguas.length,
-      reguasCortadas: reguas.filter(recortado).length,
-      reguasSemLargura: reguas.filter((r) => r.getBoundingClientRect().width < 100).length,
-      invertidas: invertidas.length,
-      // A cor RESOLVIDA diz se a inversão chegou à pintura — ler o custom
-      // property não provaria nada. Passa pelo canvas porque `getComputedStyle`
-      // devolve a cor na sintaxe em que ela foi escrita, e a paleta desta
-      // direção está em OKLCH: comparar a string "oklch(0.185 0.03 255)" com um
-      // "rgb(9, 19, 32)" esperado reprovava uma inversão que tinha funcionado.
-      // O `fillStyle` do canvas normaliza qualquer sintaxe de cor para o hex
-      // sRGB que o navegador realmente pinta.
-      ...(() => {
-        const ctx = document.createElement("canvas").getContext("2d");
-        // PINTA e lê o pixel de volta. Ler `ctx.fillStyle` não bastava: o
-        // canvas aceita `oklch()` e devolve a mesma string, então a
-        // comparação continuava sendo entre sintaxes. `fillRect` +
-        // `getImageData` obriga o navegador a rasterizar, e o que sai são os
-        // bytes sRGB que ele de fato pinta na tela.
-        const sRGB = (c) => {
-          ctx.fillStyle = c;
-          ctx.fillRect(0, 0, 1, 1);
-          const [r, g, b] = ctx.getImageData(0, 0, 1, 1).data;
-          return "#" + [r, g, b].map((v) => v.toString(16).padStart(2, "0")).join("");
-        };
-        return {
-          fundos: invertidas.map((el) => sRGB(getComputedStyle(el).backgroundColor)),
-          // O texto tem de ter virado claro junto. Inverter só o fundo é o
-          // defeito clássico desta técnica: fundo escuro com texto escuro.
-          textos: invertidas.map((el) => sRGB(getComputedStyle(el).color)),
-        };
-      })(),
-    };
+  // O piso da direção: com movimento reduzido o rastro fica INTEIRO, não some.
+  const rastro = await pagina.evaluate(() => {
+    const el = document.querySelector(".rastro");
+    if (!el) return null;
+    const d = getComputedStyle(el, "::after");
+    return { transform: d.transform, opacidade: d.opacity, altura: el.getBoundingClientRect().height };
   });
-
+  const numeroAceso = await pagina.evaluate(() => {
+    const n = document.querySelector(".estacao__n");
+    return n ? getComputedStyle(n).color : null;
+  });
   console.log("\n4. prefers-reduced-motion: reduce");
-  if (!estado.blocos) falhar("nenhum bloco `.corta` na home — a camada de entrada sumiu");
-  else if (estado.blocosCortados) falhar(`${estado.blocosCortados} de ${estado.blocos} blocos ficaram cortados pela metade`);
-  else console.log(`  ok     ${estado.blocos} blocos de entrada inteiros`);
-
-  if (!estado.reguas) falhar("nenhuma régua `.regua` — a camada de scroll sumiu");
-  else if (estado.reguasCortadas || estado.reguasSemLargura)
-    falhar(`régua incompleta: ${estado.reguasCortadas} recortada(s), ${estado.reguasSemLargura} sem largura`);
-  else console.log(`  ok     ${estado.reguas} réguas inteiras`);
-
-  // Os dois hexes que `node logos/contraste.mjs` imprime para --tinta e
-  // --papel. Se a inversão não valeu, o fundo volta a papel.
-  const tinta = "#091320";
-  const papel = "#f4f6f8";
-  if (estado.invertidas !== 2) falhar(`esperava 2 linhas invertendo no cruzamento, achei ${estado.invertidas}`);
-  else if (!estado.fundos.every((c) => c === tinta)) falhar(`inversão não chegou à pintura: ${estado.fundos.join(", ")}`);
-  else if (!estado.textos.every((c) => c === papel)) falhar(`fundo inverteu e o texto não: ${estado.textos.join(", ")}`);
-  else console.log(`  ok     as 2 linhas invertidas: fundo ${tinta}, texto ${papel}`);
-
+  if (!rastro || rastro.altura < 100) falhar("o rastro sumiu com movimento reduzido");
+  // scaleY(1) sai como "none" ou "matrix(1, 0, 0, 1, 0, 0)" — os dois são cheio.
+  else if (!["none", "matrix(1, 0, 0, 1, 0, 0)"].includes(rastro.transform))
+    falhar(`rastro não está inteiro: transform=${rastro.transform}`);
+  else console.log(`  ok     rastro inteiro (${Math.round(rastro.altura)}px), transform=${rastro.transform}`);
+  if (numeroAceso === "rgba(0, 0, 0, 0)") falhar("número da estação ficou invisível com movimento reduzido");
+  else console.log(`  ok     número da estação aceso: ${numeroAceso}`);
   await pagina.screenshot({ path: `${SAIDA}/reduced-motion.png` });
   await pagina.close();
 }
@@ -312,93 +255,6 @@ const falhar = (msg) => {
     else if (m.descricao.length > DESCRICAO_MAX) falhar(`${rota} descrição ${m.descricao.length} chars (teto ${DESCRICAO_MAX})`);
     else console.log(`  ok     ${rota.padEnd(14)} descrição ${String(m.descricao.length).padStart(3)}  título ${String(m.titulo.length).padStart(3)}${m.titulo.length > TITULO_AVISO ? "  ← a marca vai truncar" : ""}`);
   }
-  await pagina.close();
-}
-
-// ------------------------------- 7. as camadas que a captura estática não pega
-// Screenshot do topo não prova coreografia nenhuma. Duas das quatro camadas da
-// direção só existem em estado: a de PONTEIRO (o link inverte) e a de SCROLL
-// (a linha inverte ao cruzar a janela). As duas saem em imagem aqui.
-{
-  const pagina = await navegador.newPage({ viewport: { width: 1440, height: 900 } });
-  await pagina.goto(BASE + "/", { waitUntil: "networkidle" });
-  console.log("\n7. camadas de ponteiro e de scroll, em imagem");
-
-  // PONTEIRO — a linha do índice do rodapé é o alvo maior da página e o que
-  // carrega a resposta ao ponteiro: a linha INTEIRA vira papel com texto de
-  // tinta, em 0ms. Se um dia isso virar uma transição, o quadro mostra.
-  const linha = pagina.locator(".rodape__linha").first();
-  await linha.scrollIntoViewIfNeeded();
-  await linha.hover();
-  await pagina.waitForTimeout(120);
-  const sobPonteiro = await linha.evaluate((el) => {
-    const ctx = document.createElement("canvas").getContext("2d");
-    const sRGB = (c) => {
-      ctx.fillStyle = c;
-      ctx.fillRect(0, 0, 1, 1);
-      const [r, g, b] = ctx.getImageData(0, 0, 1, 1).data;
-      return "#" + [r, g, b].map((v) => v.toString(16).padStart(2, "0")).join("");
-    };
-    const d = getComputedStyle(el);
-    return { fundo: sRGB(d.backgroundColor), texto: sRGB(d.color), transicao: d.transitionDuration };
-  });
-  await pagina.screenshot({ path: `${SAIDA}/ponteiro-rodape.png` });
-  if (sobPonteiro.fundo !== "#f4f6f8") falhar(`a linha do rodapé não inverteu sob o ponteiro: ${sobPonteiro.fundo}`);
-  else if (!/^0s(, 0s)*$/.test(sobPonteiro.transicao))
-    falhar(`a camada de ponteiro tem transição (${sobPonteiro.transicao}) — nesta direção ela corta em 0ms`);
-  else console.log(`  ok     ponteiro: linha inverte para ${sobPonteiro.fundo} em ${sobPonteiro.transicao}`);
-
-  // SCROLL — rola até o ponto em que a linha 02 cruza a janela e comprova que a
-  // inversão chegou à pintura. `cover 45%` significa: 45% do caminho entre a
-  // linha começar a cobrir a janela e terminar de cobri-la.
-  const invertida = await pagina.evaluate(async () => {
-    const el = document.querySelectorAll(".inverte-no-scroll")[0];
-    const r = el.getBoundingClientRect();
-    const topoDoc = r.top + scrollY;
-    // Início da faixa `cover`: a linha encosta na borda de baixo da janela.
-    // Fim: ela termina de passar pela borda de cima. 45% entre os dois.
-    const inicio = topoDoc - innerHeight;
-    const fim = topoDoc + r.height;
-    scrollTo({ top: inicio + (fim - inicio) * 0.5, behavior: "instant" });
-    await new Promise((ok) => requestAnimationFrame(() => requestAnimationFrame(ok)));
-    const ctx = document.createElement("canvas").getContext("2d");
-    ctx.fillStyle = getComputedStyle(el).backgroundColor;
-    ctx.fillRect(0, 0, 1, 1);
-    const [r2, g, b] = ctx.getImageData(0, 0, 1, 1).data;
-    return "#" + [r2, g, b].map((v) => v.toString(16).padStart(2, "0")).join("");
-  });
-  await pagina.screenshot({ path: `${SAIDA}/scroll-inversao.png` });
-  if (invertida !== "#091320") falhar(`a linha 02 não inverteu no cruzamento: ${invertida}`);
-  else console.log(`  ok     scroll: a linha 02 inverteu para ${invertida} ao cruzar`);
-
-  await pagina.close();
-}
-
-// --------------------------------- 8. o theme-color não descolou da paleta
-// <meta name="theme-color"> não aceita `var()`, então ele é o único hex escrito
-// à mão no projeto inteiro. Duplicata de token é o defeito que ninguém vê: a
-// paleta muda, a barra do navegador continua na cor da direção anterior, e
-// isso só aparece no celular de outra pessoa. Aqui ele é comparado com o pixel
-// que o cabeçalho realmente pinta.
-{
-  const pagina = await navegador.newPage({ viewport: { width: 1440, height: 900 } });
-  await pagina.goto(BASE + "/", { waitUntil: "domcontentloaded" });
-  const m = await pagina.evaluate(() => {
-    const ctx = document.createElement("canvas").getContext("2d");
-    const sRGB = (c) => {
-      ctx.fillStyle = c;
-      ctx.fillRect(0, 0, 1, 1);
-      const [r, g, b] = ctx.getImageData(0, 0, 1, 1).data;
-      return "#" + [r, g, b].map((v) => v.toString(16).padStart(2, "0")).join("");
-    };
-    return {
-      meta: (document.querySelector('meta[name="theme-color"]')?.content ?? "").toLowerCase(),
-      cabecalho: sRGB(getComputedStyle(document.querySelector(".cabecalho")).backgroundColor),
-    };
-  });
-  console.log("\n8. theme-color contra o topo da página");
-  if (m.meta !== m.cabecalho) falhar(`theme-color ${m.meta} != cabeçalho ${m.cabecalho}`);
-  else console.log(`  ok     ${m.meta} é a cor que o cabeçalho pinta`);
   await pagina.close();
 }
 

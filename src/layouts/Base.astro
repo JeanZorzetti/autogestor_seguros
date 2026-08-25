@@ -168,8 +168,16 @@ const grafo: Record<string, unknown>[] = [
 
     {/* Um valor só, sem par claro/escuro: este site não tem tema alternativo
          (decisão de direção — ver o carimbo em global.css). É o próprio
-         --noite-950 da página, para a barra do navegador continuar a página. */}
-    <meta name="theme-color" content="#050b14" />
+         --tinta do cabeçalho (o topo da página), para a barra do
+         navegador continuar a página.
+
+         Único hex à mão do projeto, e não por preguiça: <meta> não aceita
+         `var()`. Como duplicata de token é exatamente o tipo de coisa que
+         diverge sem ninguém perceber, ele deixou de ser confiança e virou
+         medida — a seção 8 de `logos/verificar.mjs` compara este valor com o
+         pixel que o cabeçalho de fato pinta, e reprova se os dois se
+         separarem. */}
+    <meta name="theme-color" content="#091320" />
 
     {/* GA4. Só no build de produção: `astro dev` na máquina de quem edita
         mandaria pageview de localhost para a mesma propriedade, e aí o número
@@ -207,13 +215,6 @@ const grafo: Record<string, unknown>[] = [
   </head>
   <body>
     <a class="pular" href="#conteudo">Pular para o conteúdo</a>
-    {/* O RASTRO — o gesto desta direção. Acende de cima para baixo com a
-         rolagem via `animation-timeline: scroll(root)`: zero JS, zero listener.
-         Sem suporte a timeline de scroll, ou com movimento reduzido, ele nasce
-         inteiro e parado — continua sendo a espinha da página, nunca some.
-         `aria-hidden` porque não acrescenta informação a quem lê por leitor de
-         tela: a posição na página já é dita pelos headings. */}
-    <span class="rastro" aria-hidden="true"></span>
     <Header />
     <main id="conteudo" tabindex="-1">
       {/* O BreadcrumbList do @graph acima descreve uma trilha que também existe

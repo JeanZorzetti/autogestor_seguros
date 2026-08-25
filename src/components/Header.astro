@@ -3,29 +3,28 @@ import { ICONES } from "../data/solucoes";
 import { EMPRESA, SITE, whatsapp } from "../consts";
 import Logo from "./Logo.astro";
 
-const { pathname } = Astro.url;
-const atual = (href: string) => pathname === href || pathname === `${href}/`;
-
-// Site de 1 vertical: 2 links fixos. O hub tem 6 verticais e precisa de rolagem
-// horizontal na barra; aqui a lista cabe inteira em 360px, sem hambúrguer.
-const NAV = [
-  { href: "/", rotulo: "Início" },
-  { href: "/sobre", rotulo: "Quem somos" },
-];
+// SEM LINKS DE NAVEGAÇÃO, e a ausência é decisão da direção, não esquecimento.
+// A macroestrutura desta página é ÍNDICE, e num índice quem carrega o mapa do
+// site é a LISTA no rodapé — não uma barra repetida no topo de seis páginas.
+// Das opções de nav do catálogo, esta é "só a marca, sem links": sobram o
+// lockup e o telefone, que é a única ação que precisa estar visível o tempo
+// todo numa página de captação. "Início" e "Quem somos" continuam existindo,
+// agora no índice do rodapé, e as páginas internas ainda têm a trilha.
+//
+// O cabeçalho é INVERTIDO (`.inverso`): a página abre em tinta, o corpo é
+// papel e o rodapé volta para tinta. Essa é a composição — tinta/papel/tinta —
+// e é o que substitui as três superfícies empilhadas da direção anterior.
 ---
 
-<header class="cabecalho">
+<header class="cabecalho inverso">
   <div class="container cabecalho__linha">
-    {/* Lockup em duas linhas. A segunda linha NÃO é a divulgação de terceiro
-         que o coopluz precisa fazer (lá o site fala de uma cooperativa que não
-         é a Autogestor) — aqui não há terceiro. O que ocupa esse lugar é a
-         CREDENCIAL: independência e ano de fundação, que é o que as peças
-         impressas da própria Autogestor Seguros já trazem ("DESDE 2004", sob
-         o wordmark). O número de registro SUSEP não repete aqui — vive só no
-         rodapé, junto do link de consulta pública (SITE.selo em consts.ts).
-         O `aria-label` carrega as duas informações porque o leitor de tela
-         anuncia o link inteiro de uma vez; o `aria-hidden` no texto evita que
-         ele leia tudo duas vezes. */}
+    {/* Lockup em duas linhas. A segunda linha é a CREDENCIAL: independência e
+         ano de fundação, que é o que as peças impressas da própria Autogestor
+         Seguros já trazem ("DESDE 2004", sob o wordmark). O número de registro
+         SUSEP não repete aqui — vive só no rodapé, junto do link de consulta
+         pública. O `aria-label` carrega as duas informações porque o leitor de
+         tela anuncia o link inteiro de uma vez; o `aria-hidden` no texto evita
+         que ele leia tudo duas vezes. */}
     <a href="/" class="marca" aria-label={`${SITE.nome} — ${SITE.selo} — página inicial`}>
       <Logo size={44} />
       <span class="marca__texto" aria-hidden="true">
@@ -55,27 +54,11 @@ const NAV = [
       {EMPRESA.telefoneExibicao}
       <span class="visualmente-oculto">— WhatsApp, abre em nova aba</span>
     </a>
-
-    <nav class="nav" aria-label="Navegação">
-      <ul class="nav__lista" role="list">
-        {
-          NAV.map((item) => (
-            <li>
-              <a href={item.href} aria-current={atual(item.href) ? "page" : undefined}>
-                {item.rotulo}
-              </a>
-            </li>
-          ))
-        }
-      </ul>
-    </nav>
   </div>
 </header>
 
 <style>
   .cabecalho {
-    background: var(--superficie-alta);
-    border-bottom: 1px solid var(--borda);
     z-index: 20;
   }
   @media (min-width: 900px) {
@@ -101,6 +84,18 @@ const NAV = [
     text-decoration: none;
     color: var(--texto);
   }
+  /* O lockup é o único link da página que NÃO inverte no ponteiro: ele já está
+     sobre tinta, e inverter aqui apagaria o símbolo junto com o texto. O que
+     ele faz é o corte na direção contrária — o nome vira laranja. */
+  .marca:hover,
+  .marca:focus-visible {
+    background: transparent;
+    color: var(--texto);
+  }
+  .marca:hover .marca__nome,
+  .marca:focus-visible .marca__nome {
+    color: var(--acento);
+  }
   .marca__texto {
     display: grid;
     gap: 2px;
@@ -125,79 +120,27 @@ const NAV = [
     text-transform: uppercase;
   }
 
+  /* Era pílula com fundo azul. Agora é o mesmo objeto do resto da direção: fio
+     de 2px, canto reto, e no ponteiro ele INVERTE (papel cheio com o número em
+     tinta) em vez de acender um cinza. */
   .cabecalho__zap {
     display: inline-flex;
     align-items: center;
     gap: var(--e-2);
     min-height: 44px;
     padding-inline: var(--e-4);
-    border-radius: var(--r-full);
-    background: var(--azul-100);
-    color: var(--marca-forte);
-    font-weight: 700;
+    border: 2px solid var(--fio-forte);
+    color: var(--texto);
+    font-family: var(--display);
+    font-weight: 800;
     font-size: var(--t-sm);
+    letter-spacing: 0.04em;
     text-decoration: none;
     white-space: nowrap;
   }
-  .cabecalho__zap:hover {
-    background: var(--cinza-100);
-    color: var(--marca-forte);
-  }
-
-  /* 2 itens cabem numa linha mesmo a 360px. */
-  .nav {
-    flex-basis: 100%;
-    border-top: 1px solid var(--borda);
-    margin-inline: calc(-1 * var(--e-4));
-    width: calc(100% + var(--e-8));
-  }
-  @media (min-width: 900px) {
-    .nav {
-      order: 2;
-      flex-basis: auto;
-      width: auto;
-      margin-inline: 0;
-      border-top: none;
-    }
-    .cabecalho__zap {
-      order: 3;
-    }
-  }
-  .nav__lista {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--e-1) var(--e-2);
-    list-style: none;
-    margin-block: 0;
-    padding-inline: var(--e-4);
-    padding-block: var(--e-1);
-  }
-  @media (min-width: 900px) {
-    .nav__lista {
-      padding: 0;
-    }
-  }
-  .nav__lista a {
-    display: flex;
-    align-items: center;
-    min-height: 44px;
-    padding: var(--e-2) var(--e-3);
-    border-radius: var(--r-2);
-    font-size: var(--t-sm);
-    font-weight: 600;
-    color: var(--texto-suave);
-    text-decoration: none;
-  }
-  .nav__lista a:hover {
-    background: var(--cinza-100);
-    color: var(--texto);
-  }
-  /* A página atual é marcada por um traço da cor da marca, não só por cor de
-     texto: cor sozinha não é sinal suficiente. O `aria-current` no HTML é o
-     que carrega a informação para quem não vê o traço. */
-  .nav__lista a[aria-current="page"] {
-    color: var(--texto);
-    background: var(--cinza-100);
-    box-shadow: inset 0 -3px 0 var(--acento);
+  .cabecalho__zap:hover,
+  .cabecalho__zap:focus-visible {
+    background: var(--texto);
+    color: var(--fundo);
   }
 </style>

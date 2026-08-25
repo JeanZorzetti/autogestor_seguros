@@ -1,46 +1,49 @@
-/* art-direction · rastro (custom) · eixos: luz/scroll/escura · orçamento: 0kb JS · 2026-08-24
+/* art-direction · corte seco · eixos: geometria/estado/clara · orçamento: ~0kb JS · 2026-08-25
 
-   O RASTRO. As duas peças de captação da Autogestor Seguros (docs/seguros/ do
-   hub, agosto/2026) são noite: navy quase preto, faróis acesos, rastro de luz
-   quente varrendo por trás dos veículos. A direção não decora essa imagem —
-   ela pega o único elemento que atravessa a peça inteira, o rastro de farol em
-   exposição longa, e o transforma na espinha da página.
+   CORTE SECO. Nada aparece — tudo CORTA. Bloco entra reto por máscara, seção
+   inverte de cor num quadro, link troca de cor no mesmo frame, página seguinte
+   entra por wipe. É montagem de cinema, não brutalismo: pode ser preciso e
+   bonito e continuar cortando.
 
-   O rastro é UMA linha incandescente na borda esquerda. Ela acende de cima
-   para baixo conforme a pessoa rola, e cada estação do percurso acende quando
-   a luz chega nela. Não é barra de progresso: é o mesmo gesto do símbolo
-   (espiral logarítmica, ver logos/gerar-marca.py) esticado no comprimento do
-   documento — o carro passou por aqui.
+   REGRA ABSOLUTA DA DIREÇÃO: nenhuma propriedade `opacity` anima, em lugar
+   nenhum. Se algo faz fade, a direção quebrou. Junto com ela caem três coisas
+   que este site tinha em todo canto: `border-radius` (todos os degraus de raio
+   viram 0 mais abaixo — um raio de 8px e isto vira SaaS), `box-shadow` (sem
+   luz não há sombra: elevação aqui é inversão de cor ou fio de 2px) e
+   `scroll-behavior: smooth` (rolagem macia é o oposto do verbo desta página).
 
-   Uma ideia só, três primitivas de movimento: ESCALA (o rastro cresce),
-   OPACIDADE (a estação acende) e TRANSLADO (a estação sobe ao entrar). Não há
-   uma quarta, e giro não existe nesta página de propósito — o Coopluz gastou
-   `rotate` no ímã dele e repetir seria a família inteira com o mesmo tique.
+   O QUE SUBSTITUIU O QUÊ. A direção anterior era `rastro` (luz/scroll/escura,
+   24-25/08/2026): banda noturna, uma linha incandescente na borda esquerda
+   crescendo com a rolagem, estações numeradas em grade 5/7 com a cabeça presa.
+   Ela some inteira aqui — o rastro, o trilho, o halo, o sticky e a assimetria
+   5/7 — porque as duas direções discordam em matéria, motor e banda ao mesmo
+   tempo. Guardar o rastro dentro do Corte Seco seria manter um gesto de luz
+   numa direção que declara não ter fonte de luz.
 
-   BANDA ESCURA, SEM ALTERNADOR. Este site não tem seletor claro/escuro, e a
-   ausência é decisão, não pendência: o interruptor era o GESTO do Coopluz (o
-   cordão da lâmpada) e herdá-lo aqui seria pegar emprestado o que faz aquele
-   site ser ele. Aqui a noite é o material. Todo token abaixo tem UM valor, sem
-   `light-dark()` e sem `@media (prefers-color-scheme)` — o que corta metade da
-   folha de estilo e todo o script de pré-pintura do <head>.
+   A BANDA VIROU CLARA, E ISSO CUSTA ALGO QUE PRECISA SER DITO. As duas peças
+   de captação da Autogestor Seguros (agosto/2026) são noturnas, e a banda
+   escura anterior saía direto delas. Aqui o papel é o material, e a relação
+   com as peças passa a ser a COR DA MARCA, não a luminosidade. O preço está
+   medido: o laranja exato do lockup (#fb7402) dá 2.55:1 sobre este papel e
+   REPROVA como texto. Ele não foi clareado nem escurecido para caber — ele
+   deixa de ser cor de texto e vira SUPERFÍCIE (com tinta escura por cima,
+   6.96:1). Quem carrega laranja em texto é `--laranja-tinta`, o queimado
+   #aa3800, 5.92:1 sobre o papel. A cor da marca continua exata onde ela é
+   chapada, que é onde ela aparece grande.
+
+   DUAS CORES CHAPADAS E A INVERSÃO. Zero gradiente na direção inteira —
+   gradiente é transição suave, e aqui nada é suave. A segunda "cor" é o mesmo
+   par ao contrário: `.inverso` troca os tokens semânticos e o subtree inteiro
+   vira tinta com texto de papel, sem que nenhum componente saiba disso.
 
    CONTRASTE É RESTRIÇÃO DE ESCOLHA, NÃO CHECAGEM FINAL. Todo número deste
-   arquivo saiu de `node logos/contraste.mjs`, que falha com código 1 se algum
-   par reprovar. O laranja da marca (#fb7402) é o valor EXATO amostrado das
-   peças, não uma versão clareada para caber: sobre o navy ele dá 7.14:1 e
-   passa como texto normal. Sobre branco daria 2.9:1 — mais uma razão de a
-   banda escura não ser gosto. */
+   arquivo saiu de `node logos/contraste.mjs`, que lê o OKLCH daqui e falha com
+   código 1 se algum par reprovar. */
 
-/* Fallback de métrica casada da fonte de exibição. Os quatro números saem de
-   `node logos/metricas-fonte.mjs` (Chivo 3757.80px contra 3803.37px da pilha
-   do sistema, na frase do H1, peso 800) — nenhum é estimado. Sem isto o H1
-   rebobina a quebra de linha quando a fonte troca, e é CLS na primeira tela
-   da página de captação.
-
-   A pilha local mudou junto com a família: enquanto a capa era condensada
-   (Big Shoulders, depois Anton) ela começava por Arial Narrow. Com uma
-   grotesca de largura normal, o desvio caiu de 9,1% para 1,2% — o fallback
-   agora é quase a própria fonte, que é o melhor caso deste mecanismo. */
+/* Fallback de métrica casada da fonte de exibição. Continua válido: a família
+   não mudou nesta direção (Chivo 800 é exatamente a "grotesca neutra em peso
+   alto" que Corte Seco pede, e trocá-la seria a quarta fonte recusada pelo
+   dono). Os quatro números saem de `node logos/metricas-fonte.mjs`. */
 @font-face {
   font-family: "Capa fallback";
   src: local("Segoe UI"), local("Roboto"), local("Helvetica Neue"), local("Arial");
@@ -51,142 +54,92 @@
 }
 
 :root {
-  color-scheme: dark;
+  color-scheme: light;
 
-  /* --- primitivos: nunca usados direto em componente ------------------- */
+  /* --- primitivos: nunca usados direto em componente -------------------
+     Tudo em OKLCH. O hex ao lado de cada linha é o sRGB que ele resolve, e
+     está aqui só para a leitura humana — quem mede é logos/contraste.mjs, que
+     converte o OKLCH e não lê o comentário. */
 
-  /* A noite. Quatro degraus, todos com temperatura azul (o matiz 213-215 que
-     as duas peças usam de fundo) — cinza puro aqui leria como "dark mode
-     genérico" e mataria a relação com o material impresso. */
-  --noite-950: #050b14;
-  --noite-900: #0a1523;
-  --noite-800: #101e31;
-  --noite-700: #1a2c45;
-  --noite-600: #27405f;
-  /* Existe separado da -600 por causa de contraste, não de estética: -600 é a
-     divisória decorativa (1.86:1, e tudo bem), -500 é o limite de componente
-     interativo, que WCAG 1.4.11 obriga a 3:1. É o degrau mais escuro da rampa
-     que passa nas três superfícies onde um botão de contorno aparece. */
-  --noite-500: #4f6b90;
+  /* O papel. Dois degraus, os dois com temperatura azul (matiz 250, herdada do
+     navy das peças): papel neutro puro leria como "fundo branco de template". */
+  --papel: oklch(0.972 0.004 250); /* #f4f6f8 */
+  --papel-2: oklch(0.938 0.006 250); /* #e8ebee */
+  --papel-suave: oklch(0.78 0.02 255); /* #afb8c4 — texto de apoio SOBRE tinta */
 
-  /* O laranja da marca. -500 é o valor amostrado do lockup ("SEGUROS") e da
-     faixa "PROTEJA O QUE É SEU"; -700 é o queimado do cabeçalho da tabela
-     comparativa; -400/-300 são os degraus claros para texto e para o halo. */
-  --laranja-700: #c04b05;
-  --laranja-600: #e26800;
-  --laranja-500: #fb7402;
-  --laranja-400: #ff8c33;
-  --laranja-300: #ffab66;
+  /* A tinta. É o navy da marca levado a valor de impressão. */
+  --tinta: oklch(0.185 0.03 255); /* #091320 */
+  --tinta-2: oklch(0.28 0.03 255); /* #1f2a38 — fio SOBRE tinta */
+  --tinta-suave: oklch(0.47 0.032 255); /* #4f5c6d — texto de apoio sobre papel */
+  --tinta-quente: oklch(0.1686 0.0378 65.14); /* #1a0b00 — a única escura quente: só sobre laranja */
 
-  /* O dourado dos títulos das peças ("TÁ NA DÚVIDA?", "ECONOMIZE"). É o acento
-     do acento: só número de prova e anel de foco usam. */
-  --dourado-400: #f5be5b;
-  --dourado-300: #fcc330;
+  /* Divisória decorativa. 1.73:1 sobre o papel, e é o teto: acima disso ela
+     vira moldura e a página passa a ter grade visível em vez de corte. NÃO
+     serve de contorno de componente interativo (WCAG 1.4.11 pede 3:1) — quem
+     faz esse trabalho é a própria tinta, e é por isso que os dois são tokens
+     diferentes em vez de um só reaproveitado. */
+  --fio-fraco: oklch(0.8 0.01 255); /* #b9bec4 */
 
-  /* O azul do hexágono da marca. Aparece no símbolo e no bisel; NÃO é cor de
-     interface — usar azul em botão ou link aqui aproximaria este site do hub
-     autogestor, que é justamente o que ele existe para não fazer. */
-  --azul-800: #004485;
-  --azul-600: #1266b8;
-  --azul-400: #5786c0;
+  /* O laranja da marca, valor exato amostrado do lockup das peças. Superfície,
+     não texto: sobre papel dá 2.55:1. */
+  --laranja: oklch(0.7087 0.19 48.88); /* #fb7402 */
+  /* O queimado. É este que carrega laranja em TEXTO sobre papel — 5.92:1. */
+  --laranja-tinta: oklch(0.5 0.165 45); /* #aa3800 */
 
-  /* Prata: o metal escovado de "NO SEGURO" na peça, e o texto. */
-  --prata-050: #f2f5f9;
-  --prata-200: #c7d0dc;
-  --prata-300: #8b9bb0;
-  --prata-400: #9aa7b8;
+  /* Estados do formulário. Cor nunca é o único sinal: o aviso carrega texto e
+     o campo recusado leva aria-invalid. */
+  --erro: oklch(0.47 0.18 25); /* #a9131f */
+  --erro-fundo: oklch(0.945 0.03 25); /* #ffe6e3 */
+  /* O CONTORNO do campo recusado é um token à parte, e não vaidade: o mesmo
+     formulário aparece na capa (papel) e no fechamento (tinta), e `--erro`
+     escuro sobre tinta dá 2.48:1 — abaixo do 3:1 de WCAG 1.4.11 para o limite
+     de um componente. Quem estivesse preenchendo o formulário de baixo com o
+     telefone incompleto veria a borda vermelha em nenhum lugar. Achado por
+     `node logos/contraste.mjs` antes de a página existir, não na tela.
+     Este valor é o meio da janela que passa nas DUAS bandas — 4.35:1 sobre
+     papel e 3.96:1 sobre tinta — e por isso ele não precisa ser invertido:
+     um token que serve nos dois estados é um token que ninguém esquece de
+     trocar. `--erro` continua sendo a cor do TEXTO do aviso, que tem fundo
+     próprio e por isso não depende da banda. */
+  --erro-fio: oklch(0.58 0.19 25); /* #d33a3c */
+  --ok: oklch(0.45 0.12 155); /* #006836 */
+  --ok-fundo: oklch(0.945 0.03 155); /* #def3e4 */
 
-  --tinta: #1a0b00; /* a única cor escura quente: só sobre laranja */
+  /* --- semânticos: é isto que os componentes leem ----------------------
+     São nove, e a lista é curta de propósito: `.inverso` mais abaixo troca
+     exatamente estes e nada mais. Cada token novo aqui é um token que alguém
+     vai esquecer de inverter. */
+  --fundo: var(--papel);
+  --fundo-2: var(--papel-2);
+  --texto: var(--tinta);
+  --texto-suave: var(--tinta-suave);
+  --fio: var(--fio-fraco);
+  /* O fio ESTRUTURAL: a régua de 2px que separa os itens do índice e desenha o
+     contorno dos componentes. É tinta cheia — 17.22:1 — porque nesta direção a
+     linha não é decoração, é a aresta do corte. */
+  --fio-forte: var(--texto);
+  --link: var(--laranja-tinta);
+  --foco: var(--texto);
 
-  /* --- semânticos: é isto que os componentes leem ---------------------- */
-  --fundo: var(--noite-950);
-  --superficie: var(--noite-900);
-  /* Superfície elevada (cartão, formulário, cabeçalho, barra fixa). Um degrau
-     ACIMA do fundo: cartão mais escuro que a seção é o erro clássico de tema
-     escuro, faz o conteúdo parecer afundado em vez de destacado. */
-  --superficie-alta: var(--noite-800);
-  /* Painel de marca (rodapé, faixa de prova). Aqui é um degrau para BAIXO e
-     não uma cor de destaque: num site escuro, a faixa que se separa é a que
-     afunda, não a que acende. */
-  --superficie-marca: var(--noite-900);
-  --borda: var(--noite-600);
-  --texto: var(--prata-050);
-  --texto-suave: var(--prata-400);
-  --texto-invertido: var(--prata-050);
-  --capa-topo: var(--noite-900);
-
-  --marca: var(--laranja-500);
-  --marca-forte: var(--laranja-400);
-  --acento: var(--laranja-500);
-  --acento-hover: var(--laranja-600);
-  /* Texto TINTA sobre o botão laranja: 6.96:1. Branco no mesmo laranja dá
-     2.76:1 e reprova. A cor da marca não é escurecida para passar — quem muda
-     é o texto. Mesma decisão que o hub tomou com o laranja dele e o coopluz
-     com o verde. */
-  --acento-texto: var(--tinta);
-  --link: var(--laranja-400);
-  --link-hover: var(--laranja-300);
-
-  /* Anel de foco. Dourado por padrão (12.2:1 sobre o fundo), mas ele some
-     sobre o próprio laranja do botão primário — 1.71:1, dois quentes vizinhos.
-     `--foco` é custom property justamente para poder ser trocada localmente
-     por `.btn--primario` mais abaixo, em vez de existir um segundo token que
-     alguém esquece de usar. */
-  --foco: var(--dourado-300);
-
-  --cinza-100: #18293f; /* superfície de hover */
-  --cinza-500: var(--prata-300); /* contorno de campo — 5.92:1, WCAG 1.4.11 */
-  --azul-100: #12243c; /* fundo de chip */
-
-  /* Estado do formulário. Cor nunca é o único sinal: o aviso carrega texto e o
-     campo recusado leva aria-invalid. */
-  --erro: #ff6b57;
-  --erro-fundo: #4a1410;
-  --erro-texto: #ffd5cf;
-  --ok: #3fbf74;
-  --ok-fundo: #0c3a22;
-  --ok-texto: #c9f2d8;
-
-  /* Sobre --superficie-marca. */
-  --texto-sobre-marca: var(--prata-200);
-  --texto-sobre-marca-suave: var(--prata-400);
-  --link-sobre-marca: var(--laranja-400);
-
-  /* --- o gesto: o rastro -----------------------------------------------
-     O trilho é o percurso AINDA NÃO percorrido, e ele precisa se ler: a -700
-     dá 1.40:1 sobre o fundo e simplesmente some (visto na captura de
-     verificação), e aí o rastro parece uma linha que nasce do nada em vez de
-     uma luz que avança por um caminho. A -600 dá 1.86:1 — pouco, de propósito,
-     porque o trilho não pode competir com a parte acesa. */
-  --trilho: var(--noite-600);
-  --brasa: var(--laranja-400);
+  /* A marca. `--acento` é a superfície chapada; `--acento-texto` é o que se lê
+     em cima dela. A cor da marca não é escurecida para passar — quem muda é o
+     texto, mesma decisão do hub e do coopluz. */
+  --acento: var(--laranja);
+  --acento-texto: var(--tinta-quente);
 
   /* --- tipografia ------------------------------------------------------
-     UMA família de exibição e a pilha do sistema no corpo — a mesma economia
-     do coopluz (uma requisição de fonte), com outra família: Archivo é do hub,
-     Outfit é do coopluz, e um site que existe para não parecer os irmãos não
-     pode começar pela mesma letra.
+     UMA família de exibição, e Corte Seco é a única direção do catálogo que
+     passa com uma só: o contraste vem do bloco de cor e da inversão, não de
+     uma segunda família. O corpo segue na pilha do sistema (custo zero de
+     requisição) em vez da Chivo em peso baixo que a spec sugere — é um desvio
+     declarado, e o que ele compra é o orçamento de 0kb extra continuar de pé.
 
-     TERCEIRA FONTE, E A PRIMEIRA QUE NÃO É DE CARTAZ. Big Shoulders Display e
-     depois Anton foram recusadas pelo dono (25/08/2026: "muito exagerada"), e
-     as duas eram a mesma aposta — condensada de peso máximo, caixa alta, 5.25
-     rem. O que incomodava não era a família, era a CLASSE de letra: título de
-     pôster numa página cujo trabalho é fazer alguém confiar dinheiro a uma
-     corretora. Chivo é grotesca de largura normal: tem peso e tem osso, mas
-     não grita. O gesto da página (o rastro) e o laranja da marca voltam a ser
-     o que dá impacto — antes eles competiam com a própria letra.
-
-     Três coisas mudaram JUNTAS e nenhuma sozinha resolve: a família, a caixa
-     (H1/H2 saíram de `uppercase` para caixa mista, ver abaixo) e o tamanho
-     (--t-3xl caiu de 5.25rem para 3.5rem, porque a Chivo ocupa 98,8% da
-     largura da pilha do sistema contra os 90,9% da Anton e os 75,3% da Big
-     Shoulders — medido em logos/metricas-fonte.mjs, não estimado). Manter
-     5.25rem com esta largura enterraria o formulário abaixo da dobra num
-     notebook de 900px.
-
-     Chivo é variável (300..900); o site pede só o peso 800, que é o único que
-     usa — inclusive na sobrancelha `.olho`, que era 700 e virou 800 para não
-     obrigar uma segunda instância na requisição. */
+     A ESCALA NÃO SUBIU, e isto também é desvio declarado: Corte Seco pede
+     salto >= 5x e aqui ele fica em 3.5x. O dono recusou título exagerado três
+     vezes (Big Shoulders, Anton, e a escala de 5.25rem da Chivo), e a própria
+     spec admite que nesta direção a inversão faz o trabalho da segunda
+     família — o mesmo argumento vale para o salto. Quem carrega hierarquia
+     aqui é o bloco invertido e a régua de 2px, não o corpo da letra. */
   --display: "Chivo", "Capa fallback", ui-sans-serif, system-ui, sans-serif;
   --corpo: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 
@@ -194,12 +147,10 @@
   --t-base: 1rem;
   --t-lg: 1.125rem;
   --t-xl: clamp(1.375rem, 1.15rem + 1vw, 1.75rem);
-  /* O H2 desceu junto com o H1: com o H1 em 3.5rem, um H2 de 3rem deixava os
-     dois níveis a um passo de distância e a hierarquia sumia. */
   --t-2xl: clamp(1.625rem, 1.25rem + 1.7vw, 2.25rem);
   --t-3xl: clamp(2.25rem, 1.35rem + 4vw, 3.5rem);
 
-  /* --- espaço, raio, sombra, tempo ------------------------------------- */
+  /* --- espaço ---------------------------------------------------------- */
   --e-1: 0.25rem;
   --e-2: 0.5rem;
   --e-3: 0.75rem;
@@ -210,22 +161,56 @@
   --e-16: 4rem;
   --e-24: 6rem;
 
-  --r-1: 2px;
-  --r-2: 6px;
-  --r-3: 10px;
-  --r-4: 14px;
-  --r-full: 999px;
+  /* --- raio e sombra: existem só para valer ZERO ------------------------
+     Os nomes ficam porque treze arquivos os leem; os valores viram 0 e `none`
+     num lugar só. É o jeito mais curto de garantir que nenhum canto arredondado
+     e nenhuma sombra sobrevivam num componente que ninguém lembrou de abrir —
+     e é a diferença entre "a direção foi aplicada" e "a direção foi aplicada
+     na home". Raio e sombra são as duas coisas que mais rápido devolvem uma
+     tela ao genérico. */
+  --r-1: 0;
+  --r-2: 0;
+  --r-3: 0;
+  --r-4: 0;
+  --r-full: 0;
+  --sombra-sm: none;
+  --sombra-md: none;
 
-  /* Sombra em tema escuro não é preto sobre cor — é ausência de luz. Preto
-     puro sobre navy vira um borrão sujo; estas usam o próprio --noite-950 com
-     alfa, que é o que o olho lê como profundidade aqui. */
-  --sombra-sm: 0 1px 2px rgb(2 6 12 / 0.6), 0 2px 8px rgb(2 6 12 / 0.35);
-  --sombra-md: 0 4px 12px rgb(2 6 12 / 0.65), 0 12px 32px rgb(2 6 12 / 0.45);
+  /* --- tempo -----------------------------------------------------------
+     Duas durações e uma curva. `--dur-instante` é 0ms de propósito: a camada
+     de ponteiro desta direção não tem transição nenhuma, o link inverte no
+     mesmo quadro. Manter um valor pequeno-mas-não-zero seria fade curto, e
+     fade curto continua sendo fade. */
+  --dur-instante: 0ms;
+  --dur-corte: 380ms;
+  --dur-wipe: 260ms;
+  --ease-corte: cubic-bezier(0.2, 0, 0, 1);
+  /* Aliases dos nomes antigos: BarraAcao e .pular ainda os leem. */
+  --dur-rapida: var(--dur-instante);
+  --dur-media: var(--dur-corte);
+  --curva: var(--ease-corte);
+}
 
-  --dur-rapida: 120ms;
-  --dur-media: 220ms;
-  /* Saída rápida, chegada longa: é como um farol passa. */
-  --curva: cubic-bezier(0.2, 0.8, 0.2, 1);
+/* A INVERSÃO — a segunda metade da paleta.
+   Troca os tokens semânticos e o subtree inteiro vira tinta com texto de
+   papel: formulário, botão de contorno, tabela, FAQ e rodapé seguem juntos sem
+   que nenhum deles saiba que foi invertido. É isto que substitui as três
+   superfícies empilhadas (`--superficie`, `--superficie-alta`,
+   `--superficie-marca`) da direção anterior — profundidade por degrau de cinza
+   é tema escuro genérico; aqui só existem dois estados, e a troca entre eles é
+   o efeito. */
+.inverso {
+  --fundo: var(--tinta);
+  --fundo-2: var(--tinta-2);
+  --texto: var(--papel);
+  --texto-suave: var(--papel-suave);
+  --fio: var(--tinta-2);
+  --fio-forte: var(--papel);
+  /* Sobre tinta o laranja da marca volta a ser legível como texto: 6.75:1. */
+  --link: var(--laranja);
+  --foco: var(--papel);
+  background: var(--fundo);
+  color: var(--texto);
 }
 
 /* ---------------------------------------------------------------- reset */
@@ -237,7 +222,9 @@
 
 html {
   -webkit-text-size-adjust: 100%;
-  scroll-behavior: smooth;
+  /* `auto` e não `smooth`: rolagem macia é o oposto do verbo desta página. Um
+     clique em âncora CORTA para o destino. */
+  scroll-behavior: auto;
 }
 
 body {
@@ -247,9 +234,6 @@ body {
   font-family: var(--corpo);
   font-size: var(--t-base);
   line-height: 1.6;
-  /* O halo do rastro sangra para a esquerda; sem isto ele abre barra de
-     rolagem horizontal a 360px. `clip` e não `hidden`: não cria contexto de
-     rolagem, então `position: sticky` e as âncoras continuam funcionando. */
   overflow-x: clip;
 }
 
@@ -260,25 +244,25 @@ svg {
 }
 
 /* --------------------------------------------------------- tipografia */
-/* Caixa MISTA, e isso é metade da correção da fonte: caixa alta num H1 de 72
-   caracteres é o que fazia a primeira tela gritar, e ainda custa legibilidade
-   — sem ascendente nem descendente, a palavra perde a silhueta que o olho usa
-   para reconhecê-la sem soletrar. A caixa alta continua onde ela é rótulo e
-   não frase: sobrancelha, botão, lockup, cabeçalho de tabela. */
 h1,
 h2,
 h3 {
   font-family: var(--display);
   font-weight: 800;
-  /* 1.08 e não os 1.02 de antes: caixa mista tem descendente, e 1.02 fazia o
-     "g" de "seguro" encostar na linha seguinte. */
   line-height: 1.08;
-  /* Negativo agora, e não o positivo de antes: aquele tracking aberto existia
-     para a contraforma apertada da condensada. Grotesca de largura normal em
-     corpo grande pede o contrário — sem fechar, as palavras do H1 boiam. */
   letter-spacing: -0.015em;
   text-wrap: balance;
   margin: 0 0 var(--e-4);
+}
+
+/* O corte precisa bater na altura das maiúsculas, não na caixa de linha da
+   fonte — sem isto a régua de 2px acima de um título fica com um vão que não
+   está em lugar nenhum do CSS. Atrás de @supports porque é recente. */
+@supports (text-box: trim-both cap alphabetic) {
+  h1,
+  h2 {
+    text-box: trim-both cap alphabetic;
+  }
 }
 
 h1 {
@@ -289,7 +273,6 @@ h2 {
 }
 h3 {
   font-size: var(--t-xl);
-  /* O -0.015em do bloco acima é calibrado para 56px; a 24px ele aperta. */
   letter-spacing: -0.005em;
 }
 
@@ -298,8 +281,6 @@ p {
   text-wrap: pretty;
 }
 
-/* Subtítulo do H1 e de cada H2. Corpo, não display: o contraste do salto
-   tipográfico só existe se a linha de apoio for de outra família. */
 .chamada {
   font-size: var(--t-lg);
   line-height: 1.6;
@@ -307,16 +288,26 @@ p {
   max-width: 62ch;
 }
 
-/* Sobrancelha. Sempre acima de um heading e sempre no laranja da marca —
-   7.14:1 sobre o fundo, medido. */
+/* Sobrancelha. Vira BLOCO CHAPADO em vez de texto colorido: é a menor unidade
+   da direção, o rótulo cortado de dentro do papel. Sobre o laranja ela leva a
+   tinta quente (6.96:1) — o que resolve de uma vez o problema de o laranja da
+   marca não passar como texto sobre papel. */
 .olho {
-  display: block;
+  display: inline-block;
+  /* `justify-self` porque em `.item__cabeca` o olho é ITEM DE GRADE, e item de
+     grade estica para a coluna inteira por padrão — `display: inline-block` não
+     segura isso. Sem esta linha a sobrancelha de cada item do índice virava uma
+     barra laranja de 1024px atravessando a página (visto na captura de 1440px,
+     não deduzido). Fora de grade a declaração não faz nada. */
+  justify-self: start;
   font-family: var(--display);
   font-weight: 800;
   font-size: var(--t-sm);
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--marca);
+  background: var(--acento);
+  color: var(--acento-texto);
+  padding: var(--e-1) var(--e-2);
   margin-bottom: var(--e-3);
 }
 
@@ -324,17 +315,24 @@ a {
   color: var(--link);
   text-underline-offset: 0.2em;
 }
-a:hover {
-  color: var(--link-hover);
+
+/* CAMADA DE PONTEIRO — o link não sublinha, ele INVERTE, em 0ms.
+   `:focus-visible` entra junto para quem navega por teclado ver o mesmo corte
+   que quem navega por mouse. O anel de foco continua existindo por cima (bloco
+   `:focus-visible` mais abaixo): a inversão é o realce, o anel é o indicador. */
+a:hover,
+a:focus-visible {
+  background: var(--texto);
+  color: var(--fundo);
+  transition: none;
 }
 
-/* Foco visível em TUDO que recebe foco, sem exceção de estética. `:focus-visible`
-   e não `:focus`: o anel não aparece no clique de mouse, só quando o teclado
-   está conduzindo. */
+/* Foco visível em TUDO que recebe foco, sem exceção de estética. Tinta sobre
+   papel (17.22:1) e papel sobre tinta (17.22:1) — o `--foco` inverte junto com
+   o resto, então o anel nunca cai na superfície em que ele sumiria. */
 :focus-visible {
   outline: 3px solid var(--foco);
   outline-offset: 2px;
-  border-radius: var(--r-1);
 }
 
 .pular {
@@ -346,8 +344,7 @@ a:hover {
   background: var(--acento);
   color: var(--acento-texto);
   font-weight: 700;
-  border-radius: var(--r-2);
-  transition: top var(--dur-rapida) var(--curva);
+  text-decoration: none;
 }
 .pular:focus {
   top: var(--e-4);
@@ -359,204 +356,210 @@ a:hover {
   margin-inline: auto;
 }
 
-/* ---------------------------------------------------- o rastro (gesto)
-   Uma linha na borda esquerda que acende de cima para baixo com a rolagem.
-   `position: fixed` + `animation-timeline: scroll(root)` = zero JS e zero
-   listener: o navegador liga a animação ao scroller sem passar por script.
+/* ============================== A COREOGRAFIA — quatro camadas, um verbo ===
+   CORTAR. Entrada corta por máscara, scroll corta a régua e inverte a seção,
+   ponteiro corta a cor do link, transição corta a página. Nenhuma delas anima
+   opacidade, e é isso que separa esta página de todas as que fazem fade. */
 
-   Três estados, e nenhum deles é "sumiu":
-     1. suporte a scroll-timeline  -> acende conforme a pessoa desce
-     2. sem suporte                -> nasce inteiro e parado
-     3. prefers-reduced-motion     -> idem, inteiro e parado
-   O rastro é a espinha da página. Ele nunca deixa de existir. */
-.rastro {
-  position: fixed;
-  inset: 0 auto 0 0;
-  width: 3px;
-  z-index: 40;
-  pointer-events: none;
-  background: var(--trilho);
-  /* Atravessa a troca de rota sem piscar: o rastro é o mesmo objeto em todas
-     as páginas, que é o que faz o site parecer um percurso e não seis telas. */
-  view-transition-name: rastro;
-}
-.rastro::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  transform-origin: top;
-  background: linear-gradient(180deg, var(--laranja-700), var(--laranja-500) 45%, var(--brasa));
-  /* O halo. É o que separa "linha laranja" de "luz" — sem ele o gesto lê como
-     borda de div. Sangra 14px para a esquerda, e é por isso que o body tem
-     `overflow-x: clip`. */
-  box-shadow: 0 0 14px 1px rgb(251 116 2 / 0.55);
-}
-
-@supports (animation-timeline: scroll()) {
-  .rastro::after {
-    animation: rastro-acende linear both;
-    animation-timeline: scroll(root);
+/* 1. ENTRADA — o bloco é revelado por clip-path, da esquerda para a direita.
+   Stagger de 60ms via `--i`, e TRÊS blocos, não sete: a spec da direção é
+   explícita, e uma entrada de sete tempos vira cortina. */
+@keyframes cortar {
+  from {
+    clip-path: inset(0 100% 0 0);
   }
-  /* Começa em 0.06, não em 0. Em zero o gesto que dá nome a esta direção não
-     existe na PRIMEIRA TELA — exatamente onde a primeira impressão acontece —
-     e só aparece depois que a pessoa rola, para quem já foi convencido. 6% de
-     uma janela de 900px é uma cabeça de ~54px: lê como farol aceso parado, que
-     é o estado inicial certo de um rastro de exposição longa. */
-  @keyframes rastro-acende {
-    from {
-      transform: scaleY(0.06);
-    }
-    to {
-      transform: scaleY(1);
-    }
+  to {
+    clip-path: inset(0 0 0 0);
   }
 }
 
-@media (min-width: 900px) {
-  .rastro {
-    width: 4px;
-  }
+/* `backwards` e não `both`, e a diferença não é estética: com `both` o
+   `clip-path: inset(0)` do último quadro FICA aplicado para sempre, e recorte
+   exatamente na caixa do bloco corta o anel de foco (3px de traço + 2px de
+   afastamento) de qualquer link que encoste na borda. Com `backwards` o
+   recorte vale só do começo até o fim da animação e some depois — a entrada é
+   a mesma, e a passagem de teclado continua com o anel inteiro. */
+.corta {
+  animation: cortar var(--dur-corte) var(--ease-corte) backwards;
+  animation-delay: calc(var(--i, 0) * 60ms);
 }
 
-/* ------------------------------------------------- estação do percurso
-   A macroestrutura DESTE site, e a razão de ela não ser a pilha
-   `.secao > .container > olho + h2 + chamada` que o hub e o coopluz
-   compartilham: ali cada seção é um bloco solto empilhado, aqui cada seção é
-   uma parada de um percurso que o rastro atravessa. É a estrutura que a
-   direção pede, e fechar isso era o gate que ficou aberto no coopluz.
-
-   Grade 5/7 no desktop, declarada e assimétrica: 50/50 não é decisão. A cabeça
-   fica presa enquanto o corpo rola, então a luz "passa" pela estação. */
-.estacao {
-  position: relative;
-  padding-block: var(--e-24);
-  border-top: 1px solid var(--borda);
-}
-.estacao--suave {
-  background: var(--superficie);
-}
-.estacao__grade {
-  display: grid;
-  gap: var(--e-8);
-}
-/* Item de grade tem `min-width: auto`, ou seja, ele se recusa a ficar menor que
-   o conteúdo dele. Basta um filho largo — no caso a tabela comparativa, que
-   declara `min-width: 640px` de propósito — para a COLUNA inteira crescer até
-   642px numa tela de 360, e aí o `overflow-x: auto` do container da tabela
-   nunca chega a agir: não há o que rolar, porque a grade já cedeu.
-   Medido em `node logos/verificar.mjs`, não deduzido. A regra do desktop já
-   estava protegida por `minmax(0, …)`; faltava o caso de uma coluna só. */
-.estacao__grade > * {
-  min-width: 0;
-}
-@media (min-width: 900px) {
-  .estacao__grade {
-    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
-    gap: var(--e-16);
-    align-items: start;
-  }
-  .estacao__cabeca {
-    position: sticky;
-    top: var(--e-16);
-  }
-
-  /* Exceção declarada: a estação que carrega a tabela comparativa empilha em
-     vez de dividir em 5/7. Na grade, a coluna larga dá ~616px e a tabela pede
-     640 — ela ROLA, mas dentro de um container que não parece rolável, e o
-     leitor vê "Ninguém. É associação civil, for" cortado no meio (visto na
-     captura de 1440px). Numa comparação, texto cortado é pior defeito que
-     seção sem a assimetria: quem está decidindo entre duas coisas precisa ler
-     as duas inteiras. A cabeça continua com o número e o h2, agora em cima. */
-  .estacao--tabela .estacao__grade {
-    grid-template-columns: minmax(0, 1fr);
-    gap: var(--e-8);
-  }
-  .estacao--tabela .estacao__cabeca {
-    position: static;
-  }
-}
-
-/* O número da estação. É o marcador que o rastro acende ao passar: nasce
-   apagado (só contorno) e preenche quando a seção entra na janela.
-
-   2.5rem e não os 3.5rem de antes. O número é MARCADOR, não título, e precisa
-   ficar abaixo do H2 que ele acompanha. Enquanto o H1 tinha 5.25rem e o H2
-   3rem esses 3.5rem passavam; com a escala nova (H1 3.5rem, H2 2.25rem) o
-   número empatava com o H1 da capa e era 1.55x o título da própria seção —
-   a estação passava a ser anunciada pelo algarismo em vez do assunto. */
-.estacao__n {
+/* 2. SCROLL — a régua de cada item corta de fora para dentro conforme o item
+   sobe. Fora do @supports ela nasce inteira: régua é estrutura, não enfeite,
+   e navegador sem timeline de scroll não pode perder a divisão da lista. */
+.regua {
   display: block;
-  font-family: var(--display);
-  font-weight: 800;
-  font-size: 2.5rem;
-  line-height: 1;
-  letter-spacing: 0.02em;
-  margin-bottom: var(--e-4);
-  color: transparent;
-  -webkit-text-stroke: 1.5px var(--noite-600);
+  height: 2px;
+  background: var(--fio-forte);
 }
 
 @supports (animation-timeline: view()) {
-  .estacao__n {
-    animation: estacao-acende linear both;
+  .regua {
+    animation: cortar linear both;
     animation-timeline: view();
-    /* Termina quando a estação chega a 40% da altura da janela: a mudança
-       ACABA antes de a pessoa começar a ler, em vez de completar quando a
-       seção já está saindo. */
-    animation-range: entry 10% cover 40%;
-  }
-  @keyframes estacao-acende {
-    to {
-      color: var(--marca);
-      -webkit-text-stroke-color: var(--marca);
-    }
+    /* Acaba quando o item chega a 35% da altura da janela: o corte termina
+       ANTES de a pessoa começar a ler, não quando o item já está saindo. */
+    animation-range: entry 10% cover 35%;
   }
 
-  /* Camada de entrada, na mesma régua: o corpo sobe e aparece. TRANSLADO e
-     OPACIDADE — a terceira e última primitiva desta página. */
-  .estacao__corpo {
-    animation: estacao-entra linear both;
+  /* A INVERSÃO NO CRUZAMENTO, em `steps(1)` numa janela de 1%: a cor troca num
+     quadro. As keyframes mexem nos TOKENS e não em `background`/`color`
+     direto, para o subtree inteiro (tabela, botão de contorno, formulário)
+     inverter junto — é a mesma troca de `.inverso`, agora amarrada à rolagem.
+
+     DOIS blocos usam isto na página inteira, e o número é decisão: quatro ou
+     cinco flips de luminância entre papel e tinta, com alguém rolando rápido
+     no celular, é mudança repetida de luminância em tela cheia. Dois é ritmo;
+     cinco é estrobo. Os outros contrastes da página são composição estática. */
+  .inverte-no-scroll {
+    animation: inverter steps(1) both;
     animation-timeline: view();
-    animation-range: entry 5% cover 30%;
+    animation-range: cover 45% cover 46%;
   }
-  @keyframes estacao-entra {
-    from {
-      opacity: 0.35;
-      transform: translateY(14px);
-    }
+  @keyframes inverter {
     to {
-      opacity: 1;
-      transform: translateY(0);
+      --fundo: var(--tinta);
+      --fundo-2: var(--tinta-2);
+      --texto: var(--papel);
+      --texto-suave: var(--papel-suave);
+      --fio: var(--tinta-2);
+      --fio-forte: var(--papel);
+      --link: var(--laranja);
+      --foco: var(--papel);
     }
   }
 }
+.inverte-no-scroll {
+  background: var(--fundo);
+  color: var(--texto);
+}
 
-/* Camada de ponteiro. Opcional na spec da direção e declarada como tal: passar
-   o cursor na estação acende o número antes de o scroll chegar — reforça que o
-   número é o marcador, não um enfeite. Desligada onde não há ponteiro. */
-@media (hover: hover) {
-  .estacao:hover .estacao__n {
-    color: var(--brasa);
-    -webkit-text-stroke-color: var(--brasa);
-    transition: color var(--dur-media) var(--curva), -webkit-text-stroke-color var(--dur-media) var(--curva);
+/* 4. TRANSIÇÃO — a página sai pela direita, a próxima entra pela esquerda.
+   Wipe, nunca fade: `::view-transition-old/new` com clip-path, e o `root`
+   inteiro atravessa. Não há elemento com `view-transition-name` próprio de
+   propósito — na direção anterior era o rastro que costurava as rotas; aqui o
+   que costura é o corte, e ele é o mesmo em todas as páginas. */
+@view-transition {
+  navigation: auto;
+}
+::view-transition-old(root) {
+  animation: sair var(--dur-wipe) var(--ease-corte) both;
+}
+::view-transition-new(root) {
+  animation: entrar var(--dur-wipe) var(--ease-corte) both;
+}
+@keyframes sair {
+  to {
+    clip-path: inset(0 0 0 100%);
+  }
+}
+@keyframes entrar {
+  from {
+    clip-path: inset(0 100% 0 0);
   }
 }
 
-/* Seção simples, para as páginas que NÃO são o percurso: /sobre, /obrigado,
-   /404 e as legais são documentos, não uma jornada com estações. Dar a elas a
-   grade 5/7 e o número aceso seria encenar um percurso que o conteúdo não tem
-   — e o rastro continua atravessando todas, que é o que costura o site. */
+/* ====================================== estrutura: ÍNDICE ================
+   `título curto -> lista numerada densa -> zero card -> ação no fim da lista`.
+
+   É a macroestrutura desta página, e ela não repete a anterior: `rastro` usava
+   PERCURSO (estações em grade 5/7, cabeça presa com `position: sticky`, uma
+   linha de luz atravessando o documento). Aqui não há sticky, não há 5/7 e não
+   há nada atravessando: há uma lista, cada linha com o número na calha, e
+   réguas de 2px separando. A densidade é o efeito.
+
+   `grid-template-columns: subgrid` na cabeça alinha o número, o olho e o h2 na
+   mesma calha do corpo, sem repetir a medida em dois lugares. */
+.indice {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.item {
+  padding-block: var(--e-12) var(--e-16);
+}
+
+.item__grade {
+  display: grid;
+  gap: var(--e-6);
+  margin-top: var(--e-8);
+}
+
+/* FORA do media query, e essa é a diferença entre a regra funcionar e não.
+   Item de grade tem `min-width: auto` e se recusa a ficar menor que o
+   conteúdo; a tabela comparativa declara `min-width: 640px` de propósito, e
+   basta isso para a COLUNA crescer até 656px numa tela de 360 — aí o
+   `overflow-x: auto` do container da tabela nunca chega a agir, porque não há
+   o que rolar: a grade já cedeu.
+
+   A direção anterior tinha medido e corrigido exatamente isto, e a correção
+   voltou a quebrar aqui porque a regra foi reescrita DENTRO do bloco de 900px,
+   onde a grade de uma coluna do celular nunca a alcança. Medido de novo em
+   `node logos/verificar.mjs` (scrollWidth 656 a 360px), não deduzido. */
+.item__grade > * {
+  min-width: 0;
+}
+
+@media (min-width: 900px) {
+  .item__grade {
+    grid-template-columns: 4rem minmax(0, 1fr);
+    gap: var(--e-8);
+    align-items: start;
+  }
+  .item__cabeca {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: subgrid;
+  }
+  .item__cabeca > :not(.item__n) {
+    grid-column: 2;
+  }
+  .item__corpo {
+    grid-column: 2;
+  }
+}
+
+/* O número. Bloco chapado de tinta com o algarismo em papel — a menor
+   inversão da página, e a mesma ideia do `.olho`. Não é o número gigante e
+   aceso da direção anterior: ali ele era o marcador que a luz acendia, aqui é
+   a coordenada de uma lista. */
+.item__n {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  flex: none;
+  background: var(--texto);
+  color: var(--fundo);
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: var(--t-lg);
+  letter-spacing: 0.02em;
+  margin-bottom: var(--e-4);
+}
+
+.item__nota {
+  margin: var(--e-6) 0 0;
+  font-size: var(--t-sm);
+  color: var(--texto-suave);
+  max-width: 72ch;
+}
+
+/* Seção simples, para as páginas que não são o índice: /sobre, /obrigado, /404
+   e as legais são documentos. */
 .secao {
   padding-block: var(--e-16);
 }
-.secao--suave {
-  background: var(--superficie);
-}
 .secao + .secao {
-  border-top: 1px solid var(--borda);
+  border-top: 2px solid var(--fio-forte);
 }
 
-/* ------------------------------------------------------------- botões */
+/* ------------------------------------------------------------- botões
+   Sem raio, sem sombra, sem transição de fundo. O primário é a superfície
+   laranja com a tinta quente por cima; o de contorno é fio de 2px, e no hover
+   ele INVERTE em vez de acender um cinza. */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -564,8 +567,7 @@ a:hover {
   gap: var(--e-2);
   min-height: 48px;
   padding: var(--e-3) var(--e-6);
-  border: 1px solid transparent;
-  border-radius: var(--r-2);
+  border: 2px solid transparent;
   font-family: var(--display);
   font-weight: 800;
   font-size: var(--t-lg);
@@ -573,7 +575,7 @@ a:hover {
   text-transform: uppercase;
   text-decoration: none;
   cursor: pointer;
-  transition: background var(--dur-rapida) var(--curva), border-color var(--dur-rapida) var(--curva);
+  transition: none;
 }
 .btn--bloco {
   width: 100%;
@@ -582,44 +584,45 @@ a:hover {
 .btn--primario {
   background: var(--acento);
   color: var(--acento-texto);
-  /* O anel dourado sobre este laranja dá 1.71:1 e sumiria. Aqui ele vira a
-     mesma tinta escura do rótulo — 6.96:1, medido em logos/contraste.mjs. */
+  /* O anel de foco padrão é a tinta da página; sobre este laranja ele vira a
+     mesma tinta quente do rótulo — 6.96:1, o par legível daquele fundo. */
   --foco: var(--acento-texto);
 }
 .btn--primario:hover {
-  background: var(--acento-hover);
-  color: var(--acento-texto);
+  /* Inverte, não escurece: o botão vira tinta com o rótulo em laranja. */
+  background: var(--texto);
+  color: var(--acento);
 }
 .btn--primario[aria-disabled="true"] {
-  background: var(--noite-700);
-  color: var(--texto-suave);
+  background: var(--fio-fraco);
+  color: var(--tinta);
   cursor: default;
-  --foco: var(--dourado-300);
+  --foco: var(--texto);
 }
 
 .btn--contorno {
   background: transparent;
-  /* -500 e não -600: é o contorno do componente, e o mínimo dele é 3:1. */
-  border-color: var(--noite-500);
+  border-color: var(--fio-forte);
   color: var(--texto);
 }
 .btn--contorno:hover {
-  border-color: var(--acento);
-  background: var(--cinza-100);
-  color: var(--texto);
+  background: var(--texto);
+  color: var(--fundo);
 }
 
-/* ------------------------------------------------- cartões e listinhas */
+/* ------------------------------------------------------- blocos e listas
+   `.cartao` mantém o nome (vários arquivos o usam) e deixa de ser cartão: sem
+   fundo próprio, sem raio, sem sombra — só um fio de 2px à esquerda. A
+   estrutura Índice não tem cards, e um retângulo com fundo mais claro e canto
+   redondo é justamente a peça que faz uma tela parecer todas as outras. */
 .cartao {
-  background: var(--superficie-alta);
-  border: 1px solid var(--borda);
-  border-radius: var(--r-4);
-  padding: var(--e-6);
+  border-left: 2px solid var(--fio-forte);
+  padding: var(--e-1) 0 var(--e-1) var(--e-6);
 }
 
 .grade {
   display: grid;
-  gap: var(--e-6);
+  gap: var(--e-8);
 }
 @media (min-width: 700px) {
   .grade--2 {
@@ -650,27 +653,27 @@ a:hover {
   position: relative;
   padding-left: var(--e-8);
 }
-/* O visto é decorativo: a informação está no texto do item. `content` com
-   alternativa vazia para o leitor de tela não anunciar "marca de seleção" antes
-   de cada linha. */
+/* Barra de 2px no lugar da seta: é o mesmo fio do resto da página, na escala
+   do item. Decorativo — a informação está no texto, e o `content` leva
+   alternativa vazia para o leitor de tela não anunciar nada antes de cada
+   linha. */
 .lista-check li::before {
-  content: "→";
-  content: "→" / "";
+  content: "";
+  content: "" / "";
   position: absolute;
   left: 0;
-  top: -1px;
-  font-weight: 700;
-  color: var(--marca);
+  top: 0.65em;
+  width: var(--e-4);
+  height: 2px;
+  background: var(--acento);
 }
 
-/* Marca externa: um link que sai do site diz que sai, sem depender de o leitor
-   de tela ler o `target`. */
+/* Marca externa. Sem `opacity` — nesta direção nada é meio transparente. */
 .externo::after {
   content: "↗";
   content: "↗" / "";
   font-size: 0.85em;
   margin-left: 0.25em;
-  opacity: 0.8;
 }
 
 /* -------------------------------------------------------- utilitários */
@@ -686,10 +689,8 @@ a:hover {
   border: 0;
 }
 
-/* Trilha de navegação (breadcrumb) — o que o BreadcrumbList do JSON-LD descreve. */
 .trilha {
-  border-bottom: 1px solid var(--borda);
-  background: var(--superficie);
+  border-bottom: 2px solid var(--fio-forte);
 }
 .trilha ol {
   display: flex;
@@ -700,11 +701,13 @@ a:hover {
   padding-block: var(--e-3);
   font-size: var(--t-sm);
   color: var(--texto-suave);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
 }
 .trilha li + li::before {
   content: "/";
   margin-right: var(--e-2);
-  color: var(--noite-600);
+  color: var(--fio-fraco);
 }
 
 main:focus {
@@ -712,13 +715,12 @@ main:focus {
 }
 
 /* ------------------------------------------------------ movimento reduzido
-   Estado final estático e legível, nunca "a página some". O rastro fica
-   inteiro e aceso; as estações ficam acesas e no lugar. É a mesma tela, sem a
-   coreografia. */
+   Estado final estático e legível, nunca "a página some". Aqui isso é literal:
+   todo bloco cortado fica INTEIRO (clip-path em inset(0)), toda régua fica
+   inteira, e as duas seções que invertem no cruzamento ficam no estado
+   invertido — que é um dos dois estados legíveis do sistema, não um meio-termo.
+   É a mesma tela, sem a coreografia. */
 @media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
   *,
   *::before,
   *::after {
@@ -726,24 +728,26 @@ main:focus {
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
   }
-  .rastro::after {
+  /* `animation: none` já basta: o recorte só existe dentro das keyframes, então
+     sem animação o bloco e a régua nascem inteiros. Não há `clip-path` a
+     desfazer aqui. */
+  .corta,
+  .regua {
     animation: none;
-    transform: scaleY(1);
   }
-  .estacao__n {
+  .inverte-no-scroll {
     animation: none;
-    color: var(--marca);
-    -webkit-text-stroke-color: var(--marca);
+    --fundo: var(--tinta);
+    --fundo-2: var(--tinta-2);
+    --texto: var(--papel);
+    --texto-suave: var(--papel-suave);
+    --fio: var(--tinta-2);
+    --fio-forte: var(--papel);
+    --link: var(--laranja);
+    --foco: var(--papel);
   }
-  .estacao__corpo {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
     animation: none;
-    opacity: 1;
-    transform: none;
   }
-}
-
-/* Transição entre rotas. O rastro carrega `view-transition-name` e atravessa a
-   navegação sem piscar — a quarta camada da coreografia. */
-@view-transition {
-  navigation: auto;
 }

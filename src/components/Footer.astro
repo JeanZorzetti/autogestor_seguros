@@ -1,50 +1,70 @@
 ---
 import { ATENDIMENTO, EMPRESA, EXTERNOS, SITE, enderecoLinha, whatsapp } from "../consts";
 const ano = new Date().getFullYear();
+
+// O RODAPÉ É O ÍNDICE DO SITE, e isso é a outra metade da decisão tomada no
+// cabeçalho: como o topo ficou só com a marca e o telefone, o mapa inteiro
+// mora aqui, numerado, em lista única. É o rodapé que a macroestrutura Índice
+// pede — e substitui as quatro colunas de links ("Navegue", "Institucional",
+// "Atendimento") que são a silhueta de rodapé de qualquer site.
+//
+// Uma lista só, com os links externos dentro dela: separar em duas ou três
+// listas devolveria as colunas pela porta dos fundos.
+const INDICE = [
+  { rotulo: "Início", nota: "A comparação, o formulário e o índice", href: "/" },
+  { rotulo: "Pedir cotação", nota: "Três campos, resposta no WhatsApp", href: "/#pedir" },
+  { rotulo: "Quem somos", nota: `Corretora independente desde ${EMPRESA.fundacao}`, href: "/sobre" },
+  { rotulo: "Privacidade", nota: "O que fazemos com os seus dados", href: "/privacidade" },
+  { rotulo: "Termos de uso", nota: "Condições de uso deste site", href: "/termos" },
+  {
+    rotulo: "Falar no WhatsApp",
+    nota: EMPRESA.telefoneExibicao,
+    href: whatsapp("Olá! Vim pelo site e quero cotar um seguro."),
+    externo: true,
+  },
+  {
+    rotulo: "Outras soluções Autogestor",
+    nota: "As demais frentes do grupo, no hub",
+    href: "https://autogestor.roilabs.com.br/",
+    externo: true,
+  },
+];
 ---
 
-<footer class="rodape">
-  <div class="container rodape__grade">
-    <div>
-      <p class="rodape__marca">{SITE.nome}</p>
-      <p class="rodape__texto">
-        Corretora de seguros independente desde {EMPRESA.fundacao}, com sede em {EMPRESA.endereco.cidade} e
-        atendimento em todo o Brasil. Seguro e proteção veicular para carro, moto, camionete e caminhão.
-      </p>
-    </div>
+<footer class="rodape inverso">
+  <div class="container">
+    <p class="rodape__marca">{SITE.nome}</p>
 
-    <nav aria-label="Navegue">
-      <h2 class="rodape__titulo">Navegue</h2>
-      <ul class="rodape__links" role="list">
-        <li><a href="/">Início</a></li>
-        <li><a href="/#pedir">Pedir cotação</a></li>
-        <li><a href="/sobre">Quem somos</a></li>
-      </ul>
+    <nav aria-label="Índice do site">
+      <ol class="rodape__indice" role="list">
+        {
+          INDICE.map((l, i) => (
+            <li>
+              {/* A marca `externo` fica no RÓTULO e não no <a>: a linha é uma
+                   grade, e um `::after` no container vira mais um item de grade
+                   — a setinha caía sozinha para a linha de baixo, alinhada à
+                   coluna do número (visto na captura de 1440px). Dentro do
+                   span ela volta a ser o que é: um sinal colado na palavra. */}
+              <a
+                class="rodape__linha"
+                href={l.href}
+                target={l.externo ? "_blank" : undefined}
+                rel={l.externo ? "noopener" : undefined}
+              >
+                <span class="rodape__n" aria-hidden="true">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <span class:list={["rodape__rotulo", l.externo && "externo"]}>{l.rotulo}</span>
+                <span class="rodape__nota">{l.nota}</span>
+                {l.externo && <span class="visualmente-oculto"> — abre em nova aba</span>}
+              </a>
+            </li>
+          ))
+        }
+      </ol>
     </nav>
 
-    <nav aria-label="Institucional">
-      <h2 class="rodape__titulo">Institucional</h2>
-      <ul class="rodape__links" role="list">
-        <li><a href="/privacidade">Privacidade</a></li>
-        <li><a href="/termos">Termos de uso</a></li>
-        <li>
-          <a class="externo" href={whatsapp("Olá! Vim pelo site e quero cotar um seguro.")} target="_blank" rel="noopener">
-            Falar no WhatsApp<span class="visualmente-oculto"> — abre em nova aba</span>
-          </a>
-        </li>
-        <li>
-          {/* As outras cinco frentes do grupo continuam existindo e moram no
-               hub. O link é para a pessoa que chegou aqui procurando outra
-               coisa não sair do site achando que a empresa só faz seguro. */}
-          <a class="externo" href="https://autogestor.roilabs.com.br/" target="_blank" rel="noopener">
-            Outras soluções Autogestor<span class="visualmente-oculto"> — abre em nova aba</span>
-          </a>
-        </li>
-      </ul>
-    </nav>
-
-    <div>
-      <h2 class="rodape__titulo">Atendimento</h2>
+    <div class="rodape__pe">
       <address class="rodape__texto">
         {enderecoLinha}<br />
         Atendimento {ATENDIMENTO.horarioCurto}<br />
@@ -56,107 +76,166 @@ const ano = new Date().getFullYear();
         <li><a href={EMPRESA.redes[1]} rel="me noopener">Facebook</a></li>
       </ul>
     </div>
-  </div>
 
-  <div class="container rodape__base">
-    <p>© {ano} {EMPRESA.nomeLegal}. CNPJ e condições contratuais disponíveis sob solicitação.</p>
+    <div class="rodape__base">
+      <p>© {ano} {EMPRESA.nomeLegal}. CNPJ e condições contratuais disponíveis sob solicitação.</p>
 
-    {/* A credencial com o caminho para conferir. Um número de registro sem o
-         link da consulta pública é só um número na tela — e é exatamente o tipo
-         de alegação que motor de resposta não cita sem fonte. Fica ACIMA da
-         ressalva seguinte porque é a informação que a pessoa usa para decidir
-         se está falando com uma corretora de verdade. */}
-    <p class="rodape__aviso">
-      {EMPRESA.nomeLegal} é corretora de seguros registrada na SUSEP sob o número
-      <strong>{EMPRESA.susep}</strong>. O registro pode ser conferido na
-      <a class="externo" href={EXTERNOS.susepConsulta} target="_blank" rel="noopener">
-        consulta pública de corretores da SUSEP<span class="visualmente-oculto"> — abre em nova aba</span>
-      </a>.
-    </p>
+      {/* A credencial com o caminho para conferir. Um número de registro sem o
+           link da consulta pública é só um número na tela — e é exatamente o
+           tipo de alegação que motor de resposta não cita sem fonte. Fica ACIMA
+           da ressalva seguinte porque é a informação que a pessoa usa para
+           decidir se está falando com uma corretora de verdade. */}
+      <p class="rodape__aviso">
+        {EMPRESA.nomeLegal} é corretora de seguros registrada na SUSEP sob o número
+        <strong>{EMPRESA.susep}</strong>. O registro pode ser conferido na
+        <a class="externo" href={EXTERNOS.susepConsulta} target="_blank" rel="noopener">
+          consulta pública de corretores da SUSEP<span class="visualmente-oculto"> — abre em nova aba</span>
+        </a>.
+      </p>
 
-    {/* Ressalva de veracidade, não disclaimer defensivo: o site oferece DUAS
-         coisas com naturezas jurídicas diferentes, e apresentar as duas como
-         "seguro" seria falso. Seguro é contrato regulado; proteção veicular é
-         rateio entre associados de uma associação e NÃO é fiscalizada pela
-         SUSEP. Quem lê precisa saber disso antes de comparar preço, não depois
-         do sinistro. A mesma distinção abre o FAQ da home. */}
-    <p class="rodape__aviso">
-      Somos corretora, não seguradora: a apólice é emitida pela companhia escolhida e a indenização é
-      responsabilidade dela. <strong>Proteção veicular não é seguro</strong> — é rateio entre associados de uma
-      associação, não é regulada pela SUSEP e não tem a mesma garantia de indenização. Trabalhamos com as duas
-      modalidades e dizemos qual é qual antes de você decidir. Coberturas, franquias, exclusões e prêmio dependem
-      de análise de perfil e das condições gerais de cada produto.
-    </p>
+      {/* Ressalva de veracidade, não disclaimer defensivo: o site oferece DUAS
+           coisas com naturezas jurídicas diferentes, e apresentar as duas como
+           "seguro" seria falso. Seguro é contrato regulado; proteção veicular é
+           rateio entre associados de uma associação e NÃO é fiscalizada pela
+           SUSEP. Quem lê precisa saber disso antes de comparar preço, não
+           depois do sinistro. A mesma distinção abre o FAQ da home. */}
+      <p class="rodape__aviso">
+        Somos corretora, não seguradora: a apólice é emitida pela companhia escolhida e a indenização é
+        responsabilidade dela. <strong>Proteção veicular não é seguro</strong> — é rateio entre associados de uma
+        associação, não é regulada pela SUSEP e não tem a mesma garantia de indenização. Trabalhamos com as duas
+        modalidades e dizemos qual é qual antes de você decidir. Coberturas, franquias, exclusões e prêmio dependem
+        de análise de perfil e das condições gerais de cada produto.
+      </p>
+    </div>
   </div>
 </footer>
 
 <style>
   .rodape {
-    position: relative;
-    background: var(--superficie-marca);
-    color: var(--texto-sobre-marca);
     padding-block: var(--e-16) var(--e-8);
-    border-top: 1px solid var(--borda);
+    border-top: 2px solid var(--acento);
   }
-  .rodape__grade {
-    display: grid;
-    gap: var(--e-8);
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  }
+
+  /* A marca em tipo grande é a única coisa do rodapé que não é lista. Fecha a
+     página com o mesmo peso com que ela abre. */
   .rodape__marca {
+    font-family: var(--display);
+    font-weight: 800;
+    font-size: var(--t-2xl);
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    line-height: 1;
+    margin: 0 0 var(--e-8);
+  }
+
+  .rodape__indice {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    /* A régua entre as linhas é do índice, não do item: `border-top` em cada
+       <li> mais um no container deixaria fio dobrado no primeiro. */
+    border-top: 2px solid var(--fio-forte);
+  }
+  .rodape__indice li {
+    border-bottom: 2px solid var(--fio-forte);
+  }
+
+  /* Cada linha é um alvo inteiro, com 56px de altura: no celular o alvo de
+     toque é a linha do índice, não o rótulo de 14px dentro dela. */
+  .rodape__linha {
+    display: grid;
+    grid-template-columns: 2.5rem minmax(0, 1fr);
+    align-items: baseline;
+    gap: var(--e-1) var(--e-3);
+    min-height: 56px;
+    padding-block: var(--e-3);
     color: var(--texto);
+    text-decoration: none;
+  }
+  @media (min-width: 700px) {
+    .rodape__linha {
+      grid-template-columns: 2.5rem minmax(0, 20rem) minmax(0, 1fr);
+      align-items: center;
+    }
+  }
+  /* A inversão da camada de ponteiro, na escala da linha: a linha inteira vira
+     papel com texto de tinta. `--texto-suave` é redeclarado junto, senão a nota
+     continuaria clara e sumiria no papel — é o caso em que inverter só o
+     `background` deixa metade do conteúdo ilegível. */
+  .rodape__linha:hover,
+  .rodape__linha:focus-visible {
+    background: var(--texto);
+    color: var(--fundo);
+    --texto-suave: var(--tinta-suave);
+  }
+  .rodape__linha:hover .rodape__n,
+  .rodape__linha:focus-visible .rodape__n {
+    color: var(--laranja-tinta);
+  }
+
+  .rodape__n {
+    grid-row: 1;
+    font-family: var(--display);
+    font-weight: 800;
+    font-size: var(--t-sm);
+    letter-spacing: 0.06em;
+    color: var(--acento);
+    padding-left: var(--e-2);
+  }
+  .rodape__rotulo {
     font-family: var(--display);
     font-weight: 800;
     font-size: var(--t-lg);
-    letter-spacing: 0.03em;
-    text-transform: uppercase;
-    margin-bottom: var(--e-2);
+    letter-spacing: 0.01em;
   }
-  .rodape__titulo {
-    color: var(--texto);
+  .rodape__nota {
+    grid-column: 2;
     font-size: var(--t-sm);
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    margin-bottom: var(--e-4);
+    color: var(--texto-suave);
+  }
+  @media (min-width: 700px) {
+    .rodape__nota {
+      grid-column: 3;
+      padding-right: var(--e-4);
+      text-align: right;
+    }
+  }
+
+  .rodape__pe {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--e-6);
+    margin-top: var(--e-12);
   }
   .rodape__texto {
     font-size: var(--t-sm);
     font-style: normal;
     line-height: 1.7;
+    margin: 0;
   }
-  .rodape__links,
   .rodape__redes {
     list-style: none;
     margin: 0;
     padding: 0;
-    display: grid;
-    gap: var(--e-2);
+    display: flex;
+    gap: var(--e-4);
+    align-items: flex-start;
     font-size: var(--t-sm);
   }
-  .rodape__redes {
-    margin-top: var(--e-4);
-    grid-auto-flow: column;
-    justify-content: start;
-    gap: var(--e-4);
-  }
-  .rodape a {
-    color: var(--link-sobre-marca);
-  }
-  .rodape a:hover {
-    color: var(--link-hover);
-  }
+
   .rodape__base {
     margin-top: var(--e-12);
     padding-top: var(--e-6);
-    border-top: 1px solid var(--borda);
+    border-top: 2px solid var(--fio-forte);
     font-size: var(--t-sm);
   }
   .rodape__aviso {
-    color: var(--texto-sobre-marca-suave);
+    color: var(--texto-suave);
     max-width: 78ch;
   }
   .rodape__aviso strong {
-    color: var(--texto-sobre-marca);
+    color: var(--texto);
   }
 </style>
 

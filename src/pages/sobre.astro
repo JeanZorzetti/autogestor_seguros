@@ -76,7 +76,7 @@ const schema = [
     </div>
   </section>
 
-  <section class="secao secao--suave" id="papeis" tabindex="-1">
+  <section class="secao inverso" id="papeis" tabindex="-1">
     <div class="container">
       <span class="olho">Divisão de papéis</span>
       <h2>Quem faz o quê quando você contrata</h2>
@@ -146,7 +146,7 @@ const schema = [
     </div>
   </section>
 
-  <section class="secao secao--suave">
+  <section class="secao inverso">
     <div class="container">
       <Faq perguntas={perguntas} />
     </div>
@@ -156,7 +156,13 @@ const schema = [
 </Base>
 
 <style>
-  .sobre__topo {
+  /* A medida curta vai nos FILHOS, não no `.container`. Com `max-width` no
+     próprio container o `margin-inline: auto` dele continua valendo e o bloco
+     inteiro centraliza — /sobre começava em x=408 enquanto todas as outras
+     páginas começam em x=160 (medido na captura de 1440px). Numa direção que é
+     feita de réguas e arestas, a coluna de texto trocar de lugar entre páginas
+     é o defeito mais visível que existe. */
+  .sobre__topo > * {
     max-width: 72ch;
   }
   .contato {

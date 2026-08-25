@@ -4,12 +4,25 @@ import { EMPRESA, SITE, whatsapp } from "../consts";
 import Logo from "./Logo.astro";
 
 const { pathname } = Astro.url;
-const atual = (href: string) => pathname === href || pathname === `${href}/`;
+// "page" só na página exata; "true" quando a pessoa está DENTRO da seção (um
+// artigo, em /blog/…). São valores diferentes de propósito: anunciar "página
+// atual" num artigo mentiria sobre onde o link leva, mas não marcar nada
+// deixava o cabeçalho sem nenhum "você está aqui" para quem chega por busca.
+const atual = (href: string): "page" | "true" | undefined => {
+  if (pathname === href || pathname === `${href}/`) return "page";
+  return href !== "/" && pathname.startsWith(`${href}/`) ? "true" : undefined;
+};
 
-// Site de 1 vertical: 2 links fixos. O hub tem 6 verticais e precisa de rolagem
+// Site de 1 vertical: 3 links fixos. O hub tem 6 verticais e precisa de rolagem
 // horizontal na barra; aqui a lista cabe inteira em 360px, sem hambúrguer.
+//
+// O Blog entra no MEIO, e não no fim: quem chega por busca orgânica cai num
+// artigo, e o link que devolve essa pessoa ao restante do blog precisa estar
+// antes do institucional na ordem de leitura. "Quem somos" continua sendo o
+// último porque é a página que se procura depois de já querer contratar.
 const NAV = [
   { href: "/", rotulo: "Início" },
+  { href: "/blog", rotulo: "Blog" },
   { href: "/sobre", rotulo: "Quem somos" },
 ];
 ---
@@ -61,7 +74,7 @@ const NAV = [
         {
           NAV.map((item) => (
             <li>
-              <a href={item.href} aria-current={atual(item.href) ? "page" : undefined}>
+              <a href={item.href} aria-current={atual(item.href)}>
                 {item.rotulo}
               </a>
             </li>
@@ -195,9 +208,16 @@ const NAV = [
   /* A página atual é marcada por um traço da cor da marca, não só por cor de
      texto: cor sozinha não é sinal suficiente. O `aria-current` no HTML é o
      que carrega a informação para quem não vê o traço. */
-  .nav__lista a[aria-current="page"] {
+  .nav__lista a[aria-current] {
     color: var(--texto);
     background: var(--cinza-100);
     box-shadow: inset 0 -3px 0 var(--acento);
+  }
+  /* Dentro da seção, mas não na página: o traço fica mais fino e sem o fundo.
+     A distinção é a mesma que o `aria-current` já faz para quem ouve — "esta
+     é a página" contra "você está por aqui" — agora também para quem vê. */
+  .nav__lista a[aria-current="true"] {
+    background: transparent;
+    box-shadow: inset 0 -2px 0 var(--noite-500);
   }
 </style>

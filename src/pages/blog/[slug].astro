@@ -1,0 +1,435 @@
+---
+import { getCollection, render } from "astro:content";
+import Base from "../../layouts/Base.astro";
+import Faq from "../../components/Faq.astro";
+import LeadForm from "../../components/LeadForm.astro";
+import BarraAcao from "../../components/BarraAcao.astro";
+import { dataIso, dataLonga, minutos, porData } from "../../lib/blog";
+import { SEGURO } from "../../data/solucoes";
+import { EMPRESA, SITE } from "../../consts";
+
+export async function getStaticPaths() {
+  const artigos = await getCollection("blog");
+  return artigos.map((artigo) => ({ params: { slug: artigo.id }, props: { artigo } }));
+}
+
+const { artigo } = Astro.props;
+const d = artigo.data;
+const { Content, headings } = await render(artigo);
+
+// Só os H2: um sumário que lista H3 vira uma segunda cópia do artigo e deixa
+// de ser atalho. Os `id` vêm do próprio Astro, que já slugifica cada heading.
+const sumario = headings.filter((h) => h.depth === 2);
+
+const outros = (await getCollection("blog")).filter((a) => a.id !== artigo.id).sort(porData);
+
+const site = Astro.site ?? new URL("https://seguros.roilabs.com.br");
+const abs = (p: string) => new URL(p, site).href;
+const url = abs(`/blog/${artigo.id}`);
+
+const schema: Record<string, unknown>[] = [
+  {
+    "@type": "BlogPosting",
+    "@id": `${url}#artigo`,
+    headline: d.titulo,
+    description: d.descricao,
+    // A resposta direta declarada como resumo: é o trecho que um motor de
+    // resposta cita, e declará-lo evita que ele monte a citação do meio do
+    // texto, onde falta o contexto que a primeira frase carrega.
+    abstract: d.resposta,
+    url,
+    mainEntityOfPage: { "@id": `${url}#pagina` },
+    isPartOf: { "@id": abs("/blog#blog") },
+    inLanguage: "pt-BR",
+    datePublished: dataIso(d.publicado),
+    dateModified: dataIso(d.atualizado ?? d.publicado),
+    wordCount: (artigo.body ?? "").trim().split(/\s+/).length,
+    articleSection: d.categoria,
+    image: abs("/img/og.png"),
+    // Autor e editor são a MESMA entidade, e isso é verdade: não há articulista
+    // externo. Declarar um `Person` fictício para preencher o campo seria
+    // inventar uma credencial — o oposto do que o resto deste grafo faz.
+    author: { "@id": abs("/#corretora") },
+    publisher: { "@id": abs("/#corretora") },
+    // As fontes oficiais viram `citation`: é o que declara, em dado, que a
+    // afirmação sobre lei tem caminho de verificação.
+    ...(d.fontes.length
+      ? { citation: d.fontes.map((f) => ({ "@type": "CreativeWork", name: f.titulo, url: f.url })) }
+      : {}),
+  },
+  ...(d.perguntas.length
+    ? [
+        {
+          "@type": "FAQPage",
+          "@id": `${url}#faq`,
+          mainEntity: d.perguntas.map((q) => ({
+            "@type": "Question",
+            name: q.p,
+            // O `r` do frontmatter carrega HTML para o <details> da página; no
+            // schema ele precisa ir como texto, senão a marcação vaza para o
+            // resultado de busca.
+            acceptedAnswer: { "@type": "Answer", text: q.r.replace(/<[^>]+>/g, "") },
+          })),
+        },
+      ]
+    : []),
+];
+---
+
+<Base
+  titulo={d.tituloSeo}
+  descricao={d.descricao}
+  schema={schema}
+  ogTipo="article"
+  atualizado={dataIso(d.atualizado ?? d.publicado)}
+  trilha={[
+    { nome: "Início", href: "/" },
+    { nome: "Blog", href: "/blog" },
+    { nome: d.categoria, href: `/blog/${artigo.id}` },
+  ]}
+>
+  <article class="secao">
+    <div class="container artigo">
+      <header>
+        <span class="olho">{d.categoria}</span>
+        <h1>{d.titulo}</h1>
+        <p class="artigo__meta">
+          Publicado em <time datetime={dataIso(d.publicado)}>{dataLonga(d.publicado)}</time>
+          {d.atualizado && <> · atualizado em <time datetime={dataIso(d.atualizado)}>{dataLonga(d.atualizado)}</time></>}
+          <span aria-hidden="true"> · </span>{minutos(artigo)} min de leitura
+          <span aria-hidden="true"> · </span>por {SITE.nome}, corretora SUSEP {EMPRESA.susep}
+        </p>
+      </header>
+
+      {/* BLUF: a resposta antes do contexto. Quem só queria o número resolve
+          aqui e vai embora satisfeito — e é exatamente este parágrafo que um
+          motor de resposta extrai quando cita a página. */}
+      <div class="resposta">
+        <p class="resposta__rotulo">Resposta curta</p>
+        <p class="resposta__texto">{d.resposta}</p>
+      </div>
+
+      {
+        sumario.length > 2 && (
+          <nav class="sumario" aria-labelledby="sumario-titulo">
+            <h2 id="sumario-titulo" class="sumario__titulo">Neste artigo</h2>
+            <ol class="sumario__lista">
+              {sumario.map((h) => (
+                <li>
+                  <a href={`#${h.slug}`}>{h.text}</a>
+                </li>
+              ))}
+            </ol>
+          </nav>
+        )
+      }
+
+      <div class="prosa">
+        <Content />
+      </div>
+
+      {
+        d.fontes.length > 0 && (
+          <section class="fontes" aria-labelledby="fontes-titulo">
+            <h2 id="fontes-titulo">Fontes</h2>
+            <p class="fontes__nota">
+              Toda afirmação sobre lei, prazo ou número deste artigo sai de uma destas fontes. As marcadas como
+              oficiais são o texto da própria autarquia ou da legislação — confira você mesmo.
+            </p>
+            <ol class="fontes__lista">
+              {d.fontes.map((f) => (
+                <li>
+                  <a class="externo" href={f.url} target="_blank" rel="noopener">
+                    {f.titulo}
+                    <span class="visualmente-oculto"> — abre em nova aba</span>
+                  </a>
+                  <span class="fontes__veiculo">
+                    {f.veiculo}
+                    {f.oficial && <span class="fontes__selo">fonte oficial</span>}
+                  </span>
+                </li>
+              ))}
+            </ol>
+          </section>
+        )
+      }
+    </div>
+  </article>
+
+  {
+    d.perguntas.length > 0 && (
+      <section class="secao secao--suave">
+        <div class="container">
+          <Faq perguntas={d.perguntas} />
+        </div>
+      </section>
+    )
+  }
+
+  <section class="secao" id="pedir" tabindex="-1">
+    <div class="container fechamento">
+      <div>
+        <span class="olho">Cotação gratuita</span>
+        <h2>Descobrir quanto custa no seu caso</h2>
+        <p class="chamada">
+          Nenhum artigo substitui a sua cotação: o preço sai do seu CEP, do seu perfil e do seu veículo. Três
+          campos e um consultor responde no seu WhatsApp no mesmo dia útil.
+        </p>
+        <ul class="lista-check" role="list">
+          <li>Comparamos as propostas das companhias com que trabalhamos, linha a linha</li>
+          <li>Dizemos o que é seguro e o que é proteção veicular antes de você decidir</li>
+          <li>Não cobramos nada por cotar — a comissão vem da seguradora, e já está no prêmio</li>
+        </ul>
+      </div>
+      <LeadForm solucao={SEGURO} destaque instancia={`artigo-${artigo.id}`} />
+    </div>
+  </section>
+
+  {
+    outros.length > 0 && (
+      <section class="secao secao--suave">
+        <div class="container">
+          <h2>Leia também</h2>
+          <ul class="tambem" role="list">
+            {outros.map((a) => (
+              <li class="cartao">
+                <span class="olho">{a.data.categoria}</span>
+                <h3 class="tambem__titulo">
+                  <a href={`/blog/${a.id}`}>{a.data.titulo}</a>
+                </h3>
+                <p class="tambem__resumo">{a.data.descricao}</p>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+    )
+  }
+
+  <BarraAcao solucao={SEGURO} rotulo="Pedir cotação" alvo="pedir" />
+</Base>
+
+<style>
+  /* 72ch é o limite de conforto de leitura corrida. O container do site tem
+     1120px e um artigo esticado nele daria ~140 caracteres por linha, que é o
+     dobro do que o olho acompanha sem perder a linha na volta do parágrafo. */
+  .artigo {
+    max-width: 72ch;
+  }
+
+  .artigo__meta {
+    font-size: var(--t-sm);
+    color: var(--texto-suave);
+    margin-bottom: var(--e-8);
+  }
+
+  /* A resposta curta. Carrega o gesto da direção — a brasa do rastro na borda
+     esquerda — em vez de ser uma caixa cinza qualquer: é o único bloco do
+     artigo que se distingue do corpo, e ele se distingue com o vocabulário do
+     site. */
+  .resposta {
+    border-left: 4px solid var(--brasa);
+    border-radius: 0 var(--r-3) var(--r-3) 0;
+    background: var(--superficie-alta);
+    padding: var(--e-6);
+    margin-bottom: var(--e-8);
+    box-shadow: var(--sombra-sm);
+  }
+  .resposta__rotulo {
+    font-family: var(--display);
+    font-weight: 800;
+    font-size: var(--t-sm);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--marca);
+    margin-bottom: var(--e-2);
+  }
+  .resposta__texto {
+    font-size: var(--t-lg);
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  .sumario {
+    border: 1px solid var(--borda);
+    border-radius: var(--r-3);
+    padding: var(--e-4) var(--e-6);
+    margin-bottom: var(--e-8);
+  }
+  .sumario__titulo {
+    font-family: var(--corpo);
+    font-size: var(--t-sm);
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--texto-suave);
+    margin-bottom: var(--e-3);
+  }
+  .sumario__lista {
+    margin: 0;
+    padding-left: var(--e-6);
+    display: grid;
+    gap: var(--e-2);
+    font-size: var(--t-sm);
+  }
+
+  /* --- o corpo em markdown -------------------------------------------------
+     `:global()` porque estas tags nascem do <Content />, não do template desta
+     página — estilo com escopo não alcança filho renderizado. O seletor
+     continua ancorado em `.prosa`, que É do template: nada vaza para fora. */
+  .prosa :global(h2) {
+    margin-top: var(--e-12);
+    scroll-margin-top: var(--e-8);
+  }
+  .prosa :global(h3) {
+    margin-top: var(--e-8);
+  }
+  .prosa :global(ul),
+  .prosa :global(ol) {
+    display: grid;
+    gap: var(--e-3);
+    padding-left: var(--e-6);
+    margin-bottom: var(--e-4);
+  }
+  .prosa :global(strong) {
+    color: var(--texto);
+  }
+
+  /* A citação literal da SUSEP no artigo de proteção veicular. Marcada com a
+     brasa, igual à resposta curta: as duas são "isto aqui é a fonte falando". */
+  .prosa :global(blockquote) {
+    margin: var(--e-6) 0;
+    padding: var(--e-4) var(--e-6);
+    border-left: 4px solid var(--brasa);
+    background: var(--superficie);
+    color: var(--texto);
+    font-size: var(--t-lg);
+    line-height: 1.5;
+  }
+  .prosa :global(blockquote p) {
+    margin: 0;
+  }
+
+  /* A rolagem fica no CONTAINER que o rehype `tabelaRolavel` (astro.config.mjs)
+     põe em volta, não na <table> com `display: block` — que era a solução
+     anterior e custava a semântica de linha/coluna do leitor de tela. É o que
+     faz a tabela rolar dentro da coluna em vez de empurrar a página inteira
+     para o lado a 360px: a mesma armadilha já documentada em `.estacao__grade`
+     do global.css. */
+  .prosa :global(.tabela-rolavel) {
+    overflow-x: auto;
+    margin-bottom: var(--e-6);
+    border-radius: var(--r-3);
+    /* Uma região focável precisa mostrar que recebeu o foco. O `:focus-visible`
+       global já desenha o anel; isto só garante que ele não seja cortado pelo
+       próprio overflow. */
+    outline-offset: 2px;
+  }
+  /* 26rem é o piso de legibilidade, não um número redondo: abaixo disso as
+     células desta comparação quebram em uma palavra por linha (visto na captura
+     de 360px) e a tabela deixa de ser comparável, que é a única coisa que ela
+     precisa ser. Acima do piso ela rola — e agora rola por teclado também. */
+  .prosa :global(table) {
+    width: 100%;
+    min-width: 26rem;
+    border-collapse: collapse;
+    font-size: var(--t-sm);
+  }
+  .prosa :global(th),
+  .prosa :global(td) {
+    border: 1px solid var(--borda);
+    padding: var(--e-3);
+    text-align: left;
+    vertical-align: top;
+  }
+  .prosa :global(th) {
+    background: var(--superficie-alta);
+    color: var(--texto);
+    font-family: var(--display);
+    font-weight: 800;
+    font-size: var(--t-sm);
+  }
+  .prosa :global(td) {
+    color: var(--texto-suave);
+  }
+
+  /* ------------------------------------------------------------- fontes */
+  .fontes {
+    margin-top: var(--e-16);
+    padding-top: var(--e-8);
+    border-top: 1px solid var(--borda);
+  }
+  .fontes h2 {
+    font-size: var(--t-xl);
+  }
+  .fontes__nota {
+    font-size: var(--t-sm);
+    color: var(--texto-suave);
+  }
+  .fontes__lista {
+    display: grid;
+    gap: var(--e-4);
+    margin: 0;
+    padding-left: var(--e-6);
+    font-size: var(--t-sm);
+  }
+  .fontes__veiculo {
+    display: block;
+    color: var(--texto-suave);
+    margin-top: var(--e-1);
+  }
+  .fontes__selo {
+    display: inline-block;
+    margin-left: var(--e-2);
+    padding: 2px var(--e-2);
+    border-radius: var(--r-full);
+    background: var(--azul-100);
+    color: var(--marca-forte);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  /* -------------------------------------------------- fechamento e correlatos */
+  .fechamento {
+    display: grid;
+    gap: var(--e-8);
+  }
+  @media (min-width: 900px) {
+    .fechamento {
+      grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+      gap: var(--e-16);
+      align-items: start;
+    }
+  }
+
+  .tambem {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: var(--e-6);
+  }
+  @media (min-width: 700px) {
+    .tambem {
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    }
+  }
+  .tambem__titulo {
+    font-size: var(--t-lg);
+    margin-bottom: var(--e-2);
+  }
+  .tambem__titulo a {
+    color: var(--texto);
+    text-decoration: none;
+  }
+  .tambem__titulo a:hover {
+    color: var(--marca-forte);
+  }
+  .tambem__resumo {
+    margin: 0;
+    font-size: var(--t-sm);
+    color: var(--texto-suave);
+  }
+</style>

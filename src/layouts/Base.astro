@@ -29,6 +29,10 @@ interface Props {
    *  home tem. Existe como prop, e não como preload fixo no <head>, porque
    *  pré-carregar em /termos baixaria 54 KB que aquela página nunca pinta. */
   placa?: boolean;
+  /** `og:type`. "article" nos posts do blog: o canal principal deste site é o
+   *  WhatsApp, e é o og:type que decide se o link compartilhado lá aparece
+   *  como página institucional ou como matéria com data. */
+  ogTipo?: "website" | "article";
 }
 const {
   titulo,
@@ -40,6 +44,7 @@ const {
   atualizado,
   tipoPagina = "WebPage",
   placa = false,
+  ogTipo = "website",
 } = Astro.props;
 
 const site = Astro.site ?? new URL("https://seguros.roilabs.com.br");
@@ -225,7 +230,7 @@ const grafo: Record<string, unknown>[] = [
       )
     }
 
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content={ogTipo} />
     <meta property="og:site_name" content={SITE.nome} />
     <meta property="og:locale" content="pt_BR" />
     <meta property="og:title" content={titulo} />

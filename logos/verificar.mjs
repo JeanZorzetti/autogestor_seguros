@@ -20,6 +20,12 @@ const RAIZ = ".vercel/output/static";
 const SAIDA = "logos/_verificacao";
 const LARGURAS = [360, 768, 1440];
 const ROLAGENS = [0, 0.33, 0.66, 1];
+// Rotas que passam pela captura e pelo teste de sangramento. O artigo do blog
+// entra porque ele traz o único elemento do site que o markdown NÃO deixa
+// envolver numa div: a tabela. É o culpado clássico de rolagem horizontal a
+// 360px, e a mesma armadilha já documentada em `.estacao__grade`.
+const ROTAS_CAPTURA = ["/", "/blog", "/blog/protecao-veicular-ou-seguro"];
+const nomeArquivo = (rota) => (rota === "/" ? "home" : rota.replace(/^\//, "").replace(/\//g, "-"));
 const LCP_ALVO_MS = 2000; // faixa "captação" do orçamento declarado
 const DESCRICAO_MAX = 155; // acima disso o Google corta a <meta description>
 const TITULO_AVISO = 62; // acima disso o <title> trunca — avisa, não reprova
@@ -81,19 +87,34 @@ const falhar = (msg) => {
     // que ESTE site serve.
     if (r.status() >= 400 && r.url().startsWith(BASE)) problemas.push(`${r.status()} ${r.url()}`);
   });
-  for (const rota of ["/", "/sobre", "/privacidade", "/termos", "/404.html"]) {
+  const rotas = [
+    "/",
+    "/sobre",
+    "/privacidade",
+    "/termos",
+    "/404.html",
+    "/blog",
+    "/blog/quanto-custa-seguro-de-carro",
+    "/blog/protecao-veicular-ou-seguro",
+  ];
+  for (const rota of rotas) {
     await pagina.goto(BASE + rota, { waitUntil: "networkidle" });
   }
   console.log("\n1. console e rede");
-  problemas.length ? problemas.forEach(falhar) : console.log("  ok     limpo em 5 rotas");
+  problemas.length ? problemas.forEach(falhar) : console.log(`  ok     limpo em ${rotas.length} rotas`);
   await pagina.close();
 }
 
 // ------------------------------------------------- 2. passagem de Tab
 {
   const pagina = await navegador.newPage({ viewport: { width: 1440, height: 900 } });
-  await pagina.goto(BASE + "/", { waitUntil: "networkidle" });
   console.log("\n2. passagem de Tab (primeiros 14 focos)");
+  // O artigo entra junto com a home porque ele tem o formulário de lead e o
+  // sumário de âncoras — dois blocos focáveis que a home não tem na mesma
+  // ordem, e é ali que ordem de foco costuma quebrar.
+  for (const rotaTab of ["/", "/blog/protecao-veicular-ou-seguro"]) {
+  await pagina.goto(BASE + rotaTab, { waitUntil: "networkidle" });
+  console.log(`  ${rotaTab}`);
   const ordem = [];
   for (let i = 0; i < 14; i++) {
     await pagina.keyboard.press("Tab");
@@ -123,16 +144,19 @@ const falhar = (msg) => {
     if (!info.anel) falhar(`sem anel de foco visível: <${info.tag}> "${info.nome}"`);
     if (!info.naTela) falhar(`foco em elemento de tamanho zero: <${info.tag}> "${info.nome}"`);
   }
-  ordem.forEach((o, i) => console.log(`  ${String(i + 1).padStart(2)}. <${o.tag}> ${o.nome}`));
+  ordem.forEach((o, i) => console.log(`    ${String(i + 1).padStart(2)}. <${o.tag}> ${o.nome}`));
+  }
   await pagina.close();
 }
 
 // ------------------------------- 3. três larguras × quatro rolagens
 {
   console.log("\n3. capturas");
+  for (const rota of ROTAS_CAPTURA) {
+  console.log(`  ${rota}`);
   for (const w of LARGURAS) {
     const pagina = await navegador.newPage({ viewport: { width: w, height: w < 500 ? 740 : 900 } });
-    await pagina.goto(BASE + "/", { waitUntil: "networkidle" });
+    await pagina.goto(BASE + rota, { waitUntil: "networkidle" });
     const alturaDoc = await pagina.evaluate(() => document.documentElement.scrollHeight - innerHeight);
     // Rolagem horizontal é falha, não observação: a página não pode sangrar.
     // E a falha NOMEIA o culpado — "sangrou a 360px" sem dizer o que sangrou
@@ -165,16 +189,17 @@ const falhar = (msg) => {
       return { scrollWidth: document.documentElement.scrollWidth, culpados: culpados.slice(0, 6).map((c) => `${c.nome} [${c.left}→${c.right}]`) };
     });
     if (sangra) {
-      falhar(`rolagem horizontal a ${w}px (scrollWidth ${sangra.scrollWidth})`);
+      falhar(`${rota} rolagem horizontal a ${w}px (scrollWidth ${sangra.scrollWidth})`);
       sangra.culpados.forEach((c) => console.log("           " + c));
     }
     for (const f of ROLAGENS) {
       await pagina.evaluate((y) => scrollTo(0, y), Math.round(alturaDoc * f));
       await pagina.waitForTimeout(320);
-      await pagina.screenshot({ path: `${SAIDA}/${w}-${Math.round(f * 100)}.png` });
+      await pagina.screenshot({ path: `${SAIDA}/${nomeArquivo(rota)}-${w}-${Math.round(f * 100)}.png` });
     }
-    if (!sangra) console.log(`  ok     ${w}px — 4 posições, sem sangramento horizontal`);
+    if (!sangra) console.log(`    ok   ${w}px — 4 posições, sem sangramento horizontal`);
     await pagina.close();
+  }
   }
 }
 
@@ -265,7 +290,15 @@ const falhar = (msg) => {
 {
   const pagina = await navegador.newPage({ viewport: { width: 1440, height: 900 } });
   console.log("\n6. corte no resultado de busca");
-  for (const rota of ["/", "/sobre", "/privacidade", "/termos"]) {
+  for (const rota of [
+    "/",
+    "/sobre",
+    "/privacidade",
+    "/termos",
+    "/blog",
+    "/blog/quanto-custa-seguro-de-carro",
+    "/blog/protecao-veicular-ou-seguro",
+  ]) {
     await pagina.goto(BASE + rota, { waitUntil: "domcontentloaded" });
     const m = await pagina.evaluate(() => ({
       titulo: document.title,
@@ -273,7 +306,7 @@ const falhar = (msg) => {
     }));
     if (!m.descricao) falhar(`${rota} sem <meta description>`);
     else if (m.descricao.length > DESCRICAO_MAX) falhar(`${rota} descrição ${m.descricao.length} chars (teto ${DESCRICAO_MAX})`);
-    else console.log(`  ok     ${rota.padEnd(14)} descrição ${String(m.descricao.length).padStart(3)}  título ${String(m.titulo.length).padStart(3)}${m.titulo.length > TITULO_AVISO ? "  ← a marca vai truncar" : ""}`);
+    else console.log(`  ok     ${rota.padEnd(34)} descrição ${String(m.descricao.length).padStart(3)}  título ${String(m.titulo.length).padStart(3)}${m.titulo.length > TITULO_AVISO ? "  ← a marca vai truncar" : ""}`);
   }
   await pagina.close();
 }

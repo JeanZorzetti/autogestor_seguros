@@ -1,0 +1,188 @@
+---
+import { getCollection } from "astro:content";
+import Base from "../../layouts/Base.astro";
+import BarraAcao from "../../components/BarraAcao.astro";
+import { dataIso, dataLonga, minutos, porData } from "../../lib/blog";
+import { SEGURO } from "../../data/solucoes";
+import { SITE } from "../../consts";
+
+const artigos = (await getCollection("blog")).sort(porData);
+
+const site = Astro.site ?? new URL("https://seguros.roilabs.com.br");
+const abs = (p: string) => new URL(p, site).href;
+
+// Um nó Blog que REFERENCIA os artigos por @id, em vez de repetir o conteúdo
+// deles aqui. Cada BlogPosting é declarado por inteiro na própria página — o
+// mesmo princípio do @graph único do Base: uma entidade, um lugar.
+const schema = [
+  {
+    "@type": "Blog",
+    "@id": abs("/blog#blog"),
+    name: `Blog — ${SITE.nome}`,
+    description:
+      "Artigos sobre seguro e proteção veicular escritos por uma corretora registrada na SUSEP, com fontes citadas.",
+    inLanguage: "pt-BR",
+    publisher: { "@id": abs("/#corretora") },
+    blogPost: artigos.map((a) => ({
+      "@type": "BlogPosting",
+      "@id": `${abs(`/blog/${a.id}`)}#artigo`,
+      headline: a.data.titulo,
+      url: abs(`/blog/${a.id}`),
+      datePublished: dataIso(a.data.publicado),
+    })),
+  },
+];
+---
+
+<Base
+  titulo={`Blog sobre seguro e proteção veicular | ${SITE.nome}`}
+  descricao="Preço, coberturas e regulação explicados por uma corretora registrada na SUSEP. Artigos com fontes citadas e sem promessa de menor preço."
+  schema={schema}
+  tipoPagina={["WebPage", "CollectionPage"]}
+  trilha={[
+    { nome: "Início", href: "/" },
+    { nome: "Blog", href: "/blog" },
+  ]}
+>
+  <section class="secao">
+    <div class="container blog__topo">
+      <span class="olho">Blog</span>
+      <h1>Seguro explicado por quem cota, não por quem vende apólice</h1>
+      <p class="chamada">
+        Somos corretora: não emitimos apólice nem pagamos indenização, e por isso podemos comparar as modalidades
+        sem torcer por uma delas. Todo número aqui tem origem citada, e toda afirmação sobre lei aponta para o
+        texto oficial.
+      </p>
+    </div>
+  </section>
+
+  <section class="secao secao--suave">
+    <div class="container">
+      <h2 class="visualmente-oculto">Artigos publicados</h2>
+      <ul class="blog__lista" role="list">
+        {
+          artigos.map((a) => (
+            <li class="cartao artigo-cartao">
+              <p class="artigo-cartao__meta">
+                <span class="artigo-cartao__cat">{a.data.categoria}</span>
+                <time datetime={dataIso(a.data.publicado)}>{dataLonga(a.data.publicado)}</time>
+                <span aria-hidden="true">·</span>
+                <span>{minutos(a)} min de leitura</span>
+              </p>
+              {/* O link envolve só o título e um pseudo-elemento estica a área
+                  clicável até a borda do cartão. Cartão inteiro dentro de <a>
+                  daria um nome acessível de parágrafo inteiro, e o leitor de
+                  tela leria o resumo duas vezes ao listar os links da página. */}
+              <h3 class="artigo-cartao__titulo">
+                <a href={`/blog/${a.id}`}>{a.data.titulo}</a>
+              </h3>
+              <p class="artigo-cartao__resumo">{a.data.resposta}</p>
+              <p class="artigo-cartao__mais" aria-hidden="true">Ler o artigo →</p>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section class="secao" id="pedir" tabindex="-1">
+    <div class="container blog__topo">
+      <span class="olho">Cotação</span>
+      <h2>Prefere resolver em vez de ler?</h2>
+      <p class="chamada">
+        Três campos e um consultor responde no seu WhatsApp no mesmo dia útil. A cotação é gratuita e compara as
+        propostas das companhias com que trabalhamos — sem robô e sem ligação de telemarketing.
+      </p>
+      <p>
+        <a class="btn btn--primario" href={`/#pedir`}>{SEGURO.fechamento}</a>
+      </p>
+    </div>
+  </section>
+
+  <BarraAcao solucao={SEGURO} rotulo="Pedir cotação" alvo="pedir" />
+</Base>
+
+<style>
+  .blog__topo {
+    max-width: 72ch;
+  }
+
+  .blog__lista {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: var(--e-6);
+  }
+  @media (min-width: 900px) {
+    .blog__lista {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  /* `position: relative` para ancorar o ::after do link abaixo; `display: grid`
+     com o resumo em 1fr para os cartões de alturas diferentes terminarem com o
+     "Ler o artigo" alinhado na mesma linha de base. */
+  .artigo-cartao {
+    position: relative;
+    display: grid;
+    grid-template-rows: auto auto 1fr auto;
+    transition: border-color var(--dur-media) var(--curva), background var(--dur-media) var(--curva);
+  }
+  @media (hover: hover) {
+    .artigo-cartao:hover {
+      border-color: var(--acento);
+      background: var(--cinza-100);
+    }
+  }
+
+  .artigo-cartao__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--e-2);
+    margin-bottom: var(--e-3);
+    font-size: var(--t-sm);
+    color: var(--texto-suave);
+  }
+  .artigo-cartao__cat {
+    font-family: var(--display);
+    font-weight: 800;
+    font-size: 0.6875rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--marca);
+  }
+
+  .artigo-cartao__titulo {
+    font-size: var(--t-xl);
+    margin-bottom: var(--e-3);
+  }
+  .artigo-cartao__titulo a {
+    color: var(--texto);
+    text-decoration: none;
+  }
+  .artigo-cartao__titulo a:hover {
+    color: var(--marca-forte);
+  }
+  /* Estica a área clicável do título até as bordas do cartão sem colocar o
+     cartão dentro do <a>. O anel de foco continua desenhando só no título,
+     que é o comportamento certo: é ele que tem o nome acessível. */
+  .artigo-cartao__titulo a::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+  }
+
+  .artigo-cartao__resumo {
+    color: var(--texto-suave);
+    margin-bottom: var(--e-4);
+  }
+  .artigo-cartao__mais {
+    margin: 0;
+    font-weight: 700;
+    font-size: var(--t-sm);
+    color: var(--marca-forte);
+  }
+</style>

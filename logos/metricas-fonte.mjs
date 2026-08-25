@@ -17,15 +17,15 @@ import { chromium } from "playwright";
 
 // A frase é o H1 da home: é ele que reflui e empurra a página inteira.
 const FRASE = "Seu seguro de carro, moto ou caminhão cotado em 8 seguradoras de uma vez";
-const PESO = 800;
-const FAMILIA = "Big Shoulders Display";
+const PESO = 400;
+const FAMILIA = "Anton";
 const PILHA_SISTEMA =
   'ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif';
 
 const navegador = await chromium.launch();
 const pagina = await navegador.newPage();
 await pagina.setContent(`<!doctype html><html><head>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=${FAMILIA.replace(/ /g, "+")}:wght@100..900&display=block">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=${FAMILIA.replace(/ /g, "+")}&display=block">
 <style>
   span { position:absolute; white-space:nowrap; font-size:100px; font-weight:${PESO}; }
   #capa { font-family:"${FAMILIA}"; }

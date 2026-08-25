@@ -4,7 +4,7 @@ import LeadForm from "../components/LeadForm.astro";
 import Faq from "../components/Faq.astro";
 import BarraAcao from "../components/BarraAcao.astro";
 import { AREA_SERVIDA, ICONES, SEGURO } from "../data/solucoes";
-import { ATENDIMENTO, EMPRESA, EXTERNOS, SEGURADORAS, SITE } from "../consts";
+import { ATENDIMENTO, EMPRESA, EXTERNOS, SEGURADORAS, SEGURADORAS_LOGO, SITE } from "../consts";
 
 const site = Astro.site ?? new URL("https://seguros.roilabs.com.br");
 const url = new URL("/", site).href;
@@ -28,7 +28,7 @@ const veiculos = [
 const comparacao = [
   {
     dimensao: "Quem fiscaliza",
-    seguro: "SUSEP, autarquia federal.",
+    seguro: "Autarquia federal do setor de seguros (registro no rodapé).",
     protecao: "Ninguém. É associação civil, fora da regulação de seguros.",
   },
   {
@@ -56,11 +56,11 @@ const comparacao = [
 const perguntas = [
   {
     p: "Qual a diferença entre seguro e proteção veicular?",
-    r: "Seguro é contrato regulado pela SUSEP, com seguradora obrigada a manter reservas técnicas e indenização prevista em apólice. Proteção veicular é rateio entre associados de uma associação: costuma ser mais barata e <strong>não tem a mesma garantia regulatória</strong> — não é fiscalizada pela SUSEP. Trabalhamos com as duas e dizemos qual é qual antes de você comparar preço, não depois do sinistro.",
+    r: "Seguro é contrato regulado por autarquia federal, com seguradora obrigada a manter reservas técnicas e indenização prevista em apólice. Proteção veicular é rateio entre associados de uma associação: costuma ser mais barata e <strong>não tem a mesma garantia regulatória</strong> — não é fiscalizada por esse regulador. Trabalhamos com as duas e dizemos qual é qual antes de você comparar preço, não depois do sinistro.",
   },
   {
     p: "Vocês representam uma seguradora só?",
-    r: `Não. Somos corretora independente, registro SUSEP ${EMPRESA.susep}. Cotamos com ${N} companhias e apresentamos as opções lado a lado — prêmio, franquia, cobertura e o que ficou de fora. Se a proposta mais barata for a pior para o seu caso, a gente diz isso.`,
+    r: `Não. Somos corretora independente — o registro regulatório está no rodapé do site, com o link de verificação. Cotamos com ${N} companhias e apresentamos as opções lado a lado — prêmio, franquia, cobertura e o que ficou de fora. Se a proposta mais barata for a pior para o seu caso, a gente diz isso.`,
   },
   {
     p: "Quanto custa a cotação?",
@@ -130,7 +130,7 @@ const schema = [
   <section class="capa">
     <div class="container capa__grade">
       <div class="capa__texto">
-        <span class="olho">Corretora SUSEP {EMPRESA.susep} · desde {EMPRESA.fundacao}</span>
+        <span class="olho">Corretora independente · desde {EMPRESA.fundacao}</span>
         <h1>Seu seguro de carro, moto ou caminhão cotado em {N} seguradoras de uma vez</h1>
         <p class="chamada">
           Você preenche uma vez. A gente cota nas {N} companhias, coloca as propostas lado a lado e mostra o que
@@ -175,16 +175,25 @@ const schema = [
   </section>
 
   {/* --------------------------------------------- faixa de prova social ---
-       Os nomes das companhias em TIPOGRAFIA, nunca o logotipo: são marcas
-       registradas de terceiros e não há ativo licenciado neste repositório.
-       Mesma decisão que o site do coopluz tomou com os logos de emissora. */}
+       O logotipo de cada companhia, não mais o nome em tipografia (peça do
+       dono, 25/08/2026) — ver a ressalva de licença em SEGURADORAS_LOGO,
+       consts.ts. Cada marca senta numa placa clara: as oito vieram desenhadas
+       para fundo branco, e a maioria (Allianz #003781, HDI verde #006B2D)
+       lê mal direto sobre o navy da página — a placa não é estética, é o
+       fundo que cada marca já espera. */}
   <section class="prova" aria-labelledby="prova-titulo">
     <div class="container">
       <h2 id="prova-titulo" class="prova__titulo">
         Cotamos com {N} companhias do mercado
       </h2>
       <ul class="prova__lista lista-limpa" role="list">
-        {SEGURADORAS.map((s) => <li>{s}</li>)}
+        {
+          SEGURADORAS.map((s) => (
+            <li>
+              <img src={`/img/seguradoras/${SEGURADORAS_LOGO[s]}`} alt={s} width="120" height="40" loading="lazy" />
+            </li>
+          ))
+        }
       </ul>
       <p class="prova__nota">
         A disponibilidade de cada companhia varia por perfil, veículo e região — a comparação mostra quais
@@ -381,9 +390,9 @@ const schema = [
         <span class="olho">Próximo passo</span>
         <h2>{SEGURO.fechamento}</h2>
         <p class="chamada">
-          Um consultor da {SITE.nome} responde no seu WhatsApp {ATENDIMENTO.prazo}. Corretora registrada na SUSEP
-          sob o número {EMPRESA.susep} desde {EMPRESA.fundacao}, com sede em {EMPRESA.endereco.cidade} e
-          atendimento em todo o Brasil.
+          Um consultor da {SITE.nome} responde no seu WhatsApp {ATENDIMENTO.prazo}. Corretora independente desde
+          {EMPRESA.fundacao}, com sede em {EMPRESA.endereco.cidade} e atendimento em todo o Brasil — o registro
+          regulatório está no rodapé.
         </p>
       </div>
       <LeadForm solucao={SEGURO} titulo="Peça sua cotação" destaque instancia="fim" />
@@ -440,23 +449,38 @@ const schema = [
     color: var(--texto-suave);
     margin-bottom: var(--e-4);
   }
-  /* Os nomes em display, tamanho grande e cor de texto: sem logotipo, é a
-     tipografia que precisa carregar o peso de marca. `flex-wrap` e não grade
-     de colunas fixas — os nomes têm larguras muito diferentes ("HDI" contra
-     "Bradesco Seguros") e uma grade regular deixaria buracos. */
+  /* `flex-wrap` e não grade de colunas fixas: os logotipos têm proporções
+     muito diferentes ("HDI" quase quadrado contra o wordmark comprido da
+     Bradesco Seguros) e uma grade regular deixaria buracos. */
   .prova__lista {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--e-3) var(--e-6);
-    align-items: baseline;
+    gap: var(--e-4);
+    align-items: stretch;
   }
+  /* A placa clara: cada logotipo foi desenhado para fundo branco, não para o
+     navy da página (ver o comentário acima do <ul>). Altura fixa e `object-fit:
+     contain` porque as oito chegam em proporções diferentes — a placa não
+     pode esticar a marca de ninguém para preencher a caixa. */
   .prova__lista li {
-    font-family: var(--display);
-    font-weight: 700;
-    font-size: var(--t-xl);
-    letter-spacing: 0.02em;
-    text-transform: uppercase;
-    color: var(--texto-sobre-marca);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 56px;
+    padding-inline: var(--e-4);
+    background: var(--prata-050);
+    border-radius: var(--r-3);
+  }
+  /* Largura e altura FIXAS, não `max-*` + `auto`: o SVG da Mapfre não declara
+     `width`/`height` no elemento raiz (só `viewBox`), e nessa combinação o
+     Chromium some com a caixa da imagem — mede 0×0 mesmo com o arquivo
+     carregado (visto em `logos/_tmp-diag2.mjs` durante a verificação). Com
+     dimensão definida o tamanho nunca depende do que cada arquivo declarou. */
+  .prova__lista img {
+    display: block;
+    width: 108px;
+    height: 28px;
+    object-fit: contain;
   }
   .prova__nota {
     margin: var(--e-4) 0 0;

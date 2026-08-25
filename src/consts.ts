@@ -88,21 +88,18 @@ export const GA4 = "G-SHG12H2NZX";
  *  própria Autogestor, sobre a própria vertical de seguros. Não há
  *  `papel`/`representante autorizado` a declarar, e a divulgação obrigatória
  *  de terceiro (Princípio VI da constituição) não se aplica — não há terceiro.
- *  O que ocupa o lugar dela é a CREDENCIAL: registro SUSEP e ano de fundação,
- *  que é o que muda a decisão de quem vai contratar seguro. */
+ *  O que ocupa o lugar dela é a CREDENCIAL: independência e ano de fundação.
+ *  O número de registro SUSEP em si não sai mais aqui — só no rodapé, junto
+ *  do link de consulta pública, que é o único lugar em que um número solto
+ *  vira alegação verificável em vez de decoração repetida pela página. */
 export const SITE = {
   nome: "Autogestor Seguros",
   /** Vai colado à marca no cabeçalho, como nas peças de captação impressas. */
-  selo: `SUSEP ${EMPRESA.susep} · desde ${EMPRESA.fundacao}`,
+  selo: `Corretora independente · desde ${EMPRESA.fundacao}`,
 } as const;
 
 /** As companhias com que a corretora trabalha, na ordem em que aparecem na
- *  peça de captação de agosto/2026 (docs/seguros/ do hub).
- *
- *  Só o NOME, nunca o logotipo: são marcas registradas de terceiros e não há
- *  ativo licenciado neste repositório. É a mesma decisão que o coopluz tomou
- *  com os logos de emissora na seção "Na mídia" — prova social por tipografia,
- *  não por marca alheia reexibida como se fosse nossa. */
+ *  peça de captação de agosto/2026 (docs/seguros/ do hub). */
 export const SEGURADORAS = [
   "Porto",
   "Allianz",
@@ -113,6 +110,26 @@ export const SEGURADORAS = [
   "Mapfre",
   "Itaú",
 ] as const;
+
+/** Arquivo do logotipo de cada companhia, em public/img/seguradoras/ — peça
+ *  do dono, 25/08/2026: trocar a prova social de tipografia por marca real.
+ *  São marcas registradas de terceiros: os arquivos vieram do Wikimedia
+ *  Commons (Porto, Allianz, Bradesco, HDI, Zurich, Mapfre, Itaú) e do próprio
+ *  site da Azul Seguros (ícone do app, na ausência de um arquivo melhor em
+ *  fonte pública). Isso identifica a marca para comparação de mercado, mas
+ *  NÃO é licença explícita de uso — se algum dia isso importar (campanha
+ *  paga, material impresso), o caminho correto é pedir o kit de imprensa de
+ *  cada seguradora, não reusar o que está aqui. */
+export const SEGURADORAS_LOGO: Record<(typeof SEGURADORAS)[number], string> = {
+  Porto: "porto.svg",
+  Allianz: "allianz.svg",
+  "Bradesco Seguros": "bradesco.svg",
+  HDI: "hdi.svg",
+  "Azul Seguros": "azul.png",
+  Zurich: "zurich.svg",
+  Mapfre: "mapfre.svg",
+  Itaú: "itau.svg",
+};
 
 /** Data da última revisão dos textos legais. Sai nas duas páginas e no llms.txt;
  *  política sem data é política que ninguém sabe se ainda vale. */

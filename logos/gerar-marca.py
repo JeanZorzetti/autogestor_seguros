@@ -1,5 +1,13 @@
 """Gera a marca da Autogestor Seguros por formula e escreve os derivados.
 
+AVISO (25/08/2026): peca do dono trocou a marca do site pela logo do hub
+(Autogestor) — Logo.astro, public/img/logo.svg, logo-mono.svg e favicon.svg
+foram atualizados a mao com a geometria de C:\\dev\\autogestor\\src\\components\\
+Logo.astro, e `npm run marca` NAO foi tocado. Rodar este script (ou `npm run
+marca`) REESCREVE esses quatro arquivos com o hexagono+vortice abaixo e
+desfaz a troca sem aviso. Se a marca da casa for restaurada, ok rodar de
+novo — so nao rodar por engano achando que e so "regenerar os PNGs".
+
 O simbolo e o hexagono biselado com vortice das pecas de captacao da propria
 Autogestor Seguros (docs/seguros/ do hub, agosto/2026) — nao e marca de
 terceiro, e a sub-marca da casa. O que muda aqui: ele deixa de ser um desenho

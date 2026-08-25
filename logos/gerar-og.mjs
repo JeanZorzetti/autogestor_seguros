@@ -2,10 +2,10 @@
 //   node logos/gerar-og.mjs
 //
 // Renderiza no navegador em vez de montar o PNG no sharp por um motivo só: a
-// fonte. A Big Shoulders Display não está instalada no sistema, então um SVG
-// rasterizado pelo sharp cairia numa grotesca qualquer — e o cartão de
-// compartilhamento é justamente onde a marca aparece para quem ainda NÃO entrou
-// no site. Aqui a página carrega a MESMA fonte e os MESMOS tokens do site.
+// fonte. A Anton não está instalada no sistema, então um SVG rasterizado pelo
+// sharp cairia numa grotesca qualquer — e o cartão de compartilhamento é
+// justamente onde a marca aparece para quem ainda NÃO entrou no site. Aqui a
+// página carrega a MESMA fonte e os MESMOS tokens do site.
 //
 // A alternativa (arquivo de design mantido à mão) foi recusada: é assim que um
 // PNG de marca fica desatualizado sem ninguém perceber.
@@ -44,11 +44,11 @@ const simbolo = readFileSync("public/img/logo.svg", "utf8");
 const simboloMono = readFileSync("public/img/logo-mono.svg", "utf8");
 
 const html = `<!doctype html><html><head><meta charset="utf-8">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@400..800&display=block">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&display=block">
 <style>
   *{margin:0;padding:0;box-sizing:border-box}
   body{width:${L}px;height:${A}px;background:${FUNDO};color:${TEXTO};
-       font-family:"Big Shoulders Display",sans-serif;overflow:hidden;position:relative}
+       font-family:"Anton",sans-serif;overflow:hidden;position:relative}
 
   /* O RASTRO, parado. É o gesto do site — a linha incandescente que na página
      acende com a rolagem — congelado no quadro. Um cartão de compartilhamento
@@ -88,7 +88,7 @@ const html = `<!doctype html><html><head><meta charset="utf-8">
   <div class="rastro"></div>
   <div class="quadro">
     <div>
-      <span class="olho">Corretora SUSEP · desde 2004</span>
+      <span class="olho">Corretora independente · desde 2004</span>
       <h1>Seu seguro cotado em <em>${N} seguradoras</em> de uma vez</h1>
       <p class="sub">Carro, moto, camionete e caminhão. Cotar é grátis, e a comparação mostra o que cada apólice deixa de fora.</p>
     </div>

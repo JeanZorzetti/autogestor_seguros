@@ -32,16 +32,16 @@
    banda escura não ser gosto. */
 
 /* Fallback de métrica casada da fonte de exibição. Os quatro números saem de
-   `node logos/metricas-fonte.mjs` (Big Shoulders 2865.46px contra 3803.37px da
-   pilha do sistema, na frase do H1, peso 800) — nenhum é estimado. Sem isto o
-   H1 rebobina a quebra de linha quando a fonte troca, e é CLS na primeira tela
-   da página de captação. */
+   `node logos/metricas-fonte.mjs` (Anton 3137.30px contra 3453.17px da pilha
+   do sistema, na frase do H1, peso 400 — a única variação que a Anton tem)
+   — nenhum é estimado. Sem isto o H1 rebobina a quebra de linha quando a
+   fonte troca, e é CLS na primeira tela da página de captação. */
 @font-face {
   font-family: "Capa fallback";
   src: local("Arial Narrow"), local("Roboto Condensed"), local("Segoe UI"), local("Roboto"), local("Arial");
-  size-adjust: 75.3%;
-  ascent-override: 130.1%;
-  descent-override: 27.9%;
+  size-adjust: 90.9%;
+  ascent-override: 129.9%;
+  descent-override: 36.3%;
   line-gap-override: 0%;
 }
 
@@ -162,13 +162,17 @@
      Outfit é do coopluz, e um site que existe para não parecer os irmãos não
      pode começar pela mesma letra.
 
-     Big Shoulders Display é CONDENSADA, e isso resolve um problema concreto,
-     não é preferência: medida, ela ocupa 75.3% da largura da pilha do sistema.
-     É o que permite o H1 chegar a 5.25rem (salto de 5.25x sobre o corpo) sem
-     empurrar o formulário para fora da primeira tela num notebook de 900px —
-     exatamente o gate que o hub e o coopluz não conseguiram fechar, os dois
-     travados em 4x por causa da largura da fonte deles. */
-  --display: "Big Shoulders Display", "Capa fallback", ui-sans-serif, system-ui, sans-serif;
+     Anton troca a Big Shoulders Display por outra condensada de peso forte,
+     de propósito (peça do dono, 25/08/2026: "não gostei da fonte"). Ela é
+     mais estreita que a pilha do sistema, só que menos que a família
+     anterior — medida, ocupa 90,9% contra os 75,3% da Big Shoulders — então
+     o H1 tem menos folga antes de quebrar de linha num notebook de 900px do
+     que tinha antes. Se `node logos/verificar.mjs` mostrar o formulário
+     empurrado para fora da primeira tela, é aqui ou em `--t-3xl` que se
+     ajusta, não decorando por cima. Anton só existe em um peso (a variação
+     "black" já é a regular) — não há 400..800 para escalar como havia na
+     Big Shoulders. */
+  --display: "Anton", "Capa fallback", ui-sans-serif, system-ui, sans-serif;
   --corpo: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 
   --t-sm: 0.875rem;

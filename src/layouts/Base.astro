@@ -1,0 +1,247 @@
+---
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import { ATENDIMENTO, EMPRESA, EXTERNOS, GA4, SITE } from "../consts";
+import { AREA_SERVIDA } from "../data/solucoes";
+import "../styles/global.css";
+
+interface Props {
+  titulo: string;
+  descricao: string;
+  /** Nós extras do @graph (Service, FAQPage…). Um grafo único por página: nós
+   *  soltos em <script> separados duplicam a entidade Organization. */
+  schema?: Record<string, unknown>[];
+  trilha?: { nome: string; href: string }[];
+  ogImagem?: string;
+  /** Página sem conteúdo próprio de busca (recibo, erro). Fora do índice, mas
+   *  os links continuam sendo seguidos. */
+  noindex?: boolean;
+  /** ISO (AAAA-MM-DD) da última revisão de uma página que não é artigo — uma
+   *  política, por exemplo. Vira `dateModified` do WebPage que já existe, em
+   *  vez de um segundo nó: schema.org não tem tipo para documento legal, e um
+   *  WebPage extra na mesma URL duplica a entidade em vez de descrevê-la. */
+  atualizado?: string;
+  /** Subtipo do WebPage ("AboutPage", "ContactPage"…) quando schema.org tem um
+   *  específico. Mesmo raciocínio do `atualizado` acima: estende o nó que já
+   *  existe em vez de criar um segundo "esta página é sobre X" na mesma URL. */
+  tipoPagina?: string | string[];
+}
+const {
+  titulo,
+  descricao,
+  schema = [],
+  trilha = [],
+  ogImagem = "/img/og.png",
+  noindex = false,
+  atualizado,
+  tipoPagina = "WebPage",
+} = Astro.props;
+
+const site = Astro.site ?? new URL("https://seguros.roilabs.com.br");
+// `trailingSlash: "never"` no astro.config.mjs também vale pra home: sem o
+// `.replace` final, `new URL("/", site)` sempre devolve barra ("https://x/"),
+// que diverge do sitemap.xml e do resto do site.
+const canonical = new URL(Astro.url.pathname.replace(/\/$/, "") || "/", site).href.replace(/\/$/, "");
+const abs = (p: string) => new URL(p, site).href;
+
+// UMA organização, e essa é a diferença estrutural em relação ao coopluz.
+// Lá havia duas (a Autogestor que opera o site e a cooperativa sobre a qual o
+// site fala), com `publisher` e `about` apontando para nós diferentes. Aqui a
+// Autogestor é as duas coisas: quem opera E quem presta o serviço. Um segundo
+// nó seria a mesma entidade declarada duas vezes.
+//
+// `InsuranceAgency` (subtipo de FinancialService) e não `Organization` genérica:
+// é o tipo que schema.org tem exatamente para corretora de seguros, e é o que
+// permite a um motor de resposta distinguir esta empresa de uma seguradora.
+// `identifier` carrega o registro SUSEP como dado, não só como texto na página,
+// e `subjectOf` aponta para a consulta pública — alegação com caminho de
+// verificação é o que motor de resposta cita; número solto, não.
+const grafo: Record<string, unknown>[] = [
+  {
+    "@type": ["InsuranceAgency", "Organization"],
+    "@id": abs("/#corretora"),
+    name: SITE.nome,
+    legalName: EMPRESA.nomeLegal,
+    url: abs("/"),
+    logo: { "@type": "ImageObject", "@id": abs("/#logo"), url: abs("/img/icon-512.png"), width: 512, height: 512 },
+    image: { "@id": abs("/#logo") },
+    foundingDate: EMPRESA.fundacao,
+    description:
+      "Corretora de seguros independente com registro SUSEP, sediada em Goiânia (GO) e atendendo todo o Brasil. Compara seguro e proteção veicular para carro, moto, camionete e caminhão entre várias companhias e acompanha a regulação do sinistro.",
+    identifier: {
+      "@type": "PropertyValue",
+      name: "Registro SUSEP",
+      value: EMPRESA.susep,
+      url: EXTERNOS.susepConsulta,
+    },
+    telephone: EMPRESA.telefone,
+    email: EMPRESA.email,
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: EMPRESA.endereco.rua,
+      addressLocality: EMPRESA.endereco.cidade,
+      addressRegion: EMPRESA.endereco.uf,
+      postalCode: EMPRESA.endereco.cep,
+      addressCountry: EMPRESA.endereco.pais,
+    },
+    geo: { "@type": "GeoCoordinates", latitude: EMPRESA.geo.lat, longitude: EMPRESA.geo.lon },
+    areaServed: AREA_SERVIDA.BR,
+    openingHoursSpecification: [ATENDIMENTO.horarioSchema],
+    sameAs: [...EMPRESA.redes],
+    // O hub é a matriz das seis frentes; declarar isso evita que os dois
+    // domínios apareçam como empresas diferentes com o mesmo endereço e
+    // telefone — que é exatamente o que derruba SEO local.
+    parentOrganization: {
+      "@type": "Organization",
+      name: EMPRESA.nome,
+      url: "https://autogestor.roilabs.com.br/",
+    },
+  },
+  {
+    "@type": "WebSite",
+    "@id": abs("/#site"),
+    url: abs("/"),
+    name: SITE.nome,
+    inLanguage: "pt-BR",
+    publisher: { "@id": abs("/#corretora") },
+  },
+  {
+    "@type": tipoPagina,
+    "@id": `${canonical}#pagina`,
+    url: canonical,
+    name: titulo,
+    description: descricao,
+    inLanguage: "pt-BR",
+    isPartOf: { "@id": abs("/#site") },
+    about: { "@id": abs("/#corretora") },
+    ...(atualizado ? { dateModified: atualizado } : {}),
+    ...(trilha.length ? { breadcrumb: { "@id": `${canonical}#trilha` } } : {}),
+  },
+  ...(trilha.length
+    ? [
+        {
+          "@type": "BreadcrumbList",
+          "@id": `${canonical}#trilha`,
+          itemListElement: trilha.map((t, i) => ({
+            "@type": "ListItem",
+            position: i + 1,
+            name: t.nome,
+            item: abs(t.href),
+          })),
+        },
+      ]
+    : []),
+  ...schema,
+];
+---
+
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{titulo}</title>
+    <meta name="description" content={descricao} />
+    {/* Sem canonical quando a página está fora do índice: a tag existe para
+         dizer qual URL indexar, e /404 apontaria para /404 — declarando como
+         canônica exatamente a página que o `noindex` da linha seguinte manda
+         ignorar. Duas instruções contraditórias na mesma <head>. */}
+    {!noindex && <link rel="canonical" href={canonical} />}
+    {noindex && <meta name="robots" content="noindex, follow" />}
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon.png" type="image/png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+    {/* Big Shoulders Display variable (wght): a fonte de exibição, e a fonte
+         que separa este site do hub (Archivo) e do coopluz (Outfit). Ela é
+         condensada, o que não é detalhe estético: é o que deixa o H1 chegar a
+         5.25rem sem enterrar o formulário (ver o comentário em global.css).
+         `preconnect` para o handshake TLS não competir com o CSS; o Google já
+         entrega só o subset latin para quem lê português. `display=optional`
+         porque com o fallback de métrica casada medido não há ganho em
+         bloquear a pintura esperando o arquivo chegar. */}
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@400..800&display=optional"
+      rel="stylesheet"
+    />
+
+    {/* Um valor só, sem par claro/escuro: este site não tem tema alternativo
+         (decisão de direção — ver o carimbo em global.css). É o próprio
+         --noite-950 da página, para a barra do navegador continuar a página. */}
+    <meta name="theme-color" content="#050b14" />
+
+    {/* GA4. Só no build de produção: `astro dev` na máquina de quem edita
+        mandaria pageview de localhost para a mesma propriedade, e aí o número
+        que a decisão usa vira o tráfego do time somado ao do cliente.
+        `is:inline` para o Astro não empacotar o snippet num módulo com defer —
+        o gtag precisa existir antes de qualquer chamada. */}
+    {
+      import.meta.env.PROD && (
+        <>
+          <script is:inline async src={`https://www.googletagmanager.com/gtag/js?id=${GA4}`} />
+          <script
+            is:inline
+            set:html={`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${GA4}');`}
+          />
+        </>
+      )
+    }
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={SITE.nome} />
+    <meta property="og:locale" content="pt_BR" />
+    <meta property="og:title" content={titulo} />
+    <meta property="og:description" content={descricao} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={abs(ogImagem)} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <script
+      type="application/ld+json"
+      is:inline
+      set:html={JSON.stringify({ "@context": "https://schema.org", "@graph": grafo })}
+    />
+  </head>
+  <body>
+    <a class="pular" href="#conteudo">Pular para o conteúdo</a>
+    {/* O RASTRO — o gesto desta direção. Acende de cima para baixo com a
+         rolagem via `animation-timeline: scroll(root)`: zero JS, zero listener.
+         Sem suporte a timeline de scroll, ou com movimento reduzido, ele nasce
+         inteiro e parado — continua sendo a espinha da página, nunca some.
+         `aria-hidden` porque não acrescenta informação a quem lê por leitor de
+         tela: a posição na página já é dita pelos headings. */}
+    <span class="rastro" aria-hidden="true"></span>
+    <Header />
+    <main id="conteudo" tabindex="-1">
+      {/* O BreadcrumbList do @graph acima descreve uma trilha que também existe
+          na página: o que o buscador lê é o que o leitor vê. Último item não é
+          link — é onde a pessoa já está. */}
+      {
+        trilha.length > 1 && (
+          <nav class="trilha" aria-label="Trilha de navegação">
+            <div class="container">
+              <ol>
+                {trilha.map((t, i) =>
+                  i === trilha.length - 1 ? (
+                    <li aria-current="page">{t.nome}</li>
+                  ) : (
+                    <li>
+                      <a href={t.href}>{t.nome}</a>
+                    </li>
+                  )
+                )}
+              </ol>
+            </div>
+          </nav>
+        )
+      }
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>

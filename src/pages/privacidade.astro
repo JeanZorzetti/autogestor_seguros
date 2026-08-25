@@ -1,0 +1,165 @@
+---
+import Legal from "../layouts/Legal.astro";
+import { EMPRESA, SEGURADORAS, SITE } from "../consts";
+
+// O conteúdo desta página descreve o que /api/lead grava de verdade
+// (src/pages/api/lead.ts + src/lib/db.ts). Ao mudar os campos do formulário ou
+// os metadados salvos, mudar aqui junto — política que não bate com o código é
+// pior que política nenhuma.
+---
+
+<Legal
+  titulo={`Política de Privacidade | ${SITE.nome}`}
+  descricao="Quais dados a Autogestor coleta neste site, para que usa, com quais seguradoras compartilha, por quanto tempo guarda e como você pede exclusão."
+  h1="Política de Privacidade"
+  chamada="Esta página descreve exatamente quais dados este site coleta, por que coleta e o que você pode exigir a respeito deles. Está escrita para ser lida, não para ser aceita sem ler."
+  nome="Privacidade"
+  href="/privacidade"
+>
+  <h2 id="quem">Quem é o controlador</h2>
+  <p>
+    {EMPRESA.nomeLegal} é a controladora dos dados pessoais tratados neste site, nos termos da Lei nº 13.709/2018
+    (LGPD). O encarregado pelo tratamento de dados atende pelo e-mail
+    <a href={`mailto:${EMPRESA.email}`}>{EMPRESA.email}</a>.
+  </p>
+
+  <h2 id="coleta">Quais dados coletamos</h2>
+  <h3>Dados que você digita</h3>
+  <p>O formulário de cadastro tem três campos e nenhum a mais:</p>
+  <ul>
+    <li><strong>Nome</strong> — para o consultor saber com quem está falando.</li>
+    <li><strong>WhatsApp</strong> — é o único canal por onde respondemos.</li>
+    <li>
+      <strong>Marca e modelo do veículo</strong> — é o mínimo para começar uma cotação. Sem ele, o consultor
+      teria de perguntar isso antes de qualquer outra coisa.
+    </li>
+  </ul>
+  <p>
+    Não pedimos CPF, e-mail, endereço, renda, placa nem documento no site. Esses dados, quando necessários para
+    a seguradora emitir a proposta, são solicitados depois, já no atendimento, e só os que a companhia exigir.
+  </p>
+
+  <h3>Dados coletados automaticamente no envio</h3>
+  <p>Junto com o formulário, o servidor registra algumas informações técnicas:</p>
+  <ul>
+    <li>
+      <strong>Endereço IP</strong> e <strong>navegador/dispositivo</strong> (user-agent) — para conter envio
+      automatizado por robô.
+    </li>
+    <li>
+      <strong>Página de origem</strong> (referer) e a identificação da página onde o formulário foi preenchido —
+      para saber qual conteúdo gerou o pedido.
+    </li>
+  </ul>
+
+  <h3>Dados de navegação (Google Analytics)</h3>
+  <p>
+    O site usa o Google Analytics 4 para medir quantas pessoas visitam cada página, de onde vêm e o que acessam.
+    Ele grava cookies no seu navegador e coleta dados de uso de forma agregada — o Google atua como operador e
+    pode processar esses dados fora do Brasil, inclusive nos Estados Unidos. O Analytics não recebe seu nome nem
+    seu WhatsApp: os dados do formulário trafegam apenas entre o site e o nosso servidor.
+  </p>
+  <p>
+    Para recusar essa medição, use o bloqueio de cookies de terceiros do seu navegador ou o
+    <a href="https://tools.google.com/dlpage/gaoptout" rel="nofollow noopener">
+      complemento oficial de desativação do Google Analytics
+    </a>. Recusar não muda nada no atendimento nem no funcionamento do site.
+  </p>
+
+  <h2 id="finalidade">Por que tratamos esses dados</h2>
+  <ul>
+    <li>
+      <strong>Cotar o seguro que você pediu.</strong> Base legal: execução de procedimentos preliminares
+      relacionados a contrato, a seu próprio pedido (LGPD, art. 7º, V).
+    </li>
+    <li>
+      <strong>Conter fraude e envio automatizado.</strong> Base legal: legítimo interesse (art. 7º, IX), limitado
+      ao mínimo necessário para essa finalidade.
+    </li>
+    <li>
+      <strong>Medir o desempenho do site.</strong> Base legal: legítimo interesse (art. 7º, IX), com dados
+      agregados de navegação.
+    </li>
+  </ul>
+  <p>
+    <strong>Não vendemos, alugamos nem cedemos seus dados para terceiros fazerem publicidade.</strong> Não montamos
+    lista para venda e não repassamos contatos a quem não esteja envolvido no pedido que você fez.
+  </p>
+
+  <h2 id="compartilhamento">Com quem compartilhamos</h2>
+  <p>
+    Apenas com quem precisa dos dados para entregar exatamente o que você solicitou, e apenas o necessário:
+  </p>
+  <ul>
+    <li>
+      <strong>As seguradoras e associações consultadas na sua cotação</strong> — é literalmente o serviço que
+      você pediu: sem enviar seus dados a elas, não há proposta para comparar. Cada companhia recebe apenas o
+      necessário para precificar o risco e passa a ser controladora dos dados que recebeu, sob a política de
+      privacidade dela. As companhias com que trabalhamos estão nomeadas na
+      <a href="/">página inicial</a> — hoje são {SEGURADORAS.length}.
+    </li>
+    <li>
+      <strong>Prestadores de infraestrutura</strong> que operam o site e o banco de dados (hospedagem e provedor de
+      nuvem), sempre como operadores, sem autorização para usar os dados para fim próprio.
+    </li>
+    <li><strong>Autoridade pública</strong>, quando houver obrigação legal ou ordem judicial.</li>
+  </ul>
+
+  <h2 id="prazo">Por quanto tempo guardamos</h2>
+  <ul>
+    <li>
+      <strong>Cotações que não viraram apólice:</strong> até 24 meses após o último contato — a renovação do
+      seguro atual costuma trazer a pessoa de volta dentro desse prazo. Depois disso, apagamos.
+    </li>
+    <li>
+      <strong>Cotações que viraram apólice:</strong> pela vigência da apólice e por até 5 anos após o seu
+      término, compatível com os prazos de prescrição do Código Civil e do Código de Defesa do Consumidor —
+      prazo em que uma discussão sobre sinistro ainda pode ser aberta.
+    </li>
+    <li><strong>Registros técnicos (IP, user-agent, referer):</strong> pelo mesmo prazo do pedido a que pertencem.</li>
+    <li>
+      <strong>Dados de navegação do Analytics:</strong> conforme a retenção configurada no Google Analytics 4, de
+      até 14 meses.
+    </li>
+  </ul>
+  <p>Você pode pedir a exclusão antes desses prazos — veja abaixo.</p>
+
+  <h2 id="direitos">Seus direitos</h2>
+  <p>A LGPD (art. 18) garante a você, a qualquer momento e sem custo, o direito de:</p>
+  <ul>
+    <li>confirmar que tratamos seus dados e acessar o que temos;</li>
+    <li>corrigir dado incompleto, inexato ou desatualizado;</li>
+    <li>pedir anonimização, bloqueio ou eliminação de dado desnecessário ou excessivo;</li>
+    <li>pedir a portabilidade dos dados a outro fornecedor;</li>
+    <li>pedir a eliminação dos dados tratados com base no seu consentimento;</li>
+    <li>saber com quais entidades compartilhamos seus dados;</li>
+    <li>revogar o consentimento e se opor a tratamento feito com base em legítimo interesse.</li>
+  </ul>
+  <p>
+    Para exercer qualquer um deles, escreva para <a href={`mailto:${EMPRESA.email}`}>{EMPRESA.email}</a> com o
+    assunto "LGPD". Respondemos em até 15 dias. Podemos pedir uma confirmação de identidade antes de atender — é o
+    que impede que outra pessoa acesse ou apague os seus dados.
+  </p>
+  <p>
+    Para parar de receber mensagens no WhatsApp, basta responder pedindo. Não há formulário nem prazo para isso.
+  </p>
+
+  <h2 id="seguranca">Segurança</h2>
+  <p>
+    Os dados trafegam por conexão criptografada (HTTPS) e ficam em banco de dados com acesso restrito às pessoas do
+    atendimento que precisam dele. Nenhum sistema é imune a incidente: se ocorrer um que traga risco relevante a
+    você, comunicamos você e a Autoridade Nacional de Proteção de Dados, como manda o art. 48 da LGPD.
+  </p>
+
+  <h2 id="menores">Menores de idade</h2>
+  <p>
+    O site não se destina a menores de 18 anos e não coletamos dados dessa faixa etária de forma consciente. Se
+    identificarmos um cadastro nessas condições, ele é apagado.
+  </p>
+
+  <h2 id="mudancas">Mudanças nesta política</h2>
+  <p>
+    Quando esta política mudar, a data de última atualização no topo muda junto. Alterações que afetem de forma
+    relevante o tratamento dos seus dados são comunicadas pelo canal de contato que você deixou.
+  </p>
+</Legal>

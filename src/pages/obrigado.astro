@@ -1,0 +1,103 @@
+---
+import Base from "../layouts/Base.astro";
+import { ATENDIMENTO, EMPRESA, SITE, whatsapp } from "../consts";
+
+// Renderizada no servidor porque precisa ler ?erro= do redirect do endpoint.
+// Se fosse estática, quem enviou sem JavaScript e errou o telefone leria
+// "pedido recebido" — a página mentiria para exatamente quem não foi atendido.
+export const prerender = false;
+
+const falhou = Astro.url.searchParams.has("erro");
+const campo = Astro.url.searchParams.get("erro");
+// Mesmas mensagens de src/lib/lead.mjs — o redirect sem JS carrega só o nome
+// do campo, não a mensagem inteira.
+const MOTIVO: Record<string, string> = {
+  nome: "Faltou o seu nome.",
+  whatsapp: "O WhatsApp não chegou completo — confira o DDD e os 9 dígitos.",
+  solucao: "A solução escolhida não foi reconhecida.",
+  contexto: "Faltou preencher o campo do veículo.",
+};
+const motivo =
+  (campo && MOTIVO[campo]) || "Pode ter sido o WhatsApp com um dígito faltando, ou o nosso servidor fora do ar.";
+---
+
+<Base
+  titulo={falhou ? `Não conseguimos registrar seu pedido | ${SITE.nome}` : `Pedido recebido | ${SITE.nome}`}
+  descricao="Confirmação de envio do pedido de cotação de seguro."
+  noindex
+>
+  <section class="secao">
+    <div class="container recibo">
+      {
+        falhou ? (
+          <>
+            <span class="olho">Não conseguimos registrar</span>
+            <h1>Seu pedido não chegou até nós</h1>
+            <p class="chamada">{motivo} Chame no WhatsApp que a gente cota na hora, sem formulário.</p>
+          </>
+        ) : (
+          <>
+            <span class="olho">Pedido recebido</span>
+            <h1>Pronto. Agora é com a gente.</h1>
+            <p class="chamada">
+              Um consultor da {SITE.nome} chama você no WhatsApp que você informou {ATENDIMENTO.prazo}. O
+              atendimento funciona {ATENDIMENTO.horario} — se você enviou fora disso, a resposta vem no próximo dia
+              útil. Se quiser adiantar, você mesmo pode puxar a conversa agora.
+            </p>
+          </>
+        )
+      }
+
+      <p class="acoes">
+        <a
+          class="btn btn--primario externo"
+          href={whatsapp(
+            falhou
+              ? "Olá! Tentei pedir uma cotação pelo site e deu erro."
+              : "Olá! Acabei de pedir uma cotação de seguro pelo site."
+          )}
+          target="_blank"
+          rel="noopener"
+        >
+          Chamar no WhatsApp {EMPRESA.telefoneExibicao}
+          <span class="visualmente-oculto">— abre em nova aba</span>
+        </a>
+        <a class="btn btn--contorno" href="/">Voltar ao início</a>
+      </p>
+
+      {/* A espera é o único momento em que a pessoa quer ser útil e não tem o
+           que fazer. Em vez de links de navegação, o que ela pode adiantar —
+           são os dois dados que a companhia vai pedir e as duas declarações
+           que mais mudam o preço. */}
+      <h2 class="mais">Enquanto a gente cota</h2>
+      <ul class="lista-check" role="list">
+        <li>
+          Separe o <strong>documento do veículo</strong> e o <strong>CPF do condutor principal</strong> — é o que a
+          companhia pede para fechar a proposta.
+        </li>
+        <li>
+          Pense em <strong>quem mais dirige</strong> e <strong>onde o veículo dorme</strong>. Os dois mudam o preço,
+          e declarar errado pode custar a indenização.
+        </li>
+        <li>
+          <a href="/sobre">Quem somos</a> — o registro SUSEP e o que a corretora faz que a seguradora não faz.
+        </li>
+      </ul>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .recibo {
+    max-width: 70ch;
+  }
+  .acoes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--e-3);
+    margin-block: var(--e-8) var(--e-16);
+  }
+  .mais {
+    font-size: var(--t-lg);
+  }
+</style>

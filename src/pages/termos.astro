@@ -1,0 +1,141 @@
+---
+import Legal from "../layouts/Legal.astro";
+import { ATENDIMENTO, EMPRESA, SEGURADORAS, SITE } from "../consts";
+
+const N = SEGURADORAS.length;
+---
+
+<Legal
+  titulo={`Termos de Uso | ${SITE.nome}`}
+  descricao="Regras de uso deste site: o que a corretora faz e o que não faz, a diferença entre seguro e proteção veicular, natureza das estimativas, prazo de resposta e responsabilidades."
+  h1="Termos de Uso"
+  chamada="O que você pode esperar deste site, o que a Autogestor faz de fato como corretora e onde estão os limites. Sem cláusula escondida em letra pequena — não há letra pequena aqui."
+  nome="Termos"
+  href="/termos"
+>
+  <h2 id="objeto">O que este site é</h2>
+  <p>
+    Este site apresenta os serviços de corretagem de seguro e de intermediação de proteção veicular da
+    {EMPRESA.nomeLegal} e permite pedir uma cotação por um formulário de três campos. Usar o site significa
+    concordar com as regras desta página.
+  </p>
+  <p>
+    A Autogestor atua como <strong>corretora de seguros</strong>, registrada na SUSEP sob o número
+    {EMPRESA.susep}. <strong>Corretora não é seguradora:</strong> não emitimos apólice, não assumimos o risco e
+    não pagamos indenização. Quem faz as três coisas é a companhia que você escolher. O papel da corretora é
+    cotar, comparar, explicar as condições e representar você perante a seguradora, inclusive na regulação do
+    sinistro.
+  </p>
+
+  <h2 id="modalidades">Seguro e proteção veicular são coisas diferentes</h2>
+  <p>
+    Este site oferece as duas, e elas <strong>não têm a mesma natureza jurídica</strong>. Apresentar as duas como
+    "seguro" seria falso, então aqui vai a distinção por escrito:
+  </p>
+  <ul>
+    <li>
+      <strong>Seguro</strong> é contrato regulado pela SUSEP. A seguradora é obrigada por lei a manter reservas
+      técnicas, a indenização está prevista em apólice e as condições gerais são registradas na autarquia.
+    </li>
+    <li>
+      <strong>Proteção veicular</strong> é rateio entre associados de uma associação civil. <strong>Não é
+      fiscalizada pela SUSEP</strong>, não é apólice, e a cobertura depende do estatuto e do regulamento interno
+      da associação, que podem ser alterados em assembleia. Pode custar menos e pode aceitar perfis que o seguro
+      recusa — e não oferece a mesma garantia de pagamento.
+    </li>
+  </ul>
+  <p>
+    Quando a proposta apresentada a você for de proteção veicular, isso será dito de forma expressa antes da
+    contratação, e não em nota de rodapé.
+  </p>
+
+  <h2 id="estimativas">Cotação não é apólice</h2>
+  <p>
+    Valores, coberturas e prazos apresentados neste site ou no atendimento são <strong>estimativas</strong> e não
+    substituem a proposta formal e a apólice emitida pela companhia. Toda contratação depende de
+    <strong>análise e aceitação de risco</strong> pela seguradora, e o prêmio final pode sair diferente do
+    estimado conforme perfil do condutor, uso do veículo, região e histórico.
+  </p>
+  <p>
+    <strong>Cotar é gratuito e não gera compromisso.</strong> A corretora é remunerada por comissão paga pela
+    seguradora quando a apólice é emitida — comissão já embutida no prêmio praticado pela companhia. Você não paga
+    nada à Autogestor para cotar, comparar ou ser atendido.
+  </p>
+
+  <h2 id="declaracao">O que você declara importa</h2>
+  <p>
+    O prêmio e a própria aceitação do risco dependem do que você informa: quem é o condutor principal, se há
+    condutor jovem, onde o veículo dorme, e se ele tem <strong>uso remunerado</strong> (aplicativo, táxi, entrega,
+    locação). Informação incorreta ou omitida pode levar a
+    <strong>recusa de indenização no sinistro</strong>, conforme os artigos 765 e 766 do Código Civil. Por isso
+    perguntamos essas coisas na cotação, e não depois.
+  </p>
+
+  <h2 id="atendimento">Prazo de resposta</h2>
+  <p>
+    Pedidos enviados pelo formulário são respondidos por WhatsApp <strong>{ATENDIMENTO.prazo}</strong>. O
+    atendimento funciona {ATENDIMENTO.horario}; pedidos enviados fora desse horário, em fim de semana ou feriado
+    são respondidos no próximo dia útil. Esse prazo é de <strong>resposta</strong>, não de emissão da apólice — a
+    emissão depende da análise de cada companhia.
+  </p>
+
+  <h2 id="limites">Limites do que oferecemos</h2>
+  <ul>
+    <li>
+      Trabalhamos com {N} companhias. <strong>A disponibilidade varia</strong> por perfil, veículo e região: nem
+      toda companhia aceita todo risco, e algumas podem não apresentar proposta para o seu caso.
+    </li>
+    <li>
+      Não garantimos ser o menor preço do mercado. Garantimos mostrar as propostas que conseguimos obter, lado a
+      lado, com o que cada uma cobre e o que deixa de fora.
+    </li>
+    <li>
+      Coberturas, franquias, carências e exclusões são definidas pela seguradora nas condições gerais do produto.
+      A corretora explica, não altera.
+    </li>
+    <li>
+      As <strong>fichas de cotação completa</strong> linkadas neste site abrem em domínio de parceiro. O
+      tratamento de dados nessas páginas segue a política do respectivo operador, não esta.
+    </li>
+  </ul>
+
+  <h2 id="uso">Uso aceitável</h2>
+  <p>Ao usar este site, você se compromete a:</p>
+  <ul>
+    <li>fornecer dados verdadeiros e que sejam seus, ou de quem autorizou você a informá-los;</li>
+    <li>não usar envio automatizado, raspagem em massa ou qualquer tentativa de sobrecarregar o serviço;</li>
+    <li>não tentar acessar áreas, dados ou sistemas que não estejam abertos ao público.</li>
+  </ul>
+  <p>Pedidos identificados como automatizados ou fraudulentos podem ser descartados sem aviso.</p>
+
+  <h2 id="propriedade">Propriedade intelectual</h2>
+  <p>
+    Marca, símbolo, textos e código deste site pertencem à Autogestor. Os
+    <strong>nomes das seguradoras</strong> citados são marcas registradas de seus respectivos titulares e
+    aparecem aqui apenas para identificar com quais companhias a corretora trabalha — a menção não implica
+    patrocínio, representação exclusiva nem vínculo societário. Citar um trecho desta página com link para a fonte
+    é permitido e bem-vindo; reproduzir a página inteira ou usar a marca sem autorização escrita, não.
+  </p>
+
+  <h2 id="responsabilidade">Responsabilidade</h2>
+  <p>
+    A Autogestor responde pelo que faz: a cotação, a orientação prestada, a fidelidade da comparação apresentada e
+    o acompanhamento do sinistro perante a companhia. <strong>Não responde</strong> pela decisão de aceitação de
+    risco da seguradora, pelo pagamento da indenização (que é obrigação dela), pelo prazo de regulação, nem por
+    indisponibilidade temporária deste site.
+  </p>
+
+  <h2 id="dados">Dados pessoais</h2>
+  <p>
+    O tratamento dos seus dados está descrito na <a href="/privacidade">Política de Privacidade</a>, que faz parte
+    destes termos.
+  </p>
+
+  <h2 id="foro">Alterações e foro</h2>
+  <p>
+    Estes termos podem mudar; a data de última atualização no topo indica a versão vigente. Aplica-se a legislação
+    brasileira, incluindo o Código de Defesa do Consumidor, e fica eleito o foro da comarca de
+    {EMPRESA.endereco.cidade} ({EMPRESA.endereco.uf}), ressalvado o direito do consumidor de acionar o foro do seu
+    domicílio.
+  </p>
+</Legal>

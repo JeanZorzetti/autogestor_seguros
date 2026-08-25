@@ -1,0 +1,64 @@
+[
+  {
+    "data": "2026-08-24",
+    "projeto": "seguros",
+    "pagina": "/ (e toda capa: /sobre, legais, recibo, 404)",
+    "direcao": "rastro",
+    "tipo": "custom",
+    "eixos": { "materia": "luz", "motor": "scroll", "banda": "escura" },
+    "estrutura": "Percurso — a home e uma sequencia de ESTACOES numeradas em grade assimetrica 5/7, com a cabeca presa (sticky) enquanto o corpo rola. NAO e a pilha `.secao > .container > olho + h2 + chamada` que o hub autogestor e o coopluz compartilham. Fechar isso era o gate G33 que ficou aberto nas tres entradas do log do coopluz. Paginas internas usam `.secao` simples de proposito: sao documentos, nao jornadas.",
+    "pedido": "Usuario pediu site proprio para a vertical de seguro veicular, com layout, paleta e logo originais, citando o coopluz como precedente. Primeira rodada de 3 direcoes (Pericia / Apolice impressa / Camara escura) foi recusada: ele pediu 3 novas BASEADAS em duas imagens que colocou em docs/seguros/ do hub. As imagens sao pecas de captacao reais da Auto Gestor Seguros (agosto/2026).",
+    "decisao": "As imagens mudaram a premissa e isso foi declarado antes de construir: a Autogestor Seguros JA TEM marca (hexagono biselado com vortice, 'SEGUROS' em laranja, 'DESDE 2004'), entao 'paleta original' deixa de significar inventar uma paleta alheia. A paleta foi AMOSTRADA EM PIXEL das duas pecas com Pillow (mediancut por regiao do lockup): laranja #fb7402, azul do hexagono #004485/#1266b8, navy #010d1e, dourado #f5be5b, prata #d4d4d5. O que e original passa a ser direcao, estrutura e tipografia. Usuario interrompeu a segunda rodada de propostas com 'Continue' — direcao escolhida por mim entre as tres, com as duas recusadas declaradas ao usuario.",
+    "recusadas": [
+      "Bisel (geometria/ponteiro/escura) — motor e ponteiro, e o trafego desta pagina e majoritariamente celular: o gesto principal viraria decoracao estatica. Alem disso o coopluz acabou de gastar `ponteiro` no ima dele.",
+      "Brasa (campo/autonomo/escura) — canvas de ~6kb num funil de conversao, e `campo` sem dado real cai no G9 (metrica/textura inventada)."
+    ],
+    "verbo": "varrer — a luz percorre o documento de cima para baixo e acende cada estacao ao passar",
+    "camadas": {
+      "entrada": "o corpo de cada estacao sobe 14px e sai de 0.35 de opacidade, via animation-timeline: view() (entry 5% cover 30%)",
+      "scroll": "O GESTO PRINCIPAL. O rastro (linha de 3-4px na borda esquerda, fixed) cresce em scaleY com animation-timeline: scroll(root). Zero JS, zero listener — o navegador liga a animacao ao scroller sem passar por script. Comeca em scaleY(0.06) e nao em 0: em zero o gesto nao existe na primeira tela, que e onde a primeira impressao acontece.",
+      "ponteiro": "OPCIONAL, declarada: passar o cursor na estacao acende o numero antes de o scroll chegar. Desligada em (hover: none) — no celular o scroll ja e o motor.",
+      "transicao": "View Transitions cross-document (@view-transition: navigation auto). O rastro carrega view-transition-name e atravessa a troca de rota sem piscar — e o mesmo objeto em todas as paginas."
+    },
+    "primitivas": "TRES e nao uma quarta: escala (rastro), opacidade (estacao acende) e translado (estacao sobe). Giro nao existe nesta pagina de proposito — o coopluz gastou `rotate` no ima, e repetir seria a familia inteira com o mesmo tique.",
+    "banda_sem_alternador": "Este site NAO tem seletor claro/escuro, e a ausencia e decisao e nao pendencia: o interruptor (cordao da lampada) era o GESTO do coopluz, e herda-lo seria pegar emprestado o que faz aquele site ser ele. Some junto: metade dos tokens (nao ha light-dark()), o script de pre-pintura do <head> e ~120 linhas de JS do cabecalho. As duas pecas de referencia ja sao escuras, entao a banda sai do material, nao de gosto.",
+    "simbolo": "Calculado, nao desenhado (logos/gerar-marca.py). Hexagono de 6 vertices em raio constante (ponta em cima e embaixo) mais DUAS espirais logaritmicas r = R_OUT*e^(-K*t) defasadas em 180 graus, cada uma com meia-largura decaindo por (1-t)^TAPER e fechada na cauda por um semicirculo de raio W0. E a mesma familia de curva do rastro: o simbolo e o gesto da pagina em miniatura. Uma assercao impede o vortice de encostar no anel (a 24px viraria mancha) — verificada por calculo, nao no olho.",
+    "bugs_achados_olhando_o_render": [
+      "Primeira geracao do braco fechava a cauda com uma reta entre as duas bordas: talho chato onde a peca original tem ponta redonda. Trocado por semicirculo de raio W0.",
+      "Segunda geracao usou sweep-flag 1 no semicirculo: o arco abaulou PARA DENTRO do braco e a cauda virou garra com entalhe concavo. Flag 0 e a correta — medido na renderizacao, nao deduzido do sinal da varredura."
+    ],
+    "bugs_achados_na_verificacao": [
+      "Rolagem horizontal a 360px: `.estacao__corpo` media 642px numa viewport de 360. Item de grade tem min-width:auto e se recusa a ficar menor que o conteudo — a tabela comparativa (min-width: 640px) esticava a COLUNA inteira, e ai o overflow-x:auto do container da tabela nunca chegava a agir. Corrigido com `.estacao__grade > * { min-width: 0 }`.",
+      "Tabela comparativa cortada a 1440px: na coluna de 7fr ela recebe ~616px e pede 640, entao rolava dentro de um container que nao parecia rolavel — o leitor via 'Ninguem. E associacao civil, for' cortado. Estacao 02 ganhou `--tabela` e empilha em vez de dividir 5/7. Numa comparacao, texto cortado e defeito pior que secao sem assimetria.",
+      "O trilho (percurso ainda nao percorrido) usava --noite-700: 1.40:1 sobre o fundo, invisivel na captura. Subiu para --noite-600 (1.86:1) — pouco de proposito, o trilho nao pode competir com a parte acesa.",
+      "O proprio verificador tinha um falso positivo: reportava elementos com left < -1 como sangramento. Em LTR, elemento a esquerda do zero (o honeypot em left:-9999px) NAO cria area rolavel. Passou a olhar so o lado direito, e a falha agora NOMEIA o culpado em vez de dizer 'sangrou a 360px'."
+    ],
+    "gates_corrigidos": [
+      "G3 salto tipografico — ATINGIDO, 5.25x (t-3xl 5.25rem sobre corpo de 1rem). Foi o gate que o hub e o coopluz nao fecharam, os dois travados em 4x. A solucao nao foi coragem: foi escolher uma fonte CONDENSADA e medir. Big Shoulders Display ocupa 75.3% da largura da pilha do sistema (logos/metricas-fonte.mjs), entao o H1 de 71 caracteres cabe em 5 linhas sem empurrar o formulario para fora da primeira tela num notebook de 900px.",
+      "G33 estrutura nao repete — ATINGIDO. Percurso com estacoes numeradas, grade 5/7, cabeca presa. Era o gate aberto nas TRES entradas do log do coopluz.",
+      "G22 contraste — dois pares reprovando, os dois pegos ANTES de a pagina existir: anel de foco dourado sobre o botao laranja (1.71:1, dois quentes vizinhos) e borda do botao de contorno usando o token de divisoria (1.86:1, abaixo do 3:1 de WCAG 1.4.11 para limite de componente). Nenhuma das correcoes afina a cor da marca.",
+      "G6 token fechado — o degrau --noite-500 existe separado da -600 por causa de contraste, nao de estetica.",
+      "G26 CLS — 0.000 medido. O fallback de metrica casada tem size-adjust 75.3% / ascent 130.1% / descent 27.9%, os tres medidos com fontBoundingBox do canvas, nao copiados de tabela."
+    ],
+    "gates_nao_aplicaveis": [
+      "G16 palco delimitado — nao ha loop autonomo: todo movimento e funcao do scroll ou do ponteiro",
+      "G31 dpr travado — nao ha canvas",
+      "G21 blur nao anima — nao ha blur"
+    ],
+    "custo": {
+      "faixa": "captacao",
+      "js_gzip_kb": 0,
+      "deps_novas": [],
+      "nota_peso": "Zero JS proprio para a coreografia inteira: scroll(), view() e @view-transition sao nativos. O unico script da home e o do formulario e o da barra fixa, herdados do hub.",
+      "lcp_ms": {
+        "mediana": 712,
+        "amostras": [540, 688, 712, 740, 784],
+        "alvo": 2000,
+        "condicao": "build servido estatico, CPU 4x estrangulada, 1440x900"
+      },
+      "cls": 0,
+      "inp": "nao remedido: a direcao nao adiciona um listener. A camada de ponteiro e :hover com transicao de cor."
+    },
+    "divida_declarada": "Sem blog: o hub tem a colecao vazia e nao ha cluster de conteudo escrito para seguro. A faixa de prova social usa TIPOGRAFIA e nao logotipo das seguradoras — nao ha ativo licenciado no repositorio, mesma decisao do coopluz com os logos de emissora. A camada de ponteiro e a mais fraca das quatro (so acende o numero), e isso e coerente com o trafego ser majoritariamente celular, mas se um dia o desktop pesar, e onde ha espaco para crescer."
+  }
+]

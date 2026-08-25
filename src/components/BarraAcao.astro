@@ -1,0 +1,90 @@
+---
+import type { Solucao } from "../data/solucoes";
+import { ICONES } from "../data/solucoes";
+import { whatsapp } from "../consts";
+
+interface Props {
+  /** Omitido em página institucional sem vertical própria — nesse caso passe `mensagem`. */
+  solucao?: Solucao;
+  /** Rótulo curto: metade de uma tela de 390px não cabe o `cta` da solução. */
+  rotulo?: string;
+  /** Id da seção de fechamento para onde a barra leva. */
+  alvo?: string;
+  /** Mensagem do WhatsApp. Sem `solucao`, é obrigatória. */
+  mensagem?: string;
+}
+const { solucao, rotulo = "Pedir cotação", alvo = "pedir", mensagem = `Olá! Quero saber sobre ${solucao?.nome}.` } = Astro.props;
+---
+
+{/* No celular o cabeçalho não é sticky (tem 226px) e as páginas passam de
+     8.000px: da primeira rolagem até o rodapé não sobrava nenhuma ação na tela.
+     Esta barra custa 56px e some sozinha quando um formulário aparece. */}
+<div class="barra">
+  <a class="btn btn--primario barra__acao" href={`#${alvo}`}>{rotulo}</a>
+  <a class="btn btn--contorno barra__acao externo" href={whatsapp(mensagem)} target="_blank" rel="noopener">
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" set:html={ICONES.zap} />
+    WhatsApp
+    <span class="visualmente-oculto">— abre em nova aba</span>
+  </a>
+</div>
+
+<style is:global>
+  /* Espaço no fim do documento para a barra não cobrir o rodapé. Global porque
+     só as páginas que renderizam a barra carregam esta regra. */
+  @media (max-width: 899px) {
+    body { padding-bottom: calc(72px + env(safe-area-inset-bottom)); }
+  }
+</style>
+
+<style>
+  .barra {
+    position: fixed;
+    inset: auto 0 0;
+    z-index: 30;
+    display: flex;
+    gap: var(--e-2);
+    padding: var(--e-2) var(--e-4) calc(var(--e-2) + env(safe-area-inset-bottom));
+    background: var(--superficie-alta);
+    border-top: 1px solid var(--borda);
+    box-shadow: var(--sombra-md);
+  }
+  /* Só anima depois do primeiro veredito do observer (`data-pronta`, via
+     script abaixo) — sem isso a barra nasce visível e desliza para fora no
+     primeiro carregamento, quando o CTA do herói já está na tela.
+     `visibility` junto do transform: só o transform deixaria os dois links
+     focáveis por trás do formulário que a barra acabou de liberar. */
+  .barra[data-pronta] {
+    transition: transform 160ms ease, visibility 160ms;
+  }
+  .barra[data-oculta] {
+    transform: translateY(100%);
+    visibility: hidden;
+  }
+  .barra__acao {
+    flex: 1;
+    min-height: 44px;
+    padding-inline: var(--e-3);
+    font-size: var(--t-sm);
+  }
+  /* No desktop o cabeçalho é sticky e já carrega o WhatsApp. */
+  @media (min-width: 900px) {
+    .barra { display: none; }
+  }
+</style>
+
+<script>
+  // Some enquanto qualquer formulário ou o par de CTAs do herói está na tela:
+  // parada aí, a barra cobriria o botão de enviar ou o próprio CTA que repete.
+  const barra = document.querySelector<HTMLElement>(".barra");
+  const alvos = [...document.querySelectorAll(".form, .capa__acoes")];
+
+  if (barra && alvos.length) {
+    const visiveis = new Set<Element>();
+    const olho = new IntersectionObserver((entradas) => {
+      for (const e of entradas) (e.isIntersecting ? visiveis.add(e.target) : visiveis.delete(e.target));
+      barra.toggleAttribute("data-oculta", visiveis.size > 0);
+      barra.setAttribute("data-pronta", "");
+    });
+    alvos.forEach((f) => olho.observe(f));
+  }
+</script>

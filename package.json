@@ -1,0 +1,26 @@
+{
+  "name": "autogestor-seguros-site",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check",
+    "test": "node --test test/*.test.mjs",
+    "marca": "python logos/gerar-marca.py && node logos/rasterizar.mjs && node logos/gerar-og.mjs",
+    "contraste": "node logos/contraste.mjs"
+  },
+  "dependencies": {
+    "@astrojs/sitemap": "^3.7.0",
+    "@astrojs/vercel": "^8.2.9",
+    "astro": "^5.16.4",
+    "pg": "^8.16.3"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "@types/pg": "^8.15.5",
+    "playwright": "^1.62.1",
+    "typescript": "^5.9.3"
+  }
+}

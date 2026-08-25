@@ -1,0 +1,175 @@
+---
+import Base from "../layouts/Base.astro";
+import Faq from "../components/Faq.astro";
+import BarraAcao from "../components/BarraAcao.astro";
+import { SEGURO } from "../data/solucoes";
+import { EMPRESA, EXTERNOS, SEGURADORAS, SITE, enderecoLinha, whatsapp } from "../consts";
+
+const N = SEGURADORAS.length;
+
+const perguntas = [
+  {
+    p: "Desde quando a Autogestor existe?",
+    r: `Desde ${EMPRESA.fundacao}, em ${EMPRESA.endereco.cidade}. Começou como corretora de seguros — esta é a frente original da casa, não uma adição recente — e foi somando outras conforme os mesmos clientes pediam. O registro SUSEP ${EMPRESA.susep} é da corretagem de seguros e pode ser conferido na consulta pública da autarquia.`,
+  },
+  {
+    p: "Corretora, seguradora ou associação: o que vocês são?",
+    r: "Corretora. Não emitimos apólice nem pagamos indenização — quem faz isso é a seguradora que você escolher. O papel da corretora é intermediar: cotar em várias companhias, explicar a diferença entre as propostas e representar você na regulação do sinistro. Também intermediamos proteção veicular, que é rateio entre associados de uma associação e não é regulada pela SUSEP; a diferença está dita na home, antes de qualquer proposta.",
+  },
+  {
+    p: "Quanto custa falar com vocês?",
+    r: "Nada. A corretora é remunerada por comissão paga pela seguradora quando a apólice é emitida, e essa comissão já está embutida no prêmio que a companhia pratica — cotar por aqui não deixa a apólice mais cara do que ir direto no site dela.",
+  },
+  {
+    p: "Vocês atendem fora de Goiás?",
+    r: `Sim. A sede é em ${EMPRESA.endereco.cidade}/${EMPRESA.endereco.uf} e o atendimento é por WhatsApp; as companhias com que trabalhamos operam em todo o país. A apólice não depende de você estar perto do escritório.`,
+  },
+  {
+    p: "A Autogestor faz outras coisas além de seguro?",
+    r: "Sim: viagens, financiamento de veículos, consórcio, repasse de veículos de locadora e energia por compensação. Cada frente tem canal próprio — este site é dedicado só a seguro e proteção veicular. As outras estão no site do grupo.",
+  },
+  {
+    p: "Onde fica o escritório?",
+    r: `${enderecoLinha}. O atendimento acontece majoritariamente por WhatsApp, e a visita presencial fica disponível para quem prefere resolver olho no olho.`,
+  },
+];
+
+const site = Astro.site ?? new URL("https://seguros.roilabs.com.br");
+
+const schema = [
+  {
+    "@type": "FAQPage",
+    "@id": new URL("/sobre#faq", site).href,
+    mainEntity: perguntas.map((q) => ({
+      "@type": "Question",
+      name: q.p,
+      acceptedAnswer: { "@type": "Answer", text: q.r },
+    })),
+  },
+];
+---
+
+<Base
+  titulo={`Quem somos — corretora de seguros SUSEP ${EMPRESA.susep} desde ${EMPRESA.fundacao} | ${SITE.nome}`}
+  descricao={`A ${EMPRESA.nome} é corretora de seguros independente registrada na SUSEP sob o número ${EMPRESA.susep}, em atividade desde ${EMPRESA.fundacao}, com sede em ${EMPRESA.endereco.cidade} e atendimento em todo o Brasil.`}
+  schema={schema}
+  tipoPagina={["WebPage", "AboutPage"]}
+  trilha={[
+    { nome: "Início", href: "/" },
+    { nome: "Quem somos", href: "/sobre" },
+  ]}
+>
+  <section class="secao">
+    <div class="container sobre__topo">
+      <span class="olho">Quem somos</span>
+      <h1>Corretora de seguros desde {EMPRESA.fundacao}</h1>
+      <p class="chamada">
+        A {EMPRESA.nome} nasceu corretora. Seguro foi a primeira frente da casa e continua sendo a que tem registro
+        na SUSEP — número {EMPRESA.susep}, conferível na consulta pública da autarquia. Duas décadas atendendo em
+        {" "}{EMPRESA.endereco.cidade} e, hoje, no Brasil inteiro.
+      </p>
+      <p>
+        <a class="externo" href={EXTERNOS.susepConsulta} target="_blank" rel="noopener">
+          Conferir o registro na SUSEP<span class="visualmente-oculto"> — abre em nova aba</span>
+        </a>
+      </p>
+    </div>
+  </section>
+
+  <section class="secao secao--suave" id="papeis" tabindex="-1">
+    <div class="container">
+      <span class="olho">Divisão de papéis</span>
+      <h2>Quem faz o quê quando você contrata</h2>
+      <p class="chamada">
+        É a pergunta que quase ninguém faz antes de assinar e todo mundo faz depois do sinistro. As três respostas
+        estão aqui.
+      </p>
+      <div class="grade grade--3">
+        <div class="cartao">
+          <h3>Você</h3>
+          <p>
+            Escolhe a proposta. Declara o uso do veículo, quem dirige e onde ele dorme — é o que define o preço e o
+            que pode invalidar a indenização se estiver errado.
+          </p>
+        </div>
+        <div class="cartao">
+          <h3>A seguradora</h3>
+          <p>
+            Emite a apólice, aceita o risco e paga a indenização. É dela a obrigação legal de manter reservas
+            técnicas para isso, e é ela quem regula o sinistro.
+          </p>
+        </div>
+        <div class="cartao">
+          <h3>A {EMPRESA.nome}</h3>
+          <p>
+            Cota nas {N} companhias, compara as propostas linha a linha, explica as exclusões e representa você na
+            regulação. Não emitimos apólice nem pagamos indenização.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="secao">
+    <div class="container contato">
+      <div>
+        <span class="olho">Atendimento</span>
+        <h2>Onde encontrar a gente</h2>
+        <address class="endereco">
+          {enderecoLinha}<br />
+          WhatsApp <a href={`tel:${EMPRESA.telefone}`}>{EMPRESA.telefoneExibicao}</a><br />
+          <a href={`mailto:${EMPRESA.email}`}>{EMPRESA.email}</a>
+        </address>
+        <p>
+          <a
+            class="btn btn--primario externo"
+            href={whatsapp("Olá! Vim pelo site e quero cotar um seguro.")}
+            target="_blank"
+            rel="noopener"
+          >
+            Falar no WhatsApp
+            <span class="visualmente-oculto">— abre em nova aba</span>
+          </a>
+        </p>
+      </div>
+      <div>
+        <h3>Ir direto ao ponto</h3>
+        <ul class="lista-check" role="list">
+          <li><a href="/#pedir">{SEGURO.fechamento}</a> — três campos, resposta no mesmo dia útil</li>
+          <li>
+            <a class="externo" href="https://autogestor.roilabs.com.br/" target="_blank" rel="noopener">
+              Outras frentes do grupo<span class="visualmente-oculto"> — abre em nova aba</span>
+            </a> — viagens, financiamento, consórcio, repasse e energia
+          </li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="secao secao--suave">
+    <div class="container">
+      <Faq perguntas={perguntas} />
+    </div>
+  </section>
+
+  <BarraAcao solucao={SEGURO} rotulo="Pedir cotação" alvo="papeis" />
+</Base>
+
+<style>
+  .sobre__topo {
+    max-width: 72ch;
+  }
+  .contato {
+    display: grid;
+    gap: var(--e-8);
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  }
+  .endereco {
+    font-style: normal;
+    line-height: 1.8;
+    margin-bottom: var(--e-6);
+  }
+  .grade {
+    margin-top: var(--e-8);
+  }
+</style>

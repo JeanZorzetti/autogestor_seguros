@@ -1,0 +1,36 @@
+---
+import Base from "../layouts/Base.astro";
+import { SITE, whatsapp } from "../consts";
+---
+
+<Base titulo={`Página não encontrada | ${SITE.nome}`} descricao="Esta página não existe neste site." noindex>
+  <section class="secao">
+    <div class="container">
+      <span class="olho">Erro 404</span>
+      <h1>Esta página não existe</h1>
+      <p class="chamada">O endereço pode ter mudado ou o link estar quebrado.</p>
+      <p class="acoes">
+        <a class="btn btn--contorno" href="/">Ir para o início</a>
+        <a class="btn btn--contorno" href="/sobre">Quem somos</a>
+        <a
+          class="btn btn--primario externo"
+          href={whatsapp("Olá! Não encontrei o que procurava no site.")}
+          target="_blank"
+          rel="noopener"
+        >
+          Perguntar no WhatsApp
+          <span class="visualmente-oculto">— abre em nova aba</span>
+        </a>
+      </p>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .acoes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--e-3);
+    margin-block: var(--e-8);
+  }
+</style>

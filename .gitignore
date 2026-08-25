@@ -1,0 +1,13 @@
+node_modules/
+dist/
+.astro/
+.vercel/
+.next/
+.env
+.env.local
+logos/logo-*.png
+dev.log
+preview.log
+
+# Capturas da verificação de UI — geradas por logos/verificar.mjs, nunca versionadas.
+logos/_verificacao/

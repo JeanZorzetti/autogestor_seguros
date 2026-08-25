@@ -1,0 +1,101 @@
+---
+import Base from "./Base.astro";
+import { EMPRESA, EXTERNOS, LEGAL_ATUALIZADO, enderecoLinha, whatsapp } from "../consts";
+
+interface Props {
+  titulo: string;
+  descricao: string;
+  h1: string;
+  chamada: string;
+  /** Rótulo curto da trilha e do link do rodapé. */
+  nome: string;
+  href: string;
+}
+const { titulo, descricao, h1, chamada, nome, href } = Astro.props;
+
+// Indexável de propósito. Página legal é sinal de confiança que buscador e
+// modelo de linguagem procuram para decidir se a empresa é real — escondê-la
+// atrás de noindex joga fora o único motivo de ela existir publicamente. Num
+// site de seguro isso pesa ainda mais: é o setor onde a pergunta "essa empresa
+// existe mesmo?" é a primeira que a pessoa faz.
+const dataBR = new Date(`${LEGAL_ATUALIZADO}T12:00:00Z`).toLocaleDateString("pt-BR");
+---
+
+<Base
+  titulo={titulo}
+  descricao={descricao}
+  atualizado={LEGAL_ATUALIZADO}
+  trilha={[
+    { nome: "Início", href: "/" },
+    { nome, href },
+  ]}
+>
+  <section class="secao">
+    <div class="container">
+      <span class="olho">Documento</span>
+      <h1>{h1}</h1>
+      <p class="chamada">{chamada}</p>
+      <p class="legal__data">
+        Última atualização: <time datetime={LEGAL_ATUALIZADO}>{dataBR}</time>
+      </p>
+
+      <div class="legal__corpo">
+        <slot />
+
+        <h2 id="contato">Como falar com a gente</h2>
+        <p>
+          {EMPRESA.nomeLegal}, corretora de seguros registrada na SUSEP sob o número
+          <a class="externo" href={EXTERNOS.susepConsulta} target="_blank" rel="noopener">
+            {EMPRESA.susep}<span class="visualmente-oculto"> — consulta pública da SUSEP, abre em nova aba</span>
+          </a>, em atividade desde {EMPRESA.fundacao}. {enderecoLinha}. E-mail
+          <a href={`mailto:${EMPRESA.email}`}>{EMPRESA.email}</a>, WhatsApp
+          <a
+            class="externo"
+            href={whatsapp(`Olá! Tenho uma dúvida sobre ${nome.toLowerCase()}.`)}
+            target="_blank"
+            rel="noopener"
+          >
+            {EMPRESA.telefoneExibicao}<span class="visualmente-oculto"> — abre em nova aba</span>
+          </a>.
+        </p>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  /* Medida curta de propósito: texto legal é lido em varredura, procurando um
+     trecho específico — linha longa é o que faz perder o lugar. */
+  .legal__corpo {
+    margin-top: var(--e-8);
+    max-width: 72ch;
+    color: var(--texto);
+    line-height: 1.7;
+  }
+  .legal__data {
+    font-size: var(--t-sm);
+    color: var(--texto-suave);
+    margin-top: var(--e-4);
+  }
+  .legal__corpo :global(h2) {
+    margin: var(--e-12) 0 var(--e-4);
+    font-size: var(--t-xl);
+    scroll-margin-top: var(--e-8);
+  }
+  .legal__corpo :global(h3) {
+    margin: var(--e-8) 0 var(--e-2);
+    font-size: var(--t-lg);
+  }
+  .legal__corpo :global(p) {
+    margin: 0 0 var(--e-4);
+  }
+  .legal__corpo :global(ul) {
+    margin: 0 0 var(--e-4);
+    padding-left: var(--e-6);
+    display: grid;
+    gap: var(--e-2);
+  }
+  .legal__corpo :global(strong) {
+    color: var(--texto);
+  }
+</style>

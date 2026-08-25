@@ -1,0 +1,619 @@
+---
+import Base from "../layouts/Base.astro";
+import LeadForm from "../components/LeadForm.astro";
+import Faq from "../components/Faq.astro";
+import BarraAcao from "../components/BarraAcao.astro";
+import { AREA_SERVIDA, ICONES, SEGURO } from "../data/solucoes";
+import { ATENDIMENTO, EMPRESA, EXTERNOS, SEGURADORAS, SITE } from "../consts";
+
+const site = Astro.site ?? new URL("https://seguros.roilabs.com.br");
+const url = new URL("/", site).href;
+
+// Contado da lista, nunca escrito à mão: o H1 promete um número e a faixa de
+// prova mostra os nomes. Se alguém tirar uma companhia da lista e o H1 for
+// literal, a página passa a mentir por um número.
+const N = SEGURADORAS.length;
+
+const veiculos = [
+  { nome: "Carro", nota: "Novo, usado ou importado", icone: ICONES.carro, href: EXTERNOS.cotacaoVeiculo },
+  { nome: "Moto", nota: "Qualquer cilindrada", icone: ICONES.moto, href: EXTERNOS.cotacaoMoto },
+  { nome: "Caminhão", nota: "E frota, com gestão", icone: ICONES.caminhao, href: EXTERNOS.cotacaoCaminhao },
+];
+
+// A tabela da peça "TÁ NA DÚVIDA? SEGURO ou PROTEÇÃO VEICULAR?" (agosto/2026),
+// com as linhas ALINHADAS por dimensão. A peça original lista as vantagens de
+// cada lado em paralelo, sem correspondência — bom para o feed, ruim para
+// decidir: sem a mesma pergunta feita aos dois lados, não é comparação, é
+// dois anúncios lado a lado. E é a comparação que faz a corretora ganhar.
+const comparacao = [
+  {
+    dimensao: "Quem fiscaliza",
+    seguro: "SUSEP, autarquia federal.",
+    protecao: "Ninguém. É associação civil, fora da regulação de seguros.",
+  },
+  {
+    dimensao: "Garantia de que vai pagar",
+    seguro: "A seguradora é obrigada por lei a manter reservas técnicas para as indenizações.",
+    protecao: "Depende do rateio entre os associados no mês do evento.",
+  },
+  {
+    dimensao: "O que você assina",
+    seguro: "Apólice, com condições gerais registradas e prazo de vigência.",
+    protecao: "Estatuto e regulamento interno, que a associação pode alterar em assembleia.",
+  },
+  {
+    dimensao: "Como o custo se comporta",
+    seguro: "Prêmio fechado na contratação e válido pela vigência inteira.",
+    protecao: "Mensalidade menor, com possibilidade de rateio extraordinário.",
+  },
+  {
+    dimensao: "Onde costuma compensar",
+    seguro: "Perfil e veículo de boa aceitação no mercado.",
+    protecao: "Veículo recusado, muito antigo, ou perfil com prêmio proibitivo.",
+  },
+];
+
+const perguntas = [
+  {
+    p: "Qual a diferença entre seguro e proteção veicular?",
+    r: "Seguro é contrato regulado pela SUSEP, com seguradora obrigada a manter reservas técnicas e indenização prevista em apólice. Proteção veicular é rateio entre associados de uma associação: costuma ser mais barata e <strong>não tem a mesma garantia regulatória</strong> — não é fiscalizada pela SUSEP. Trabalhamos com as duas e dizemos qual é qual antes de você comparar preço, não depois do sinistro.",
+  },
+  {
+    p: "Vocês representam uma seguradora só?",
+    r: `Não. Somos corretora independente, registro SUSEP ${EMPRESA.susep}. Cotamos com ${N} companhias e apresentamos as opções lado a lado — prêmio, franquia, cobertura e o que ficou de fora. Se a proposta mais barata for a pior para o seu caso, a gente diz isso.`,
+  },
+  {
+    p: "Quanto custa a cotação?",
+    r: "Nada, e não há compromisso. A corretora é remunerada por comissão paga pela seguradora quando a apólice é emitida — o preço que você vê é o mesmo que veria indo direto na companhia. Cotar em várias ao mesmo tempo não deixa nenhuma delas mais cara.",
+  },
+  {
+    p: "Dá para parcelar?",
+    r: "Sim, em até 12x no cartão de crédito, e a maioria das companhias também aceita débito em conta ou boleto mensal. Quantas parcelas saem sem juros depende da seguradora e do prêmio, e o número exato aparece na proposta antes de você aceitar.",
+  },
+  {
+    p: "O que a assistência 24h cobre?",
+    r: "Guincho, chaveiro, troca de pneu, pane seca e transporte alternativo, com acionamento por 0800 em todo o território nacional. O limite de quilometragem do reboque varia por apólice e aparece na comparação — é uma das linhas em que as propostas mais se diferenciam.",
+  },
+  {
+    p: "Uso o carro em aplicativo. Muda alguma coisa?",
+    r: "Muda, e é importante declarar. Uso remunerado (aplicativo, táxi, locação) altera o risco e o prêmio, e omitir isso pode levar à recusa de indenização no sinistro. Por isso perguntamos a utilização já na cotação, e não depois.",
+  },
+  {
+    p: "Quem cuida do sinistro depois?",
+    r: "Nós. Abertura, acompanhamento da regulação e cobrança de prazo junto à seguradora fazem parte do serviço — é a razão de contratar com corretora em vez de comprar direto no site. Você não fica sozinho no 0800.",
+  },
+  {
+    p: "Segura veículo importado ou já com muitos anos de uso?",
+    r: "Sim: carro, moto, camionete e caminhão, nacionais ou importados, novos ou usados. Veículos mais antigos ou raros costumam ter menos companhias dispostas, e é justamente onde comparar várias vale mais — às vezes a diferença entre a primeira e a terceira proposta é de milhares de reais.",
+  },
+  {
+    p: "Vocês atendem fora de Goiás?",
+    r: `Sim. A sede é em ${EMPRESA.endereco.cidade}, mas as companhias com que trabalhamos operam em todo o país e o atendimento é por WhatsApp — a apólice não depende de você estar perto do escritório.`,
+  },
+];
+
+const schema = [
+  {
+    "@type": "Service",
+    "@id": `${url}#servico`,
+    name: SEGURO.nome,
+    description: SEGURO.descricao,
+    url,
+    serviceType: "Corretagem de seguro veicular",
+    provider: { "@id": new URL("/#corretora", site).href },
+    areaServed: AREA_SERVIDA[SEGURO.abrangencia],
+    // Os quatro tipos de veículo como catálogo: é o que permite a um motor de
+    // resposta dizer "atendem caminhão também" sem inventar.
+    hasOfferCatalog: {
+      "@type": "OfferCatalog",
+      name: "Seguro por tipo de veículo",
+      itemListElement: ["Seguro de carro", "Seguro de moto", "Seguro de camionete", "Seguro de caminhão"].map((n) => ({
+        "@type": "Offer",
+        itemOffered: { "@type": "Service", name: n },
+      })),
+    },
+  },
+  {
+    "@type": "FAQPage",
+    "@id": `${url}#faq`,
+    mainEntity: perguntas.map((q) => ({
+      "@type": "Question",
+      name: q.p,
+      acceptedAnswer: { "@type": "Answer", text: q.r.replace(/<[^>]+>/g, "") },
+    })),
+  },
+];
+---
+
+<Base titulo={SEGURO.titulo} descricao={SEGURO.descricao} schema={schema}>
+  {/* ---------------------------------------------------------- capa --- */}
+  <section class="capa">
+    <div class="container capa__grade">
+      <div class="capa__texto">
+        <span class="olho">Corretora SUSEP {EMPRESA.susep} · desde {EMPRESA.fundacao}</span>
+        <h1>Seu seguro de carro, moto ou caminhão cotado em {N} seguradoras de uma vez</h1>
+        <p class="chamada">
+          Você preenche uma vez. A gente cota nas {N} companhias, coloca as propostas lado a lado e mostra o que
+          cada apólice deixa de fora — inclusive quando a mais barata é a pior para o seu caso.
+        </p>
+        <ul class="lista-check capa__destaques" role="list">
+          <li>Comparação entre companhias, não proposta de uma só</li>
+          <li>Em até 12x no cartão, sem custo para cotar</li>
+          <li>Assistência 24h nacional e acompanhamento do sinistro</li>
+        </ul>
+
+        {/* Atalho para quem já sabe o que quer: o formulário de 3 campos é o
+             caminho curto, estes são as fichas completas da corretora. Fica
+             abaixo dos destaques, não acima, para não competir com o CTA
+             principal — mas existe, porque mandar quem já decidiu preencher
+             três campos e esperar WhatsApp é fazê-lo esperar à toa. */}
+        <p class="capa__atalho">
+          Prefere preencher a ficha completa agora?
+          {
+            veiculos.map((v, i) => (
+              <>
+                {i > 0 ? " · " : " "}
+                <a
+                  class="externo"
+                  href={v.href}
+                  target="_blank"
+                  rel="noopener"
+                  aria-label={`Cotação completa de seguro de ${v.nome.toLowerCase()} — site do parceiro, abre em nova aba`}
+                >
+                  {v.nome}
+                </a>
+              </>
+            ))
+          }
+        </p>
+      </div>
+
+      <div class="capa__form">
+        <LeadForm solucao={SEGURO} titulo="Peça sua cotação" instancia="topo" />
+      </div>
+    </div>
+  </section>
+
+  {/* --------------------------------------------- faixa de prova social ---
+       Os nomes das companhias em TIPOGRAFIA, nunca o logotipo: são marcas
+       registradas de terceiros e não há ativo licenciado neste repositório.
+       Mesma decisão que o site do coopluz tomou com os logos de emissora. */}
+  <section class="prova" aria-labelledby="prova-titulo">
+    <div class="container">
+      <h2 id="prova-titulo" class="prova__titulo">
+        Cotamos com {N} companhias do mercado
+      </h2>
+      <ul class="prova__lista lista-limpa" role="list">
+        {SEGURADORAS.map((s) => <li>{s}</li>)}
+      </ul>
+      <p class="prova__nota">
+        A disponibilidade de cada companhia varia por perfil, veículo e região — a comparação mostra quais
+        aceitaram o seu caso.
+      </p>
+    </div>
+  </section>
+
+  {/* ------------------------------------------------------ estação 01 --- */}
+  <section class="estacao">
+    <div class="container estacao__grade">
+      <header class="estacao__cabeca">
+        <span class="estacao__n" aria-hidden="true">01</span>
+        <span class="olho">Por que corretora</span>
+        <h2>O site da seguradora só mostra a proposta dela</h2>
+      </header>
+      <div class="estacao__corpo">
+        <p class="chamada">
+          Cotar direto na companhia é rápido e devolve um preço. O que ele não devolve é a resposta que importa:
+          esse preço é bom? Sem as outras {N} na mesma tela, não dá para saber.
+        </p>
+        <div class="grade grade--2">
+          <div class="cartao">
+            <h3>Antes de contratar</h3>
+            <ul class="lista-check" role="list">
+              <li>Cotação nas {N} companhias com o mesmo perfil, na mesma hora</li>
+              <li>Análise de risco: uso do veículo, garagem, condutor jovem, região</li>
+              <li>Franquia, carro reserva e vidros comparados linha a linha</li>
+              <li>Leitura das exclusões — o que a apólice <em>não</em> cobre</li>
+            </ul>
+          </div>
+          <div class="cartao">
+            <h3>Depois de contratar</h3>
+            <ul class="lista-check" role="list">
+              <li>Abertura e acompanhamento do sinistro, por nossa conta</li>
+              <li>Assistência 24h nacional por 0800</li>
+              <li>Renovação com nova comparação de mercado, não renovação automática</li>
+              <li>Troca de condutor, endereço e coberturas durante a vigência</li>
+            </ul>
+          </div>
+        </div>
+        <p class="estacao__nota">
+          A corretagem é remunerada por comissão da seguradora quando a apólice sai. Você não paga para cotar, e o
+          preço da apólice é o mesmo que teria indo direto na companhia.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  {/* ------------------------------------------------------ estação 02 --- */}
+  <section class="estacao estacao--suave estacao--tabela">
+    <div class="container estacao__grade">
+      <header class="estacao__cabeca">
+        <span class="estacao__n" aria-hidden="true">02</span>
+        <span class="olho">Tá na dúvida?</span>
+        <h2>Seguro ou proteção veicular</h2>
+      </header>
+      <div class="estacao__corpo">
+        <p class="chamada">
+          As duas coisas cobrem seu veículo e são <strong>juridicamente diferentes</strong>. A resposta depende do
+          seu perfil — e escolher errado só aparece no dia do sinistro.
+        </p>
+
+        {/* Tabela de verdade, com `scope` nos cabeçalhos: numa comparação, quem
+             usa leitor de tela precisa ouvir "Quem fiscaliza, Seguro: SUSEP", e
+             isso só acontece com a relação célula/cabeçalho declarada.
+             O `role="region"` + `tabindex="0"` existem porque a tabela rola na
+             horizontal a 360px: container rolável sem foco é conteúdo que o
+             teclado não alcança. */}
+        <div class="tabela-rolagem" role="region" aria-labelledby="cmp-titulo" tabindex="0">
+          <table class="cmp">
+            <caption id="cmp-titulo" class="visualmente-oculto">
+              Comparação entre seguro e proteção veicular, por dimensão
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">O quê</th>
+                <th scope="col" class="cmp__seguro">Seguro <small>seguradoras</small></th>
+                <th scope="col" class="cmp__protecao">Proteção veicular <small>associações</small></th>
+              </tr>
+            </thead>
+            <tbody>
+              {
+                comparacao.map((l) => (
+                  <tr>
+                    <th scope="row">{l.dimensao}</th>
+                    <td>{l.seguro}</td>
+                    <td>{l.protecao}</td>
+                  </tr>
+                ))
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <p class="estacao__nota">
+          Trabalhamos com as duas modalidades. A que a gente recomenda é a que protege melhor o seu caso, não a que
+          paga melhor — e a diferença acima é dita antes da proposta, sempre.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  {/* ------------------------------------------------------ estação 03 --- */}
+  <section class="estacao">
+    <div class="container estacao__grade">
+      <header class="estacao__cabeca">
+        <span class="estacao__n" aria-hidden="true">03</span>
+        <span class="olho">O que a gente cota</span>
+        <h2>Carro, moto, camionete e caminhão</h2>
+      </header>
+      <div class="estacao__corpo">
+        <ul class="veiculos lista-limpa" role="list">
+          {
+            veiculos.map((v) => (
+              <li class="cartao veiculo">
+                <svg
+                  viewBox="0 0 24 24"
+                  width="32"
+                  height="32"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                  set:html={v.icone}
+                />
+                <h3>{v.nome}</h3>
+                <p>{v.nota}</p>
+                <a class="externo veiculo__ficha" href={v.href} target="_blank" rel="noopener">
+                  Ficha completa
+                  <span class="visualmente-oculto"> de {v.nome.toLowerCase()} — site do parceiro, abre em nova aba</span>
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+        <p class="estacao__nota">
+          Camionete entra na mesma cotação de carro. Para frota, o atendimento é por WhatsApp — a ficha padrão não
+          dá conta de mais de um veículo.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  {/* ------------------------------------------------------ estação 04 --- */}
+  <section class="estacao estacao--suave">
+    <div class="container estacao__grade">
+      <header class="estacao__cabeca">
+        <span class="estacao__n" aria-hidden="true">04</span>
+        <span class="olho">Como funciona</span>
+        <h2>Três campos e uma conversa</h2>
+      </header>
+      <div class="estacao__corpo">
+        <ol class="passos" role="list">
+          <li>
+            <h3>Você manda nome, WhatsApp e o veículo</h3>
+            <p>
+              Só isso. Não pedimos CPF nem documento no formulário — o que falta a gente pergunta na conversa, e só
+              o que a companhia realmente exige.
+            </p>
+          </li>
+          <li>
+            <h3>A gente cota nas {N} companhias</h3>
+            <p>
+              Mesmo perfil, mesmas coberturas, {N} propostas. Você recebe a comparação com prêmio, franquia, o que
+              está incluso e o que ficou de fora, {ATENDIMENTO.prazo}.
+            </p>
+          </li>
+          <li>
+            <h3>Você escolhe e a apólice é emitida</h3>
+            <p>
+              Pagamento em até 12x no cartão, débito ou boleto. Depois disso, sinistro, alteração e renovação
+              passam por nós — não pelo 0800.
+            </p>
+          </li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
+  {/* ------------------------------------------------------------- faq --- */}
+  <section class="estacao">
+    <div class="container">
+      <Faq perguntas={perguntas} />
+    </div>
+  </section>
+
+  {/* ------------------------------------------------------ fechamento --- */}
+  <section class="estacao estacao--suave" id="pedir" tabindex="-1">
+    <div class="container fechamento">
+      <div>
+        <span class="olho">Próximo passo</span>
+        <h2>{SEGURO.fechamento}</h2>
+        <p class="chamada">
+          Um consultor da {SITE.nome} responde no seu WhatsApp {ATENDIMENTO.prazo}. Corretora registrada na SUSEP
+          sob o número {EMPRESA.susep} desde {EMPRESA.fundacao}, com sede em {EMPRESA.endereco.cidade} e
+          atendimento em todo o Brasil.
+        </p>
+      </div>
+      <LeadForm solucao={SEGURO} titulo="Peça sua cotação" destaque instancia="fim" />
+    </div>
+  </section>
+
+  <BarraAcao solucao={SEGURO} rotulo="Pedir cotação" />
+</Base>
+
+<style>
+  /* ------------------------------------------------------------ capa ---
+     Grade 5/7 assimétrica, a mesma proporção das estações: o formulário fica
+     na coluna larga porque ele é o objetivo da página, não um apêndice do
+     texto. A 900px ele desce para baixo do texto — mas o H1 condensado cabe em
+     3 linhas, então o botão continua a menos de uma tela do topo. */
+  .capa {
+    position: relative;
+    padding-block: var(--e-16) var(--e-24);
+    background: linear-gradient(180deg, var(--capa-topo), var(--fundo) 70%);
+  }
+  .capa__grade {
+    display: grid;
+    gap: var(--e-12);
+  }
+  @media (min-width: 900px) {
+    .capa__grade {
+      grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+      gap: var(--e-16);
+      align-items: start;
+    }
+  }
+  .capa__destaques {
+    margin-top: var(--e-6);
+    font-weight: 600;
+  }
+  .capa__atalho {
+    margin-top: var(--e-6);
+    font-size: var(--t-sm);
+    color: var(--texto-suave);
+  }
+
+  /* ------------------------------------------------ faixa de prova --- */
+  .prova {
+    background: var(--superficie);
+    border-block: 1px solid var(--borda);
+    padding-block: var(--e-8);
+  }
+  .prova__titulo {
+    font-size: var(--t-sm);
+    font-family: var(--corpo);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--texto-suave);
+    margin-bottom: var(--e-4);
+  }
+  /* Os nomes em display, tamanho grande e cor de texto: sem logotipo, é a
+     tipografia que precisa carregar o peso de marca. `flex-wrap` e não grade
+     de colunas fixas — os nomes têm larguras muito diferentes ("HDI" contra
+     "Bradesco Seguros") e uma grade regular deixaria buracos. */
+  .prova__lista {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--e-3) var(--e-6);
+    align-items: baseline;
+  }
+  .prova__lista li {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: var(--t-xl);
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: var(--texto-sobre-marca);
+  }
+  .prova__nota {
+    margin: var(--e-4) 0 0;
+    font-size: var(--t-sm);
+    color: var(--texto-suave);
+    max-width: 72ch;
+  }
+
+  /* -------------------------------------------------------- estações --- */
+  .estacao__nota {
+    margin: var(--e-6) 0 0;
+    font-size: var(--t-sm);
+    color: var(--texto-suave);
+    max-width: 72ch;
+  }
+  .estacao__corpo .grade {
+    margin-top: var(--e-6);
+  }
+  .cartao h3 {
+    margin-bottom: var(--e-4);
+  }
+
+  /* --------------------------------------------- tabela comparativa --- */
+  .tabela-rolagem {
+    margin-top: var(--e-8);
+    overflow-x: auto;
+    border: 1px solid var(--borda);
+    border-radius: var(--r-4);
+    background: var(--superficie-alta);
+  }
+  .cmp {
+    border-collapse: collapse;
+    width: 100%;
+    /* Abaixo disto as três colunas viram uma palavra por linha e a comparação
+       deixa de ser legível — melhor rolar na horizontal, com o container
+       alcançável por teclado, do que espremer. */
+    min-width: 640px;
+    font-size: var(--t-sm);
+  }
+  .cmp th,
+  .cmp td {
+    padding: var(--e-4);
+    text-align: left;
+    vertical-align: top;
+    border-bottom: 1px solid var(--borda);
+  }
+  .cmp tbody tr:last-child th,
+  .cmp tbody tr:last-child td {
+    border-bottom: 0;
+  }
+  .cmp thead th {
+    font-family: var(--display);
+    font-size: var(--t-lg);
+    font-weight: 800;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: var(--texto);
+    background: var(--noite-700);
+    white-space: nowrap;
+  }
+  .cmp thead th small {
+    display: block;
+    font-family: var(--corpo);
+    font-size: var(--t-sm);
+    font-weight: 500;
+    letter-spacing: 0;
+    text-transform: none;
+    color: var(--texto-suave);
+  }
+  /* Os dois lados ganham a cor que já os separava na peça impressa: navy para
+     o seguro, laranja para a proteção veicular. Uma faixa no topo da coluna,
+     não a coluna inteira colorida — texto sobre laranja cheio exigiria trocar
+     a cor do texto e a tabela passaria a ter dois esquemas. */
+  .cmp__seguro {
+    box-shadow: inset 0 4px 0 var(--azul-400);
+  }
+  .cmp__protecao {
+    box-shadow: inset 0 4px 0 var(--acento);
+  }
+  .cmp tbody th {
+    font-family: var(--corpo);
+    font-weight: 700;
+    color: var(--texto);
+    white-space: nowrap;
+  }
+  .cmp td {
+    color: var(--texto-suave);
+  }
+
+  /* ------------------------------------------------------- veículos --- */
+  .veiculos {
+    display: grid;
+    gap: var(--e-4);
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  }
+  .veiculo svg {
+    color: var(--marca);
+    margin-bottom: var(--e-3);
+  }
+  .veiculo h3 {
+    margin-bottom: var(--e-1);
+  }
+  .veiculo p {
+    color: var(--texto-suave);
+    font-size: var(--t-sm);
+  }
+  .veiculo__ficha {
+    font-size: var(--t-sm);
+    font-weight: 700;
+  }
+
+  /* --------------------------------------------------------- passos --- */
+  .passos {
+    display: grid;
+    gap: var(--e-8);
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: passo;
+  }
+  .passos li {
+    counter-increment: passo;
+  }
+  /* O número do passo é decorativo e o `content` leva alternativa vazia: o
+     leitor de tela já anuncia a posição pelo <ol>, e ouvir "1 Você manda nome"
+     duplicaria a contagem. */
+  .passos li::before {
+    content: counter(passo);
+    content: counter(passo) / "";
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: var(--r-full);
+    background: var(--acento);
+    color: var(--acento-texto);
+    font-family: var(--display);
+    font-weight: 800;
+    font-size: var(--t-lg);
+    margin-bottom: var(--e-4);
+  }
+  .passos p {
+    color: var(--texto-suave);
+  }
+
+  /* ----------------------------------------------------- fechamento --- */
+  .fechamento {
+    display: grid;
+    gap: var(--e-8);
+  }
+  @media (min-width: 900px) {
+    .fechamento {
+      grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+      gap: var(--e-16);
+      align-items: start;
+    }
+  }
+</style>

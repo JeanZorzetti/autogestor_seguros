@@ -1,0 +1,309 @@
+---
+import type { Solucao } from "../data/solucoes";
+import { ATENDIMENTO, EMPRESA, whatsapp } from "../consts";
+
+interface Props {
+  solucao: Solucao;
+  titulo?: string;
+  /** `true` no bloco final da página, onde o formulário é o próprio conteúdo. */
+  destaque?: boolean;
+  /** A página de vertical renderiza este formulário duas vezes. Com id fixo, o
+   *  <label for> do segundo apontaria para o input do PRIMEIRO — clicar no
+   *  rótulo move o foco para o formulário errado. Cada instância declara o seu. */
+  instancia?: string;
+}
+const { solucao, titulo = "Peça sua cotação", destaque = false, instancia = "1" } = Astro.props;
+const id = `lead-${solucao.slug}-${instancia}`;
+---
+
+<div class:list={["form", destaque && "form--destaque"]}>
+  {/* Não é landmark de propósito: a página de vertical renderiza este bloco
+       duas vezes, e dois <section aria-labelledby> com o mesmo nome acessível
+       ("Peça sua cotação") apareciam como duas regiões indistinguíveis para
+       quem navega por landmark. Fora do destaque, o h2 abaixo estrutura o
+       bloco; dentro dele, quem titula é o h2 da seção de fechamento ao lado. */}
+  {
+    !destaque && (
+      <>
+        <h2>{titulo}</h2>
+        <p class="form__sub">
+          Três campos. Um consultor responde no seu WhatsApp {ATENDIMENTO.prazo} — sem robô e sem ligação de
+          telemarketing.
+        </p>
+      </>
+    )
+  }
+
+  {/* O prazo desce por data-attribute porque o <script> abaixo é um módulo
+       do navegador: ele não enxerga o frontmatter. Repetir a string literal lá
+       é como as duas promessas divergem sem ninguém perceber. */}
+  <form
+    id={id}
+    class="form__campos"
+    method="post"
+    action="/api/lead"
+    novalidate
+    data-prazo={ATENDIMENTO.prazo}
+    data-contexto-obrigatorio={solucao.campo.opcoes ? "1" : "0"}
+  >
+    <input type="hidden" name="solucao" value={solucao.slug} />
+    <input type="hidden" name="origem" value={`site:${solucao.slug}:${instancia}`} />
+    {/* Isca para robô. Fora da tela e fora da ordem de tabulação, mas SEM
+         aria-hidden: elemento focável dentro de aria-hidden é violação de ARIA.
+         Quem usa leitor de tela ouve o rótulo, que diz para não preencher. */}
+    <p class="isca">
+      <label for={`${id}-empresa`}>Não preencha este campo</label>
+      <input id={`${id}-empresa`} name="empresa" type="text" tabindex="-1" autocomplete="off" />
+    </p>
+
+    <p class="campo">
+      <label for={`${id}-nome`}>Seu nome</label>
+      <input id={`${id}-nome`} name="nome" type="text" autocomplete="name" required maxlength="200" />
+    </p>
+
+    <p class="campo">
+      <label for={`${id}-whatsapp`}>WhatsApp</label>
+      <input
+        id={`${id}-whatsapp`}
+        name="whatsapp"
+        type="tel"
+        inputmode="tel"
+        autocomplete="tel-national"
+        required
+        placeholder="(62) 98262-2220"
+        aria-describedby={`${id}-whatsapp-dica`}
+      />
+      <span id={`${id}-whatsapp-dica`} class="campo__dica">DDD + 9 dígitos. É por aqui que respondemos.</span>
+    </p>
+
+    <p class="campo">
+      <label for={`${id}-contexto`}>{solucao.campo.rotulo}</label>
+      {
+        solucao.campo.opcoes ? (
+          <select
+            id={`${id}-contexto`}
+            name="contexto"
+            required
+            data-aviso-opcao={solucao.campo.avisoPara?.opcao}
+            data-aviso-texto={solucao.campo.avisoPara?.texto}
+          >
+            <option value="">Selecione</option>
+            {solucao.campo.opcoes.map((o) => <option value={o}>{o}</option>)}
+          </select>
+        ) : (
+          <input id={`${id}-contexto`} name="contexto" type="text" maxlength="300" placeholder={solucao.campo.exemplo} />
+        )
+      }
+    </p>
+
+    {/* role="status" anuncia sem roubar o foco; o script move o foco para o
+         campo errado, que é o que resolve a tarefa. Sem `hidden`: região viva que
+         nasce escondida recebe o texto antes de existir na árvore de
+         acessibilidade, e o leitor de tela não anuncia nada. */}
+    <p class="form__aviso" id={`${id}-aviso`} role="status"></p>
+
+    <button class="btn btn--primario btn--bloco" type="submit">{solucao.cta}</button>
+
+    <p class="form__legal">
+      Ao enviar, você autoriza o contato da Autogestor sobre {solucao.nome}. Não vendemos seus dados —
+      <a href="/privacidade">veja o que fazemos com eles</a>.
+    </p>
+  </form>
+
+  <p class="form__alternativa">
+    Prefere falar agora?
+    <a class="externo" href={whatsapp(`Olá! Quero saber sobre ${solucao.nome}.`)} target="_blank" rel="noopener">
+      Chamar no WhatsApp {EMPRESA.telefoneExibicao}<span class="visualmente-oculto"> — abre em nova aba</span>
+    </a>
+  </p>
+</div>
+
+<style>
+  .form {
+    background: var(--superficie-alta);
+    border: 1px solid var(--borda);
+    border-radius: var(--r-4);
+    padding: var(--e-6);
+    box-shadow: var(--sombra-sm);
+  }
+  .form--destaque { box-shadow: var(--sombra-md); }
+  .form h2 { font-size: var(--t-xl); margin-bottom: var(--e-2); color: var(--texto); }
+  .form__sub { font-size: var(--t-sm); color: var(--texto-suave); margin-bottom: var(--e-6); }
+  .form__campos { display: grid; gap: var(--e-4); }
+  .campo { display: grid; gap: var(--e-2); margin: 0; }
+  /* Label sempre visível acima do campo: placeholder-como-label some ao digitar
+     e destrói a revisão do formulário. */
+  .campo label { font-weight: 600; font-size: var(--t-sm); }
+  .campo input, .campo select {
+    font: inherit;
+    /* 16px é o mínimo: abaixo disso o iOS dá zoom ao focar o campo. */
+    font-size: var(--t-base);
+    min-height: 48px;
+    padding: var(--e-3);
+    border: 1px solid var(--cinza-500);
+    border-radius: var(--r-2);
+    background: var(--fundo);
+    color: var(--texto);
+    width: 100%;
+  }
+  .campo input[aria-invalid="true"], .campo select[aria-invalid="true"] {
+    border-color: var(--erro);
+    border-width: 2px;
+  }
+  .campo__dica { font-size: var(--t-sm); color: var(--texto-suave); }
+
+  /* Vazio, sai do fluxo para não abrir um vão de 1rem antes do botão — mas
+     continua na árvore de acessibilidade, que é o motivo de não usar `hidden`
+     nem `display: none`. */
+  .form__aviso:empty { position: absolute; padding: 0; border: 0; }
+  .form__aviso {
+    margin: 0;
+    padding: var(--e-3);
+    border-radius: var(--r-2);
+    font-size: var(--t-sm);
+    background: var(--erro-fundo);
+    color: var(--erro-texto);
+    border-left: 4px solid var(--erro);
+  }
+  .form__aviso[data-ok] { background: var(--ok-fundo); color: var(--ok-texto); border-left-color: var(--ok); }
+  .form__aviso a { color: inherit; font-weight: 700; }
+
+  .form__legal { font-size: var(--t-sm); color: var(--texto-suave); margin: 0; }
+  .form__alternativa { margin: var(--e-6) 0 0; font-size: var(--t-sm); color: var(--texto-suave); }
+
+  .isca { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+</style>
+
+<script>
+  import { parseLead } from "../lib/lead.mjs";
+
+  // Progressive enhancement: sem JS o form faz POST normal e o endpoint
+  // redireciona para /obrigado. Com JS, responde na própria página.
+  document.querySelectorAll<HTMLFormElement>('form[action="/api/lead"]').forEach((form) => {
+    const aviso = form.querySelector<HTMLElement>(".form__aviso")!;
+    const botao = form.querySelector<HTMLButtonElement>('button[type="submit"]')!;
+    const rotulo = botao.textContent ?? "";
+    // Mesmo link que já aparece em ".form__alternativa" — reaproveitado aqui
+    // para quando o erro é sistêmico (servidor fora do ar, sem conexão): a
+    // saída fica junto do aviso, não só em texto cinza no fim da seção.
+    const linkZap = form.closest(".form")?.querySelector<HTMLAnchorElement>(".form__alternativa a");
+
+    // aria-disabled em vez de `disabled`: botão desabilitado sai da árvore de
+    // acessibilidade e joga o foco no <body>. Quem enviou pelo teclado ficava
+    // sem foco e sem anúncio — o formulário parecia não ter feito nada.
+    const travado = () => botao.getAttribute("aria-disabled") === "true";
+    const travar = (v: boolean) => {
+      if (v) botao.setAttribute("aria-disabled", "true");
+      else botao.removeAttribute("aria-disabled");
+    };
+
+    const mostrar = (texto: string, ok: boolean, comLink = false) => {
+      aviso.toggleAttribute("data-ok", ok);
+      aviso.textContent = texto ? `${texto} ` : "";
+      if (comLink && linkZap) {
+        const link = Object.assign(document.createElement("a"), {
+          href: linkZap.href,
+          target: "_blank",
+          rel: "noopener",
+          textContent: "Chamar no WhatsApp",
+        });
+        aviso.append(link);
+        // Erro sistêmico não tem campo para focar — o link é a única saída, e
+        // sem foco quem usa teclado precisaria voltar (Shift+Tab) para achá-la.
+        link.focus();
+      }
+    };
+
+    // Liga o aviso ao campo recusado: quem chega nele pelo foco ouve o rótulo e
+    // a dica, mas nunca o motivo da recusa se essa ligação não existir.
+    const descrever = (el: Element, ligar: boolean) => {
+      const ids = (el.getAttribute("aria-describedby") ?? "").split(" ").filter((x) => x && x !== aviso.id);
+      if (ligar) ids.push(aviso.id);
+      if (ids.length) el.setAttribute("aria-describedby", ids.join(" "));
+      else el.removeAttribute("aria-describedby");
+    };
+
+    // Aviso não-bloqueante: a opção escolhida provavelmente não compensa (ex.:
+    // conta de luz abaixo do mínimo da Coopluz), mas a pessoa decide se envia
+    // mesmo assim — isto só antecipa a ressalva que já está no FAQ.
+    const select = form.querySelector<HTMLSelectElement>("select[data-aviso-opcao]");
+    if (select) {
+      select.addEventListener("change", () => {
+        const emAviso = select.value === select.dataset.avisoOpcao;
+        mostrar(emAviso ? select.dataset.avisoTexto ?? "" : "", false);
+      });
+    }
+
+    // Recusa que a pessoa consegue corrigir: aviso + campo marcado + foco nele.
+    // Serve para as duas origens — a validação local e a resposta do servidor.
+    const recusar = (erro: string, campo?: string) => {
+      mostrar(erro, false, !campo);
+      const alvo = campo ? form.querySelector<HTMLElement>(`[name="${campo}"]`) : null;
+      if (alvo) {
+        alvo.setAttribute("aria-invalid", "true");
+        descrever(alvo, true);
+        alvo.focus();
+      }
+    };
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if (travado()) return;
+      form.querySelectorAll("[aria-invalid]").forEach((el) => {
+        el.removeAttribute("aria-invalid");
+        descrever(el, false);
+      });
+      mostrar("", false);
+
+      const dados = Object.fromEntries(new FormData(form));
+      // Mesma função do /api/lead, não uma segunda regra parecida: nome vazio e
+      // telefone incompleto respondem na hora, sem ida ao servidor para ouvir
+      // "informe seu nome". O servidor continua validando — isto é conforto,
+      // não confiança. A lista de slugs é só a do próprio formulário: quem
+      // decide se o slug existe é o endpoint, que tem a lista inteira.
+      const slug = String(dados.solucao ?? "");
+      const obrigatorios = form.dataset.contextoObrigatorio === "1" ? [slug] : [];
+      const local = parseLead(dados, [slug], obrigatorios);
+      if (!local.ok) return recusar(local.erro, local.campo || undefined);
+
+      travar(true);
+      botao.textContent = "Enviando…";
+
+      try {
+        const r = await fetch("/api/lead", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify(dados),
+        });
+        const corpo = await r.json().catch(() => ({}));
+
+        if (r.ok) {
+          form.reset();
+          mostrar(`Recebemos. Um consultor chama você no WhatsApp ${form.dataset.prazo} — no próximo dia útil, se você enviou fora do horário de atendimento.`, true);
+          botao.textContent = "Pedido enviado";
+          (window as any).gtag?.("event", "gerar_lead", { solucao: dados.solucao, origem: dados.origem });
+          // Sem isto o botão ficava travado (aria-disabled) para sempre: o
+          // `finally` abaixo só destrava quando o rótulo ainda é "Enviando…",
+          // e aqui ele já virou "Pedido enviado". Quem quisesse perguntar por
+          // uma segunda frente na mesma página encontrava um botão morto.
+          setTimeout(() => {
+            botao.textContent = rotulo;
+            travar(false);
+          }, 4000);
+          return;
+        }
+
+        // Sem `campo`, a falha é do servidor, não de algo que dá para corrigir
+        // no formulário — é aí que o link substitui o reenvio.
+        recusar(corpo.erro ?? "Não conseguimos enviar agora.", corpo.campo);
+      } catch {
+        mostrar("Sem conexão com o servidor.", false, true);
+      } finally {
+        if (botao.textContent === "Enviando…") {
+          botao.textContent = rotulo;
+          travar(false);
+        }
+      }
+    });
+  });
+</script>

@@ -1,0 +1,716 @@
+/* art-direction · rastro (custom) · eixos: luz/scroll/escura · orçamento: 0kb JS · 2026-08-24
+
+   O RASTRO. As duas peças de captação da Autogestor Seguros (docs/seguros/ do
+   hub, agosto/2026) são noite: navy quase preto, faróis acesos, rastro de luz
+   quente varrendo por trás dos veículos. A direção não decora essa imagem —
+   ela pega o único elemento que atravessa a peça inteira, o rastro de farol em
+   exposição longa, e o transforma na espinha da página.
+
+   O rastro é UMA linha incandescente na borda esquerda. Ela acende de cima
+   para baixo conforme a pessoa rola, e cada estação do percurso acende quando
+   a luz chega nela. Não é barra de progresso: é o mesmo gesto do símbolo
+   (espiral logarítmica, ver logos/gerar-marca.py) esticado no comprimento do
+   documento — o carro passou por aqui.
+
+   Uma ideia só, três primitivas de movimento: ESCALA (o rastro cresce),
+   OPACIDADE (a estação acende) e TRANSLADO (a estação sobe ao entrar). Não há
+   uma quarta, e giro não existe nesta página de propósito — o Coopluz gastou
+   `rotate` no ímã dele e repetir seria a família inteira com o mesmo tique.
+
+   BANDA ESCURA, SEM ALTERNADOR. Este site não tem seletor claro/escuro, e a
+   ausência é decisão, não pendência: o interruptor era o GESTO do Coopluz (o
+   cordão da lâmpada) e herdá-lo aqui seria pegar emprestado o que faz aquele
+   site ser ele. Aqui a noite é o material. Todo token abaixo tem UM valor, sem
+   `light-dark()` e sem `@media (prefers-color-scheme)` — o que corta metade da
+   folha de estilo e todo o script de pré-pintura do <head>.
+
+   CONTRASTE É RESTRIÇÃO DE ESCOLHA, NÃO CHECAGEM FINAL. Todo número deste
+   arquivo saiu de `node logos/contraste.mjs`, que falha com código 1 se algum
+   par reprovar. O laranja da marca (#fb7402) é o valor EXATO amostrado das
+   peças, não uma versão clareada para caber: sobre o navy ele dá 7.14:1 e
+   passa como texto normal. Sobre branco daria 2.9:1 — mais uma razão de a
+   banda escura não ser gosto. */
+
+/* Fallback de métrica casada da fonte de exibição. Os quatro números saem de
+   `node logos/metricas-fonte.mjs` (Big Shoulders 2865.46px contra 3803.37px da
+   pilha do sistema, na frase do H1, peso 800) — nenhum é estimado. Sem isto o
+   H1 rebobina a quebra de linha quando a fonte troca, e é CLS na primeira tela
+   da página de captação. */
+@font-face {
+  font-family: "Capa fallback";
+  src: local("Arial Narrow"), local("Roboto Condensed"), local("Segoe UI"), local("Roboto"), local("Arial");
+  size-adjust: 75.3%;
+  ascent-override: 130.1%;
+  descent-override: 27.9%;
+  line-gap-override: 0%;
+}
+
+:root {
+  color-scheme: dark;
+
+  /* --- primitivos: nunca usados direto em componente ------------------- */
+
+  /* A noite. Quatro degraus, todos com temperatura azul (o matiz 213-215 que
+     as duas peças usam de fundo) — cinza puro aqui leria como "dark mode
+     genérico" e mataria a relação com o material impresso. */
+  --noite-950: #050b14;
+  --noite-900: #0a1523;
+  --noite-800: #101e31;
+  --noite-700: #1a2c45;
+  --noite-600: #27405f;
+  /* Existe separado da -600 por causa de contraste, não de estética: -600 é a
+     divisória decorativa (1.86:1, e tudo bem), -500 é o limite de componente
+     interativo, que WCAG 1.4.11 obriga a 3:1. É o degrau mais escuro da rampa
+     que passa nas três superfícies onde um botão de contorno aparece. */
+  --noite-500: #4f6b90;
+
+  /* O laranja da marca. -500 é o valor amostrado do lockup ("SEGUROS") e da
+     faixa "PROTEJA O QUE É SEU"; -700 é o queimado do cabeçalho da tabela
+     comparativa; -400/-300 são os degraus claros para texto e para o halo. */
+  --laranja-700: #c04b05;
+  --laranja-600: #e26800;
+  --laranja-500: #fb7402;
+  --laranja-400: #ff8c33;
+  --laranja-300: #ffab66;
+
+  /* O dourado dos títulos das peças ("TÁ NA DÚVIDA?", "ECONOMIZE"). É o acento
+     do acento: só número de prova e anel de foco usam. */
+  --dourado-400: #f5be5b;
+  --dourado-300: #fcc330;
+
+  /* O azul do hexágono da marca. Aparece no símbolo e no bisel; NÃO é cor de
+     interface — usar azul em botão ou link aqui aproximaria este site do hub
+     autogestor, que é justamente o que ele existe para não fazer. */
+  --azul-800: #004485;
+  --azul-600: #1266b8;
+  --azul-400: #5786c0;
+
+  /* Prata: o metal escovado de "NO SEGURO" na peça, e o texto. */
+  --prata-050: #f2f5f9;
+  --prata-200: #c7d0dc;
+  --prata-300: #8b9bb0;
+  --prata-400: #9aa7b8;
+
+  --tinta: #1a0b00; /* a única cor escura quente: só sobre laranja */
+
+  /* --- semânticos: é isto que os componentes leem ---------------------- */
+  --fundo: var(--noite-950);
+  --superficie: var(--noite-900);
+  /* Superfície elevada (cartão, formulário, cabeçalho, barra fixa). Um degrau
+     ACIMA do fundo: cartão mais escuro que a seção é o erro clássico de tema
+     escuro, faz o conteúdo parecer afundado em vez de destacado. */
+  --superficie-alta: var(--noite-800);
+  /* Painel de marca (rodapé, faixa de prova). Aqui é um degrau para BAIXO e
+     não uma cor de destaque: num site escuro, a faixa que se separa é a que
+     afunda, não a que acende. */
+  --superficie-marca: var(--noite-900);
+  --borda: var(--noite-600);
+  --texto: var(--prata-050);
+  --texto-suave: var(--prata-400);
+  --texto-invertido: var(--prata-050);
+  --capa-topo: var(--noite-900);
+
+  --marca: var(--laranja-500);
+  --marca-forte: var(--laranja-400);
+  --acento: var(--laranja-500);
+  --acento-hover: var(--laranja-600);
+  /* Texto TINTA sobre o botão laranja: 6.96:1. Branco no mesmo laranja dá
+     2.76:1 e reprova. A cor da marca não é escurecida para passar — quem muda
+     é o texto. Mesma decisão que o hub tomou com o laranja dele e o coopluz
+     com o verde. */
+  --acento-texto: var(--tinta);
+  --link: var(--laranja-400);
+  --link-hover: var(--laranja-300);
+
+  /* Anel de foco. Dourado por padrão (12.2:1 sobre o fundo), mas ele some
+     sobre o próprio laranja do botão primário — 1.71:1, dois quentes vizinhos.
+     `--foco` é custom property justamente para poder ser trocada localmente
+     por `.btn--primario` mais abaixo, em vez de existir um segundo token que
+     alguém esquece de usar. */
+  --foco: var(--dourado-300);
+
+  --cinza-100: #18293f; /* superfície de hover */
+  --cinza-500: var(--prata-300); /* contorno de campo — 5.92:1, WCAG 1.4.11 */
+  --azul-100: #12243c; /* fundo de chip */
+
+  /* Estado do formulário. Cor nunca é o único sinal: o aviso carrega texto e o
+     campo recusado leva aria-invalid. */
+  --erro: #ff6b57;
+  --erro-fundo: #4a1410;
+  --erro-texto: #ffd5cf;
+  --ok: #3fbf74;
+  --ok-fundo: #0c3a22;
+  --ok-texto: #c9f2d8;
+
+  /* Sobre --superficie-marca. */
+  --texto-sobre-marca: var(--prata-200);
+  --texto-sobre-marca-suave: var(--prata-400);
+  --link-sobre-marca: var(--laranja-400);
+
+  /* --- o gesto: o rastro -----------------------------------------------
+     O trilho é o percurso AINDA NÃO percorrido, e ele precisa se ler: a -700
+     dá 1.40:1 sobre o fundo e simplesmente some (visto na captura de
+     verificação), e aí o rastro parece uma linha que nasce do nada em vez de
+     uma luz que avança por um caminho. A -600 dá 1.86:1 — pouco, de propósito,
+     porque o trilho não pode competir com a parte acesa. */
+  --trilho: var(--noite-600);
+  --brasa: var(--laranja-400);
+
+  /* --- tipografia ------------------------------------------------------
+     UMA família de exibição e a pilha do sistema no corpo — a mesma economia
+     do coopluz (uma requisição de fonte), com outra família: Archivo é do hub,
+     Outfit é do coopluz, e um site que existe para não parecer os irmãos não
+     pode começar pela mesma letra.
+
+     Big Shoulders Display é CONDENSADA, e isso resolve um problema concreto,
+     não é preferência: medida, ela ocupa 75.3% da largura da pilha do sistema.
+     É o que permite o H1 chegar a 5.25rem (salto de 5.25x sobre o corpo) sem
+     empurrar o formulário para fora da primeira tela num notebook de 900px —
+     exatamente o gate que o hub e o coopluz não conseguiram fechar, os dois
+     travados em 4x por causa da largura da fonte deles. */
+  --display: "Big Shoulders Display", "Capa fallback", ui-sans-serif, system-ui, sans-serif;
+  --corpo: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+  --t-sm: 0.875rem;
+  --t-base: 1rem;
+  --t-lg: 1.125rem;
+  --t-xl: clamp(1.375rem, 1.15rem + 1vw, 1.75rem);
+  --t-2xl: clamp(1.875rem, 1.3rem + 2.6vw, 3rem);
+  --t-3xl: clamp(2.75rem, 1.4rem + 6.2vw, 5.25rem);
+
+  /* --- espaço, raio, sombra, tempo ------------------------------------- */
+  --e-1: 0.25rem;
+  --e-2: 0.5rem;
+  --e-3: 0.75rem;
+  --e-4: 1rem;
+  --e-6: 1.5rem;
+  --e-8: 2rem;
+  --e-12: 3rem;
+  --e-16: 4rem;
+  --e-24: 6rem;
+
+  --r-1: 2px;
+  --r-2: 6px;
+  --r-3: 10px;
+  --r-4: 14px;
+  --r-full: 999px;
+
+  /* Sombra em tema escuro não é preto sobre cor — é ausência de luz. Preto
+     puro sobre navy vira um borrão sujo; estas usam o próprio --noite-950 com
+     alfa, que é o que o olho lê como profundidade aqui. */
+  --sombra-sm: 0 1px 2px rgb(2 6 12 / 0.6), 0 2px 8px rgb(2 6 12 / 0.35);
+  --sombra-md: 0 4px 12px rgb(2 6 12 / 0.65), 0 12px 32px rgb(2 6 12 / 0.45);
+
+  --dur-rapida: 120ms;
+  --dur-media: 220ms;
+  /* Saída rápida, chegada longa: é como um farol passa. */
+  --curva: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* ---------------------------------------------------------------- reset */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--fundo);
+  color: var(--texto);
+  font-family: var(--corpo);
+  font-size: var(--t-base);
+  line-height: 1.6;
+  /* O halo do rastro sangra para a esquerda; sem isto ele abre barra de
+     rolagem horizontal a 360px. `clip` e não `hidden`: não cria contexto de
+     rolagem, então `position: sticky` e as âncoras continuam funcionando. */
+  overflow-x: clip;
+}
+
+img,
+svg {
+  max-width: 100%;
+  height: auto;
+}
+
+/* --------------------------------------------------------- tipografia */
+h1,
+h2,
+h3 {
+  font-family: var(--display);
+  font-weight: 800;
+  line-height: 1.02;
+  /* A Big Shoulders é condensada e tem contraforma apertada: sem abrir o
+     tracking, o título grande fecha e vira mancha. Positivo, e não o negativo
+     de praxe em grotesca larga. */
+  letter-spacing: 0.005em;
+  text-wrap: balance;
+  margin: 0 0 var(--e-4);
+  text-transform: uppercase;
+}
+
+h1 {
+  font-size: var(--t-3xl);
+}
+h2 {
+  font-size: var(--t-2xl);
+}
+h3 {
+  font-size: var(--t-xl);
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+p {
+  margin: 0 0 var(--e-4);
+  text-wrap: pretty;
+}
+
+/* Subtítulo do H1 e de cada H2. Corpo, não display: o contraste do salto
+   tipográfico só existe se a linha de apoio for de outra família. */
+.chamada {
+  font-size: var(--t-lg);
+  line-height: 1.6;
+  color: var(--texto-suave);
+  max-width: 62ch;
+}
+
+/* Sobrancelha. Sempre acima de um heading e sempre no laranja da marca —
+   7.14:1 sobre o fundo, medido. */
+.olho {
+  display: block;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: var(--t-sm);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--marca);
+  margin-bottom: var(--e-3);
+}
+
+a {
+  color: var(--link);
+  text-underline-offset: 0.2em;
+}
+a:hover {
+  color: var(--link-hover);
+}
+
+/* Foco visível em TUDO que recebe foco, sem exceção de estética. `:focus-visible`
+   e não `:focus`: o anel não aparece no clique de mouse, só quando o teclado
+   está conduzindo. */
+:focus-visible {
+  outline: 3px solid var(--foco);
+  outline-offset: 2px;
+  border-radius: var(--r-1);
+}
+
+.pular {
+  position: absolute;
+  left: var(--e-4);
+  top: calc(-1 * var(--e-16));
+  z-index: 60;
+  padding: var(--e-3) var(--e-4);
+  background: var(--acento);
+  color: var(--acento-texto);
+  font-weight: 700;
+  border-radius: var(--r-2);
+  transition: top var(--dur-rapida) var(--curva);
+}
+.pular:focus {
+  top: var(--e-4);
+}
+
+/* ------------------------------------------------------------- layout */
+.container {
+  width: min(100% - var(--e-8), 1120px);
+  margin-inline: auto;
+}
+
+/* ---------------------------------------------------- o rastro (gesto)
+   Uma linha na borda esquerda que acende de cima para baixo com a rolagem.
+   `position: fixed` + `animation-timeline: scroll(root)` = zero JS e zero
+   listener: o navegador liga a animação ao scroller sem passar por script.
+
+   Três estados, e nenhum deles é "sumiu":
+     1. suporte a scroll-timeline  -> acende conforme a pessoa desce
+     2. sem suporte                -> nasce inteiro e parado
+     3. prefers-reduced-motion     -> idem, inteiro e parado
+   O rastro é a espinha da página. Ele nunca deixa de existir. */
+.rastro {
+  position: fixed;
+  inset: 0 auto 0 0;
+  width: 3px;
+  z-index: 40;
+  pointer-events: none;
+  background: var(--trilho);
+  /* Atravessa a troca de rota sem piscar: o rastro é o mesmo objeto em todas
+     as páginas, que é o que faz o site parecer um percurso e não seis telas. */
+  view-transition-name: rastro;
+}
+.rastro::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform-origin: top;
+  background: linear-gradient(180deg, var(--laranja-700), var(--laranja-500) 45%, var(--brasa));
+  /* O halo. É o que separa "linha laranja" de "luz" — sem ele o gesto lê como
+     borda de div. Sangra 14px para a esquerda, e é por isso que o body tem
+     `overflow-x: clip`. */
+  box-shadow: 0 0 14px 1px rgb(251 116 2 / 0.55);
+}
+
+@supports (animation-timeline: scroll()) {
+  .rastro::after {
+    animation: rastro-acende linear both;
+    animation-timeline: scroll(root);
+  }
+  /* Começa em 0.06, não em 0. Em zero o gesto que dá nome a esta direção não
+     existe na PRIMEIRA TELA — exatamente onde a primeira impressão acontece —
+     e só aparece depois que a pessoa rola, para quem já foi convencido. 6% de
+     uma janela de 900px é uma cabeça de ~54px: lê como farol aceso parado, que
+     é o estado inicial certo de um rastro de exposição longa. */
+  @keyframes rastro-acende {
+    from {
+      transform: scaleY(0.06);
+    }
+    to {
+      transform: scaleY(1);
+    }
+  }
+}
+
+@media (min-width: 900px) {
+  .rastro {
+    width: 4px;
+  }
+}
+
+/* ------------------------------------------------- estação do percurso
+   A macroestrutura DESTE site, e a razão de ela não ser a pilha
+   `.secao > .container > olho + h2 + chamada` que o hub e o coopluz
+   compartilham: ali cada seção é um bloco solto empilhado, aqui cada seção é
+   uma parada de um percurso que o rastro atravessa. É a estrutura que a
+   direção pede, e fechar isso era o gate que ficou aberto no coopluz.
+
+   Grade 5/7 no desktop, declarada e assimétrica: 50/50 não é decisão. A cabeça
+   fica presa enquanto o corpo rola, então a luz "passa" pela estação. */
+.estacao {
+  position: relative;
+  padding-block: var(--e-24);
+  border-top: 1px solid var(--borda);
+}
+.estacao--suave {
+  background: var(--superficie);
+}
+.estacao__grade {
+  display: grid;
+  gap: var(--e-8);
+}
+/* Item de grade tem `min-width: auto`, ou seja, ele se recusa a ficar menor que
+   o conteúdo dele. Basta um filho largo — no caso a tabela comparativa, que
+   declara `min-width: 640px` de propósito — para a COLUNA inteira crescer até
+   642px numa tela de 360, e aí o `overflow-x: auto` do container da tabela
+   nunca chega a agir: não há o que rolar, porque a grade já cedeu.
+   Medido em `node logos/verificar.mjs`, não deduzido. A regra do desktop já
+   estava protegida por `minmax(0, …)`; faltava o caso de uma coluna só. */
+.estacao__grade > * {
+  min-width: 0;
+}
+@media (min-width: 900px) {
+  .estacao__grade {
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    gap: var(--e-16);
+    align-items: start;
+  }
+  .estacao__cabeca {
+    position: sticky;
+    top: var(--e-16);
+  }
+
+  /* Exceção declarada: a estação que carrega a tabela comparativa empilha em
+     vez de dividir em 5/7. Na grade, a coluna larga dá ~616px e a tabela pede
+     640 — ela ROLA, mas dentro de um container que não parece rolável, e o
+     leitor vê "Ninguém. É associação civil, for" cortado no meio (visto na
+     captura de 1440px). Numa comparação, texto cortado é pior defeito que
+     seção sem a assimetria: quem está decidindo entre duas coisas precisa ler
+     as duas inteiras. A cabeça continua com o número e o h2, agora em cima. */
+  .estacao--tabela .estacao__grade {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--e-8);
+  }
+  .estacao--tabela .estacao__cabeca {
+    position: static;
+  }
+}
+
+/* O número da estação. É o marcador que o rastro acende ao passar: nasce
+   apagado (só contorno) e preenche quando a seção entra na janela. */
+.estacao__n {
+  display: block;
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: 3.5rem;
+  line-height: 1;
+  letter-spacing: 0.02em;
+  margin-bottom: var(--e-4);
+  color: transparent;
+  -webkit-text-stroke: 1.5px var(--noite-600);
+}
+
+@supports (animation-timeline: view()) {
+  .estacao__n {
+    animation: estacao-acende linear both;
+    animation-timeline: view();
+    /* Termina quando a estação chega a 40% da altura da janela: a mudança
+       ACABA antes de a pessoa começar a ler, em vez de completar quando a
+       seção já está saindo. */
+    animation-range: entry 10% cover 40%;
+  }
+  @keyframes estacao-acende {
+    to {
+      color: var(--marca);
+      -webkit-text-stroke-color: var(--marca);
+    }
+  }
+
+  /* Camada de entrada, na mesma régua: o corpo sobe e aparece. TRANSLADO e
+     OPACIDADE — a terceira e última primitiva desta página. */
+  .estacao__corpo {
+    animation: estacao-entra linear both;
+    animation-timeline: view();
+    animation-range: entry 5% cover 30%;
+  }
+  @keyframes estacao-entra {
+    from {
+      opacity: 0.35;
+      transform: translateY(14px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+/* Camada de ponteiro. Opcional na spec da direção e declarada como tal: passar
+   o cursor na estação acende o número antes de o scroll chegar — reforça que o
+   número é o marcador, não um enfeite. Desligada onde não há ponteiro. */
+@media (hover: hover) {
+  .estacao:hover .estacao__n {
+    color: var(--brasa);
+    -webkit-text-stroke-color: var(--brasa);
+    transition: color var(--dur-media) var(--curva), -webkit-text-stroke-color var(--dur-media) var(--curva);
+  }
+}
+
+/* Seção simples, para as páginas que NÃO são o percurso: /sobre, /obrigado,
+   /404 e as legais são documentos, não uma jornada com estações. Dar a elas a
+   grade 5/7 e o número aceso seria encenar um percurso que o conteúdo não tem
+   — e o rastro continua atravessando todas, que é o que costura o site. */
+.secao {
+  padding-block: var(--e-16);
+}
+.secao--suave {
+  background: var(--superficie);
+}
+.secao + .secao {
+  border-top: 1px solid var(--borda);
+}
+
+/* ------------------------------------------------------------- botões */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--e-2);
+  min-height: 48px;
+  padding: var(--e-3) var(--e-6);
+  border: 1px solid transparent;
+  border-radius: var(--r-2);
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: var(--t-lg);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background var(--dur-rapida) var(--curva), border-color var(--dur-rapida) var(--curva);
+}
+.btn--bloco {
+  width: 100%;
+}
+
+.btn--primario {
+  background: var(--acento);
+  color: var(--acento-texto);
+  /* O anel dourado sobre este laranja dá 1.71:1 e sumiria. Aqui ele vira a
+     mesma tinta escura do rótulo — 6.96:1, medido em logos/contraste.mjs. */
+  --foco: var(--acento-texto);
+}
+.btn--primario:hover {
+  background: var(--acento-hover);
+  color: var(--acento-texto);
+}
+.btn--primario[aria-disabled="true"] {
+  background: var(--noite-700);
+  color: var(--texto-suave);
+  cursor: default;
+  --foco: var(--dourado-300);
+}
+
+.btn--contorno {
+  background: transparent;
+  /* -500 e não -600: é o contorno do componente, e o mínimo dele é 3:1. */
+  border-color: var(--noite-500);
+  color: var(--texto);
+}
+.btn--contorno:hover {
+  border-color: var(--acento);
+  background: var(--cinza-100);
+  color: var(--texto);
+}
+
+/* ------------------------------------------------- cartões e listinhas */
+.cartao {
+  background: var(--superficie-alta);
+  border: 1px solid var(--borda);
+  border-radius: var(--r-4);
+  padding: var(--e-6);
+}
+
+.grade {
+  display: grid;
+  gap: var(--e-6);
+}
+@media (min-width: 700px) {
+  .grade--2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (min-width: 900px) {
+  .grade--3 {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.lista-limpa {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+}
+
+.lista-check {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--e-3);
+}
+.lista-check li {
+  position: relative;
+  padding-left: var(--e-8);
+}
+/* O visto é decorativo: a informação está no texto do item. `content` com
+   alternativa vazia para o leitor de tela não anunciar "marca de seleção" antes
+   de cada linha. */
+.lista-check li::before {
+  content: "→";
+  content: "→" / "";
+  position: absolute;
+  left: 0;
+  top: -1px;
+  font-weight: 700;
+  color: var(--marca);
+}
+
+/* Marca externa: um link que sai do site diz que sai, sem depender de o leitor
+   de tela ler o `target`. */
+.externo::after {
+  content: "↗";
+  content: "↗" / "";
+  font-size: 0.85em;
+  margin-left: 0.25em;
+  opacity: 0.8;
+}
+
+/* -------------------------------------------------------- utilitários */
+.visualmente-oculto {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Trilha de navegação (breadcrumb) — o que o BreadcrumbList do JSON-LD descreve. */
+.trilha {
+  border-bottom: 1px solid var(--borda);
+  background: var(--superficie);
+}
+.trilha ol {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--e-2);
+  list-style: none;
+  margin: 0;
+  padding-block: var(--e-3);
+  font-size: var(--t-sm);
+  color: var(--texto-suave);
+}
+.trilha li + li::before {
+  content: "/";
+  margin-right: var(--e-2);
+  color: var(--noite-600);
+}
+
+main:focus {
+  outline: none;
+}
+
+/* ------------------------------------------------------ movimento reduzido
+   Estado final estático e legível, nunca "a página some". O rastro fica
+   inteiro e aceso; as estações ficam acesas e no lugar. É a mesma tela, sem a
+   coreografia. */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+  .rastro::after {
+    animation: none;
+    transform: scaleY(1);
+  }
+  .estacao__n {
+    animation: none;
+    color: var(--marca);
+    -webkit-text-stroke-color: var(--marca);
+  }
+  .estacao__corpo {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Transição entre rotas. O rastro carrega `view-transition-name` e atravessa a
+   navegação sem piscar — a quarta camada da coreografia. */
+@view-transition {
+  navigation: auto;
+}

@@ -1,141 +1,208 @@
 [
-  {
-    "data": "2026-08-24",
-    "projeto": "seguros",
-    "pagina": "/ (e toda capa: /sobre, legais, recibo, 404)",
-    "direcao": "rastro",
-    "tipo": "custom",
-    "eixos": {
-      "materia": "luz",
-      "motor": "scroll",
-      "banda": "escura"
-    },
-    "estrutura": "Percurso — a home e uma sequencia de ESTACOES numeradas em grade assimetrica 5/7, com a cabeca presa (sticky) enquanto o corpo rola. NAO e a pilha `.secao > .container > olho + h2 + chamada` que o hub autogestor e o coopluz compartilham. Fechar isso era o gate G33 que ficou aberto nas tres entradas do log do coopluz. Paginas internas usam `.secao` simples de proposito: sao documentos, nao jornadas.",
-    "pedido": "Usuario pediu site proprio para a vertical de seguro veicular, com layout, paleta e logo originais, citando o coopluz como precedente. Primeira rodada de 3 direcoes (Pericia / Apolice impressa / Camara escura) foi recusada: ele pediu 3 novas BASEADAS em duas imagens que colocou em docs/seguros/ do hub. As imagens sao pecas de captacao reais da Auto Gestor Seguros (agosto/2026).",
-    "decisao": "As imagens mudaram a premissa e isso foi declarado antes de construir: a Autogestor Seguros JA TEM marca (hexagono biselado com vortice, 'SEGUROS' em laranja, 'DESDE 2004'), entao 'paleta original' deixa de significar inventar uma paleta alheia. A paleta foi AMOSTRADA EM PIXEL das duas pecas com Pillow (mediancut por regiao do lockup): laranja #fb7402, azul do hexagono #004485/#1266b8, navy #010d1e, dourado #f5be5b, prata #d4d4d5. O que e original passa a ser direcao, estrutura e tipografia. Usuario interrompeu a segunda rodada de propostas com 'Continue' — direcao escolhida por mim entre as tres, com as duas recusadas declaradas ao usuario.",
-    "recusadas": [
-      "Bisel (geometria/ponteiro/escura) — motor e ponteiro, e o trafego desta pagina e majoritariamente celular: o gesto principal viraria decoracao estatica. Alem disso o coopluz acabou de gastar `ponteiro` no ima dele.",
-      "Brasa (campo/autonomo/escura) — canvas de ~6kb num funil de conversao, e `campo` sem dado real cai no G9 (metrica/textura inventada)."
-    ],
-    "verbo": "varrer — a luz percorre o documento de cima para baixo e acende cada estacao ao passar",
-    "camadas": {
-      "entrada": "o corpo de cada estacao sobe 14px e sai de 0.35 de opacidade, via animation-timeline: view() (entry 5% cover 30%)",
-      "scroll": "O GESTO PRINCIPAL. O rastro (linha de 3-4px na borda esquerda, fixed) cresce em scaleY com animation-timeline: scroll(root). Zero JS, zero listener — o navegador liga a animacao ao scroller sem passar por script. Comeca em scaleY(0.06) e nao em 0: em zero o gesto nao existe na primeira tela, que e onde a primeira impressao acontece.",
-      "ponteiro": "OPCIONAL, declarada: passar o cursor na estacao acende o numero antes de o scroll chegar. Desligada em (hover: none) — no celular o scroll ja e o motor.",
-      "transicao": "View Transitions cross-document (@view-transition: navigation auto). O rastro carrega view-transition-name e atravessa a troca de rota sem piscar — e o mesmo objeto em todas as paginas."
-    },
-    "primitivas": "TRES e nao uma quarta: escala (rastro), opacidade (estacao acende) e translado (estacao sobe). Giro nao existe nesta pagina de proposito — o coopluz gastou `rotate` no ima, e repetir seria a familia inteira com o mesmo tique.",
-    "banda_sem_alternador": "Este site NAO tem seletor claro/escuro, e a ausencia e decisao e nao pendencia: o interruptor (cordao da lampada) era o GESTO do coopluz, e herda-lo seria pegar emprestado o que faz aquele site ser ele. Some junto: metade dos tokens (nao ha light-dark()), o script de pre-pintura do <head> e ~120 linhas de JS do cabecalho. As duas pecas de referencia ja sao escuras, entao a banda sai do material, nao de gosto.",
-    "simbolo": "Calculado, nao desenhado (logos/gerar-marca.py). Hexagono de 6 vertices em raio constante (ponta em cima e embaixo) mais DUAS espirais logaritmicas r = R_OUT*e^(-K*t) defasadas em 180 graus, cada uma com meia-largura decaindo por (1-t)^TAPER e fechada na cauda por um semicirculo de raio W0. E a mesma familia de curva do rastro: o simbolo e o gesto da pagina em miniatura. Uma assercao impede o vortice de encostar no anel (a 24px viraria mancha) — verificada por calculo, nao no olho.",
-    "bugs_achados_olhando_o_render": [
-      "Primeira geracao do braco fechava a cauda com uma reta entre as duas bordas: talho chato onde a peca original tem ponta redonda. Trocado por semicirculo de raio W0.",
-      "Segunda geracao usou sweep-flag 1 no semicirculo: o arco abaulou PARA DENTRO do braco e a cauda virou garra com entalhe concavo. Flag 0 e a correta — medido na renderizacao, nao deduzido do sinal da varredura."
-    ],
-    "bugs_achados_na_verificacao": [
-      "Rolagem horizontal a 360px: `.estacao__corpo` media 642px numa viewport de 360. Item de grade tem min-width:auto e se recusa a ficar menor que o conteudo — a tabela comparativa (min-width: 640px) esticava a COLUNA inteira, e ai o overflow-x:auto do container da tabela nunca chegava a agir. Corrigido com `.estacao__grade > * { min-width: 0 }`.",
-      "Tabela comparativa cortada a 1440px: na coluna de 7fr ela recebe ~616px e pede 640, entao rolava dentro de um container que nao parecia rolavel — o leitor via 'Ninguem. E associacao civil, for' cortado. Estacao 02 ganhou `--tabela` e empilha em vez de dividir 5/7. Numa comparacao, texto cortado e defeito pior que secao sem assimetria.",
-      "O trilho (percurso ainda nao percorrido) usava --noite-700: 1.40:1 sobre o fundo, invisivel na captura. Subiu para --noite-600 (1.86:1) — pouco de proposito, o trilho nao pode competir com a parte acesa.",
-      "O proprio verificador tinha um falso positivo: reportava elementos com left < -1 como sangramento. Em LTR, elemento a esquerda do zero (o honeypot em left:-9999px) NAO cria area rolavel. Passou a olhar so o lado direito, e a falha agora NOMEIA o culpado em vez de dizer 'sangrou a 360px'."
-    ],
-    "gates_corrigidos": [
-      "G3 salto tipografico — ATINGIDO, 5.25x (t-3xl 5.25rem sobre corpo de 1rem). Foi o gate que o hub e o coopluz nao fecharam, os dois travados em 4x. A solucao nao foi coragem: foi escolher uma fonte CONDENSADA e medir. Big Shoulders Display ocupa 75.3% da largura da pilha do sistema (logos/metricas-fonte.mjs), entao o H1 de 71 caracteres cabe em 5 linhas sem empurrar o formulario para fora da primeira tela num notebook de 900px.",
-      "G33 estrutura nao repete — ATINGIDO. Percurso com estacoes numeradas, grade 5/7, cabeca presa. Era o gate aberto nas TRES entradas do log do coopluz.",
-      "G22 contraste — dois pares reprovando, os dois pegos ANTES de a pagina existir: anel de foco dourado sobre o botao laranja (1.71:1, dois quentes vizinhos) e borda do botao de contorno usando o token de divisoria (1.86:1, abaixo do 3:1 de WCAG 1.4.11 para limite de componente). Nenhuma das correcoes afina a cor da marca.",
-      "G6 token fechado — o degrau --noite-500 existe separado da -600 por causa de contraste, nao de estetica.",
-      "G26 CLS — 0.000 medido. O fallback de metrica casada tem size-adjust 75.3% / ascent 130.1% / descent 27.9%, os tres medidos com fontBoundingBox do canvas, nao copiados de tabela."
-    ],
-    "gates_nao_aplicaveis": [
-      "G16 palco delimitado — nao ha loop autonomo: todo movimento e funcao do scroll ou do ponteiro",
-      "G31 dpr travado — nao ha canvas",
-      "G21 blur nao anima — nao ha blur"
-    ],
-    "custo": {
-      "faixa": "captacao",
-      "js_gzip_kb": 0,
-      "deps_novas": [],
-      "nota_peso": "Zero JS proprio para a coreografia inteira: scroll(), view() e @view-transition sao nativos. O unico script da home e o do formulario e o da barra fixa, herdados do hub.",
-      "lcp_ms": {
-        "mediana": 712,
-        "amostras": [
-          540,
-          688,
-          712,
-          740,
-          784
-        ],
-        "alvo": 2000,
-        "condicao": "build servido estatico, CPU 4x estrangulada, 1440x900"
-      },
-      "cls": 0,
-      "inp": "nao remedido: a direcao nao adiciona um listener. A camada de ponteiro e :hover com transicao de cor."
-    },
-    "divida_declarada": "Sem blog: o hub tem a colecao vazia e nao ha cluster de conteudo escrito para seguro. A faixa de prova social usa TIPOGRAFIA e nao logotipo das seguradoras — nao ha ativo licenciado no repositorio, mesma decisao do coopluz com os logos de emissora. A camada de ponteiro e a mais fraca das quatro (so acende o numero), e isso e coerente com o trafego ser majoritariamente celular, mas se um dia o desktop pesar, e onde ha espaco para crescer."
+ {
+  "data": "2026-08-24",
+  "projeto": "seguros",
+  "pagina": "/ (e toda capa: /sobre, legais, recibo, 404)",
+  "direcao": "rastro",
+  "tipo": "custom",
+  "eixos": {
+   "materia": "luz",
+   "motor": "scroll",
+   "banda": "escura"
   },
-  {
-    "data": "2026-08-25",
-    "projeto": "seguros",
-    "pagina": "/ (e toda capa)",
-    "direcao": "rastro",
-    "tipo": "ajuste tipografico",
-    "eixos": {
-      "materia": "luz",
-      "motor": "scroll",
-      "banda": "escura"
-    },
-    "pedido": "Dono, terceira vez sobre a mesma coisa: \"nao gostei da fonte utilizada nos titulos, muito exagerada\". Antes dele ja tinham caido Big Shoulders Display (entrada de 24/08) e Anton (25/08, mais cedo).",
-    "decisao": "Parar de trocar de FAMILIA e trocar de CLASSE de letra. As duas recusadas eram a mesma aposta — condensada de peso maximo, caixa alta, 5.25rem — entao a terceira condensada seria a terceira recusa. Chivo 800: grotesca de largura normal, caixa mista. Escolha confirmada com o dono ANTES de codar, com 4 direcoes na mesa (grotesca solida / sem fonte de exibicao / serifa editorial / condensada domada) — depois de duas recusas, perguntar custa menos que uma terceira.",
-    "o_que_mudou_junto": "TRES coisas, e nenhuma resolve sozinha: (1) familia Anton -> Chivo 800; (2) caixa, H1/H2 sairam de text-transform:uppercase para caixa mista — caixa alta num H1 de 72 caracteres era metade do grito, e ainda custa a silhueta que o olho usa para reconhecer a palavra sem soletrar; (3) escala, --t-3xl de 5.25rem para 3.5rem e --t-2xl de 3rem para 2.25rem. A escala TEVE que cair: Chivo ocupa 98.8% da largura da pilha do sistema contra 90.9% da Anton e 75.3% da Big Shoulders (logos/metricas-fonte.mjs), entao manter 5.25rem enterraria o formulario abaixo da dobra.",
-    "ajustes_de_arrasto": [
-      "letter-spacing dos titulos de +0.005em para -0.015em: o tracking positivo existia para a contraforma apertada da condensada; grotesca larga em corpo grande pede o contrario.",
-      "line-height de 1.02 para 1.08: caixa mista tem descendente, e 1.02 fazia o 'g' de 'seguro' encostar na linha seguinte.",
-      ".olho de peso 700 para 800 — 800 e o unico peso que o site pede ao Google, e manter 700 obrigaria uma segunda instancia na requisicao.",
-      ".estacao__n de 3.5rem para 2.5rem. Achado da auditoria, nao do pedido: com a escala nova o numero da estacao empatava com o H1 da capa e ficava 1.55x o H2 da propria secao — a estacao passava a ser anunciada pelo algarismo em vez do assunto. O numero e marcador, nao titulo.",
-      "@font-face 'Capa fallback' remedido: size-adjust 90.9% -> 98.8%, ascent 129.9% -> 95.1%, descent 36.3% -> 25.3%. A pilha local tambem mudou (Arial Narrow saiu da frente): fallback condensado para uma capa de largura normal e pior que fallback nenhum. CLS seguiu em 0.000.",
-      "logos/gerar-og.mjs acompanhou — o cartao de compartilhamento e onde a marca aparece para quem ainda NAO entrou no site, e deixa-lo na fonte velha e exatamente como um PNG de marca fica desatualizado sem ninguem perceber."
-    ],
-    "gate_g3_revisado": "G3 salto tipografico cai de 5.25x para 3.5x, e a entrada de 24/08 que comemorava os 5.25x fica CORRIGIDA por esta. O gate media a coisa errada: salto tipografico e meio para hierarquia, nao fim, e os 5.25x conquistados com condensada de cartaz custaram tres rodadas de recusa do dono. 3.5x sobre corpo de 1rem continua forte, e agora quem carrega o impacto e o gesto (o rastro) e o laranja da marca — que antes competiam com a propria letra.",
-    "achados_da_auditoria_pos_troca": [
-      "meta description da home com 208 caracteres: o Google corta em ~155 e o trecho perdido era o servico pos-venda (assistencia 24h e acompanhamento do sinistro), que e o argumento que separa corretora de comparador de preco. /sobre (169) e /termos (175) tinham o mesmo defeito. Os tres reescritos.",
-      "Nada media isso. Virou a secao 6 de logos/verificar.mjs: descricao acima de 155 REPROVA; titulo acima de 62 avisa e nao barra, porque quando o titulo estoura quem some e o sufixo da marca, a truncagem menos ruim das duas.",
-      "Comentario da .capa em index.astro afirmava grade 5/7 (e 6/5) e 'o H1 condensado cabe em 3 linhas' — as duas frases mortas. Substituidas por medicao: botao de envio em y=589 numa janela de 900px.",
-      "Nada achado em acessibilidade, responsivo e movimento: passagem de Tab limpa com anel visivel em 14 focos, sem sangramento horizontal em 360/768/1440, e a tela sobrevive parada sob prefers-reduced-motion. Silencio aqui e resultado, nao esquecimento."
-    ],
-    "custo": {
-      "faixa": "captacao",
-      "js_gzip_kb": 0,
-      "deps_novas": [],
-      "nota_peso": "A fonte ficou MAIS LEVE: subset latin da Chivo:wght@800 = 14.9 KB contra 18.6 KB da Anton (Content-Length do woff2 que o Google serve). Continua uma requisicao, um peso, display=optional.",
-      "lcp_ms": {
-        "mediana": 1100,
-        "amostras": [
-          892,
-          1096,
-          1100,
-          1352,
-          1388
-        ],
-        "alvo": 2000,
-        "condicao": "build servido estatico, CPU 4x estrangulada, 1440x900"
-      },
-      "cls": 0
-    },
-    "verificado": "npm run build && node logos/verificar.mjs — 6 secoes, tudo passa. node logos/contraste.mjs — todos os pares passam (a troca de fonte nao mexeu em cor; rodado como regressao)."
+  "estrutura": "Percurso — a home e uma sequencia de ESTACOES numeradas em grade assimetrica 5/7, com a cabeca presa (sticky) enquanto o corpo rola. NAO e a pilha `.secao > .container > olho + h2 + chamada` que o hub autogestor e o coopluz compartilham. Fechar isso era o gate G33 que ficou aberto nas tres entradas do log do coopluz. Paginas internas usam `.secao` simples de proposito: sao documentos, nao jornadas.",
+  "pedido": "Usuario pediu site proprio para a vertical de seguro veicular, com layout, paleta e logo originais, citando o coopluz como precedente. Primeira rodada de 3 direcoes (Pericia / Apolice impressa / Camara escura) foi recusada: ele pediu 3 novas BASEADAS em duas imagens que colocou em docs/seguros/ do hub. As imagens sao pecas de captacao reais da Auto Gestor Seguros (agosto/2026).",
+  "decisao": "As imagens mudaram a premissa e isso foi declarado antes de construir: a Autogestor Seguros JA TEM marca (hexagono biselado com vortice, 'SEGUROS' em laranja, 'DESDE 2004'), entao 'paleta original' deixa de significar inventar uma paleta alheia. A paleta foi AMOSTRADA EM PIXEL das duas pecas com Pillow (mediancut por regiao do lockup): laranja #fb7402, azul do hexagono #004485/#1266b8, navy #010d1e, dourado #f5be5b, prata #d4d4d5. O que e original passa a ser direcao, estrutura e tipografia. Usuario interrompeu a segunda rodada de propostas com 'Continue' — direcao escolhida por mim entre as tres, com as duas recusadas declaradas ao usuario.",
+  "recusadas": [
+   "Bisel (geometria/ponteiro/escura) — motor e ponteiro, e o trafego desta pagina e majoritariamente celular: o gesto principal viraria decoracao estatica. Alem disso o coopluz acabou de gastar `ponteiro` no ima dele.",
+   "Brasa (campo/autonomo/escura) — canvas de ~6kb num funil de conversao, e `campo` sem dado real cai no G9 (metrica/textura inventada)."
+  ],
+  "verbo": "varrer — a luz percorre o documento de cima para baixo e acende cada estacao ao passar",
+  "camadas": {
+   "entrada": "o corpo de cada estacao sobe 14px e sai de 0.35 de opacidade, via animation-timeline: view() (entry 5% cover 30%)",
+   "scroll": "O GESTO PRINCIPAL. O rastro (linha de 3-4px na borda esquerda, fixed) cresce em scaleY com animation-timeline: scroll(root). Zero JS, zero listener — o navegador liga a animacao ao scroller sem passar por script. Comeca em scaleY(0.06) e nao em 0: em zero o gesto nao existe na primeira tela, que e onde a primeira impressao acontece.",
+   "ponteiro": "OPCIONAL, declarada: passar o cursor na estacao acende o numero antes de o scroll chegar. Desligada em (hover: none) — no celular o scroll ja e o motor.",
+   "transicao": "View Transitions cross-document (@view-transition: navigation auto). O rastro carrega view-transition-name e atravessa a troca de rota sem piscar — e o mesmo objeto em todas as paginas."
   },
-  {
-    "data": "2026-08-25",
-    "projeto": "seguros",
-    "pagina": "/ e o site inteiro",
-    "direcao": "corte seco",
-    "tipo": "CONSTRUIDA E RECUSADA — revertida",
-    "eixos": {
-      "materia": "geometria",
-      "motor": "estado",
-      "banda": "clara"
-    },
-    "resultado": "RECUSADA PELO DONO ASSIM QUE VIU. Construida no site inteiro, verificada (33/33 gates, LCP 920ms, CLS 0, todos os pares de contraste passando) e revertida no mesmo dia por git revert (cc7c0d1 -> 70dd7cf). O site voltou para `rastro`. Esta entrada existe para a regra de anti-repeticao: NAO propor Corte Seco de novo, e nao propor direcao de banda `clara` para esta familia de sites sem ele pedir.",
-    "o_que_ele_recusou": "Os tracos, nao o nome: banda clara (papel no lugar do navy), blocos chapados sem profundidade, canto reto em tudo (border-radius 0), zero sombra, zero gradiente, movimento que corta em vez de suavizar (clip-path, steps(1), hover em 0ms) e estrutura de lista numerada densa. Ele nao disse qual dos tracos pesou mais.",
-    "padrao_do_log": "Quarta recusa visual seguida, e nas quatro eu tinha escolhido a opcao mais severa do leque: Big Shoulders Display, Anton e a Chivo em 5.25rem cairam por 'muito exagerada', e agora a direcao inteira. O que sobrevive nas tres entradas anteriores e `rastro` — escuro, laranja da marca, uma linha de luz que acende com a rolagem. Filtrar as 3 propostas por banda escura/media e materia luz/campo ANTES de qualquer outro criterio.",
-    "erro_de_processo": "O escopo escolhido foi 'site inteiro' e eu construi os treze arquivos antes de mostrar uma tela. A opcao 'Prototipo primeiro' estava na mesa na mesma pergunta e eu nao insisti nela. Numa troca de direcao que muda as tres bandas ao mesmo tempo, a primeira tela em IMAGEM tem de vir antes da propagacao — o custo desta recusa foi um site refeito e desfeito.",
-    "o_que_sobreviveu_a_reversao": "Nada no codigo — o revert e completo, inclusive contraste.mjs, verificar.mjs, gerar-og.mjs e o og.png. Vale registrar o que se perdeu junto, caso algum dia seja util fora desta direcao: (1) contraste.mjs tinha passado a converter OKLCH em vez de guardar uma copia em hex da paleta, o que eliminava a duplicata que diverge sem ninguem ver; (2) verificar.mjs tinha ganhado a comparacao do theme-color com o pixel que o cabecalho realmente pinta; (3) o truque de ler cor resolvida por fillRect + getImageData, porque getComputedStyle devolve a cor na sintaxe em que ela foi escrita e comparar string contra string reprova inversao que funcionou. As tres sao independentes da direcao e podem voltar sozinhas."
-  }
+  "primitivas": "TRES e nao uma quarta: escala (rastro), opacidade (estacao acende) e translado (estacao sobe). Giro nao existe nesta pagina de proposito — o coopluz gastou `rotate` no ima, e repetir seria a familia inteira com o mesmo tique.",
+  "banda_sem_alternador": "Este site NAO tem seletor claro/escuro, e a ausencia e decisao e nao pendencia: o interruptor (cordao da lampada) era o GESTO do coopluz, e herda-lo seria pegar emprestado o que faz aquele site ser ele. Some junto: metade dos tokens (nao ha light-dark()), o script de pre-pintura do <head> e ~120 linhas de JS do cabecalho. As duas pecas de referencia ja sao escuras, entao a banda sai do material, nao de gosto.",
+  "simbolo": "Calculado, nao desenhado (logos/gerar-marca.py). Hexagono de 6 vertices em raio constante (ponta em cima e embaixo) mais DUAS espirais logaritmicas r = R_OUT*e^(-K*t) defasadas em 180 graus, cada uma com meia-largura decaindo por (1-t)^TAPER e fechada na cauda por um semicirculo de raio W0. E a mesma familia de curva do rastro: o simbolo e o gesto da pagina em miniatura. Uma assercao impede o vortice de encostar no anel (a 24px viraria mancha) — verificada por calculo, nao no olho.",
+  "bugs_achados_olhando_o_render": [
+   "Primeira geracao do braco fechava a cauda com uma reta entre as duas bordas: talho chato onde a peca original tem ponta redonda. Trocado por semicirculo de raio W0.",
+   "Segunda geracao usou sweep-flag 1 no semicirculo: o arco abaulou PARA DENTRO do braco e a cauda virou garra com entalhe concavo. Flag 0 e a correta — medido na renderizacao, nao deduzido do sinal da varredura."
+  ],
+  "bugs_achados_na_verificacao": [
+   "Rolagem horizontal a 360px: `.estacao__corpo` media 642px numa viewport de 360. Item de grade tem min-width:auto e se recusa a ficar menor que o conteudo — a tabela comparativa (min-width: 640px) esticava a COLUNA inteira, e ai o overflow-x:auto do container da tabela nunca chegava a agir. Corrigido com `.estacao__grade > * { min-width: 0 }`.",
+   "Tabela comparativa cortada a 1440px: na coluna de 7fr ela recebe ~616px e pede 640, entao rolava dentro de um container que nao parecia rolavel — o leitor via 'Ninguem. E associacao civil, for' cortado. Estacao 02 ganhou `--tabela` e empilha em vez de dividir 5/7. Numa comparacao, texto cortado e defeito pior que secao sem assimetria.",
+   "O trilho (percurso ainda nao percorrido) usava --noite-700: 1.40:1 sobre o fundo, invisivel na captura. Subiu para --noite-600 (1.86:1) — pouco de proposito, o trilho nao pode competir com a parte acesa.",
+   "O proprio verificador tinha um falso positivo: reportava elementos com left < -1 como sangramento. Em LTR, elemento a esquerda do zero (o honeypot em left:-9999px) NAO cria area rolavel. Passou a olhar so o lado direito, e a falha agora NOMEIA o culpado em vez de dizer 'sangrou a 360px'."
+  ],
+  "gates_corrigidos": [
+   "G3 salto tipografico — ATINGIDO, 5.25x (t-3xl 5.25rem sobre corpo de 1rem). Foi o gate que o hub e o coopluz nao fecharam, os dois travados em 4x. A solucao nao foi coragem: foi escolher uma fonte CONDENSADA e medir. Big Shoulders Display ocupa 75.3% da largura da pilha do sistema (logos/metricas-fonte.mjs), entao o H1 de 71 caracteres cabe em 5 linhas sem empurrar o formulario para fora da primeira tela num notebook de 900px.",
+   "G33 estrutura nao repete — ATINGIDO. Percurso com estacoes numeradas, grade 5/7, cabeca presa. Era o gate aberto nas TRES entradas do log do coopluz.",
+   "G22 contraste — dois pares reprovando, os dois pegos ANTES de a pagina existir: anel de foco dourado sobre o botao laranja (1.71:1, dois quentes vizinhos) e borda do botao de contorno usando o token de divisoria (1.86:1, abaixo do 3:1 de WCAG 1.4.11 para limite de componente). Nenhuma das correcoes afina a cor da marca.",
+   "G6 token fechado — o degrau --noite-500 existe separado da -600 por causa de contraste, nao de estetica.",
+   "G26 CLS — 0.000 medido. O fallback de metrica casada tem size-adjust 75.3% / ascent 130.1% / descent 27.9%, os tres medidos com fontBoundingBox do canvas, nao copiados de tabela."
+  ],
+  "gates_nao_aplicaveis": [
+   "G16 palco delimitado — nao ha loop autonomo: todo movimento e funcao do scroll ou do ponteiro",
+   "G31 dpr travado — nao ha canvas",
+   "G21 blur nao anima — nao ha blur"
+  ],
+  "custo": {
+   "faixa": "captacao",
+   "js_gzip_kb": 0,
+   "deps_novas": [],
+   "nota_peso": "Zero JS proprio para a coreografia inteira: scroll(), view() e @view-transition sao nativos. O unico script da home e o do formulario e o da barra fixa, herdados do hub.",
+   "lcp_ms": {
+    "mediana": 712,
+    "amostras": [
+     540,
+     688,
+     712,
+     740,
+     784
+    ],
+    "alvo": 2000,
+    "condicao": "build servido estatico, CPU 4x estrangulada, 1440x900"
+   },
+   "cls": 0,
+   "inp": "nao remedido: a direcao nao adiciona um listener. A camada de ponteiro e :hover com transicao de cor."
+  },
+  "divida_declarada": "Sem blog: o hub tem a colecao vazia e nao ha cluster de conteudo escrito para seguro. A faixa de prova social usa TIPOGRAFIA e nao logotipo das seguradoras — nao ha ativo licenciado no repositorio, mesma decisao do coopluz com os logos de emissora. A camada de ponteiro e a mais fraca das quatro (so acende o numero), e isso e coerente com o trafego ser majoritariamente celular, mas se um dia o desktop pesar, e onde ha espaco para crescer."
+ },
+ {
+  "data": "2026-08-25",
+  "projeto": "seguros",
+  "pagina": "/ (e toda capa)",
+  "direcao": "rastro",
+  "tipo": "ajuste tipografico",
+  "eixos": {
+   "materia": "luz",
+   "motor": "scroll",
+   "banda": "escura"
+  },
+  "pedido": "Dono, terceira vez sobre a mesma coisa: \"nao gostei da fonte utilizada nos titulos, muito exagerada\". Antes dele ja tinham caido Big Shoulders Display (entrada de 24/08) e Anton (25/08, mais cedo).",
+  "decisao": "Parar de trocar de FAMILIA e trocar de CLASSE de letra. As duas recusadas eram a mesma aposta — condensada de peso maximo, caixa alta, 5.25rem — entao a terceira condensada seria a terceira recusa. Chivo 800: grotesca de largura normal, caixa mista. Escolha confirmada com o dono ANTES de codar, com 4 direcoes na mesa (grotesca solida / sem fonte de exibicao / serifa editorial / condensada domada) — depois de duas recusas, perguntar custa menos que uma terceira.",
+  "o_que_mudou_junto": "TRES coisas, e nenhuma resolve sozinha: (1) familia Anton -> Chivo 800; (2) caixa, H1/H2 sairam de text-transform:uppercase para caixa mista — caixa alta num H1 de 72 caracteres era metade do grito, e ainda custa a silhueta que o olho usa para reconhecer a palavra sem soletrar; (3) escala, --t-3xl de 5.25rem para 3.5rem e --t-2xl de 3rem para 2.25rem. A escala TEVE que cair: Chivo ocupa 98.8% da largura da pilha do sistema contra 90.9% da Anton e 75.3% da Big Shoulders (logos/metricas-fonte.mjs), entao manter 5.25rem enterraria o formulario abaixo da dobra.",
+  "ajustes_de_arrasto": [
+   "letter-spacing dos titulos de +0.005em para -0.015em: o tracking positivo existia para a contraforma apertada da condensada; grotesca larga em corpo grande pede o contrario.",
+   "line-height de 1.02 para 1.08: caixa mista tem descendente, e 1.02 fazia o 'g' de 'seguro' encostar na linha seguinte.",
+   ".olho de peso 700 para 800 — 800 e o unico peso que o site pede ao Google, e manter 700 obrigaria uma segunda instancia na requisicao.",
+   ".estacao__n de 3.5rem para 2.5rem. Achado da auditoria, nao do pedido: com a escala nova o numero da estacao empatava com o H1 da capa e ficava 1.55x o H2 da propria secao — a estacao passava a ser anunciada pelo algarismo em vez do assunto. O numero e marcador, nao titulo.",
+   "@font-face 'Capa fallback' remedido: size-adjust 90.9% -> 98.8%, ascent 129.9% -> 95.1%, descent 36.3% -> 25.3%. A pilha local tambem mudou (Arial Narrow saiu da frente): fallback condensado para uma capa de largura normal e pior que fallback nenhum. CLS seguiu em 0.000.",
+   "logos/gerar-og.mjs acompanhou — o cartao de compartilhamento e onde a marca aparece para quem ainda NAO entrou no site, e deixa-lo na fonte velha e exatamente como um PNG de marca fica desatualizado sem ninguem perceber."
+  ],
+  "gate_g3_revisado": "G3 salto tipografico cai de 5.25x para 3.5x, e a entrada de 24/08 que comemorava os 5.25x fica CORRIGIDA por esta. O gate media a coisa errada: salto tipografico e meio para hierarquia, nao fim, e os 5.25x conquistados com condensada de cartaz custaram tres rodadas de recusa do dono. 3.5x sobre corpo de 1rem continua forte, e agora quem carrega o impacto e o gesto (o rastro) e o laranja da marca — que antes competiam com a propria letra.",
+  "achados_da_auditoria_pos_troca": [
+   "meta description da home com 208 caracteres: o Google corta em ~155 e o trecho perdido era o servico pos-venda (assistencia 24h e acompanhamento do sinistro), que e o argumento que separa corretora de comparador de preco. /sobre (169) e /termos (175) tinham o mesmo defeito. Os tres reescritos.",
+   "Nada media isso. Virou a secao 6 de logos/verificar.mjs: descricao acima de 155 REPROVA; titulo acima de 62 avisa e nao barra, porque quando o titulo estoura quem some e o sufixo da marca, a truncagem menos ruim das duas.",
+   "Comentario da .capa em index.astro afirmava grade 5/7 (e 6/5) e 'o H1 condensado cabe em 3 linhas' — as duas frases mortas. Substituidas por medicao: botao de envio em y=589 numa janela de 900px.",
+   "Nada achado em acessibilidade, responsivo e movimento: passagem de Tab limpa com anel visivel em 14 focos, sem sangramento horizontal em 360/768/1440, e a tela sobrevive parada sob prefers-reduced-motion. Silencio aqui e resultado, nao esquecimento."
+  ],
+  "custo": {
+   "faixa": "captacao",
+   "js_gzip_kb": 0,
+   "deps_novas": [],
+   "nota_peso": "A fonte ficou MAIS LEVE: subset latin da Chivo:wght@800 = 14.9 KB contra 18.6 KB da Anton (Content-Length do woff2 que o Google serve). Continua uma requisicao, um peso, display=optional.",
+   "lcp_ms": {
+    "mediana": 1100,
+    "amostras": [
+     892,
+     1096,
+     1100,
+     1352,
+     1388
+    ],
+    "alvo": 2000,
+    "condicao": "build servido estatico, CPU 4x estrangulada, 1440x900"
+   },
+   "cls": 0
+  },
+  "verificado": "npm run build && node logos/verificar.mjs — 6 secoes, tudo passa. node logos/contraste.mjs — todos os pares passam (a troca de fonte nao mexeu em cor; rodado como regressao)."
+ },
+ {
+  "data": "2026-08-25",
+  "projeto": "seguros",
+  "pagina": "/ e o site inteiro",
+  "direcao": "corte seco",
+  "tipo": "CONSTRUIDA E RECUSADA — revertida",
+  "eixos": {
+   "materia": "geometria",
+   "motor": "estado",
+   "banda": "clara"
+  },
+  "resultado": "RECUSADA PELO DONO ASSIM QUE VIU. Construida no site inteiro, verificada (33/33 gates, LCP 920ms, CLS 0, todos os pares de contraste passando) e revertida no mesmo dia por git revert (cc7c0d1 -> 70dd7cf). O site voltou para `rastro`. Esta entrada existe para a regra de anti-repeticao: NAO propor Corte Seco de novo, e nao propor direcao de banda `clara` para esta familia de sites sem ele pedir.",
+  "o_que_ele_recusou": "Os tracos, nao o nome: banda clara (papel no lugar do navy), blocos chapados sem profundidade, canto reto em tudo (border-radius 0), zero sombra, zero gradiente, movimento que corta em vez de suavizar (clip-path, steps(1), hover em 0ms) e estrutura de lista numerada densa. Ele nao disse qual dos tracos pesou mais.",
+  "padrao_do_log": "Quarta recusa visual seguida, e nas quatro eu tinha escolhido a opcao mais severa do leque: Big Shoulders Display, Anton e a Chivo em 5.25rem cairam por 'muito exagerada', e agora a direcao inteira. O que sobrevive nas tres entradas anteriores e `rastro` — escuro, laranja da marca, uma linha de luz que acende com a rolagem. Filtrar as 3 propostas por banda escura/media e materia luz/campo ANTES de qualquer outro criterio.",
+  "erro_de_processo": "O escopo escolhido foi 'site inteiro' e eu construi os treze arquivos antes de mostrar uma tela. A opcao 'Prototipo primeiro' estava na mesa na mesma pergunta e eu nao insisti nela. Numa troca de direcao que muda as tres bandas ao mesmo tempo, a primeira tela em IMAGEM tem de vir antes da propagacao — o custo desta recusa foi um site refeito e desfeito.",
+  "o_que_sobreviveu_a_reversao": "Nada no codigo — o revert e completo, inclusive contraste.mjs, verificar.mjs, gerar-og.mjs e o og.png. Vale registrar o que se perdeu junto, caso algum dia seja util fora desta direcao: (1) contraste.mjs tinha passado a converter OKLCH em vez de guardar uma copia em hex da paleta, o que eliminava a duplicata que diverge sem ninguem ver; (2) verificar.mjs tinha ganhado a comparacao do theme-color com o pixel que o cabecalho realmente pinta; (3) o truque de ler cor resolvida por fillRect + getImageData, porque getComputedStyle devolve a cor na sintaxe em que ela foi escrita e comparar string contra string reprova inversao que funcionou. As tres sao independentes da direcao e podem voltar sozinhas."
+ },
+ {
+  "data": "2026-08-25",
+  "projeto": "seguros",
+  "pagina": "/ (SO A CAPA — nada propagado para as internas)",
+  "direcao": "asfalto",
+  "tipo": "custom, sobre a `rastro` — nao a substitui",
+  "eixos": {
+   "materia": "fotografia tratada",
+   "motor": "scroll",
+   "banda": "escura"
+  },
+  "pedido": "Dono pediu 'mais de art-direction, traga ideias e me pergunte'. Escolheu Asfalto entre tres, com escopo 'so a capa, em imagem' e a placa saindo da propria peca da casa.",
+  "recusadas": [
+   "Facho (luz volumetrica / scroll / escura) — luz dirigida em CSS atras da capa e das estacoes, 0kb. Era a minha recomendacao.",
+   "Chapa (volume metalico / scroll / escura) — bisel e especular do hexagono nos objetos, com o rastro virando a fonte de luz."
+  ],
+  "diagnostico_que_motivou": "A direcao `rastro` estava nos COMENTARIOS do CSS e nao na tela. Tres defeitos medidos na captura, nao opinados: (1) o gesto tinha 3px numa largura de 1440 (0,2%), a 157px da coluna de leitura — ninguem olha para x=0; (2) --fundo era #050b14 CHAPADO em 100% da area, enquanto a peca que originou a paleta e cheia de materia (rastro de farol, ceu urbano, asfalto molhado); (3) uma corretora de seguro VEICULAR sem um unico veiculo em lugar nenhum.",
+  "a_placa": "Recorte da peca da casa (docs/seguros/ do hub), nao banco de imagem. A peca de 1120x1120 tem texto em quase toda ela; sobra UM retangulo limpo, (0,495)-(1120,745), e ele e justamente o assunto: os quatro veiculos sobre asfalto molhado com os rastros quentes atras. Limites MEDIDOS em recortes de teste (pilula termina em y~490, texto comeca em y~750), nao estimados. Gradacao em logos/gerar-placa.py: sombra puxada para o navy da paleta (e o que faz a mascara do topo dissolver sem costura), luminancia geral 0.92, grao fino DEPOIS da ampliacao. O laranja dos farois nao e tocado em passo nenhum.",
+  "estrutura_e_o_conserto_principal": "A placa e ITEM DA GRADE na linha 2 da coluna de texto, sangrando ate as bordas e passando por tras do formulario. Duas montagens anteriores morreram na regua: (1) em fluxo depois da grade, a altura SOMAVA a do formulario (~660px sozinho) e sobravam 46px visiveis numa janela de 900px — faixa de 46px e borrao, nao horizonte; (2) absoluta no pe da secao, o impacto veio e o piso quebrou: .capa__atalho caia sobre o carro branco, e o defeito MUDAVA com a largura (o texto batia aos 27% da altura da placa a 1440px, 50% a 1100px, 54% a 900px). Mascara nenhuma resolve alvo que se move. Na grade o topo da placa E o fim da coluna de texto, por construcao, em qualquer largura: o problema deixou de existir em vez de ser compensado. Dois ganhos de brinde — o ar morto embaixo do texto (185px a 1440px) vira estrada, e o cartao do formulario passa a ter chao em vez de vazio atras.",
+  "camadas": {
+   "materia": "fotografia tratada + grao de feTurbulence (data-uri, gerado uma vez, nunca animado) sobre a noite inteira da capa",
+   "luz": "um foco radial ambar em `at 72% 74%`, subindo de onde os farois do caminhao estao DENTRO da placa. A primeira versao ancorava em 100%, que depois da placa entrar na grade foi para y~1001 — abaixo da dobra: a luz existia e ninguem via.",
+   "scroll": "parallax de 4% na placa via animation-timeline: view(), zero JS",
+   "rastro": "mantido e agora conectado — ele e fixed com z-index 40 e corta a estrada, sem uma linha de codigo para ligar os dois"
+  },
+  "orcamento_o_episodio_inteiro": "A direcao QUEBROU o teto de 2000ms (faixa captacao) e o conserto nao foi baixar a faixa. Sequencia real: (1) LCP subiu de ~1600 para ~2260ms, elemento = IMG; (2) cortar pixels nao resolveu — reduzir a placa de 1600x357 para 1200x225 (47% dos pixels) moveu so ~120ms; (3) o diagnostico com PerformanceResourceTiming mostrou a imagem baixando em 8ms e domInteractive em 3979ms, ou seja o gargalo era thread principal e nao a placa; (4) isolamento por terceiro: sem GA4 1852ms, sem Google Fonts 1948ms, sem os dois 1728ms. O dono escolheu destravar os dois. Resultado: LCP mediano 1064ms — a pagina ficou MAIS RAPIDA COM a fotografia do que estava antes SEM ela (~1600ms).",
+  "o_que_destravou": "Google Fonts virou fonte local: o <link> externo e folha de estilo BLOQUEANTE (262ms medidos) mais um segundo salto ate gstatic para buscar o woff2 que a folha so entao revela. Trocado pelo subset latin de Chivo 800 (14,9 KB, OFL, o mesmo arquivo que o Google entregaria) em /fonts, com @font-face em global.css e preload com crossorigin. Sairam junto os dois preconnect, que existiam so para amortecer o TLS da folha. GA4 passou a subir no evento load: a fila do dataLayer e criada antes de tudo e o config entra nela na hora, entao o pageview nao se perde — so escapa quem fecha a pagina antes do load.",
+  "efeito_colateral_a_declarar": "Com a fonte local + preload, a Chivo agora CARREGA de verdade. Antes, display=optional mais a ida ao Google fazia a maioria das primeiras visitas cair no fallback de metrica casada. Consequencia visivel: o H1 passou de 4 para 5 linhas (a Chivo real e mais larga que o fallback) e a placa aparece ~100px na dobra em vez de ~170px. NAO mexi na escala tipografica por conta propria — o dono ja recusou tres vezes tamanho de titulo, e 3.5rem foi decisao dele.",
+  "erros_meus_neste_ciclo": [
+   "Cortei o parallax da placa afirmando que ele custava 390ms de LCP. Era artefato: o script guardava o rotulo do elemento LCP de UMA amostra, a ultima, e nao de todas. Remedido com nove amostras rotuladas uma a uma, a imagem e o elemento de LCP com ou sem parallax e a mediana e a mesma. O parallax voltou, e a regra ficou escrita no codigo: uma amostra nao e medida, e rotulo de categoria precisa ser colhido por amostra igual ao numero.",
+   "A comparacao AVIF x WebP (2748 x 1456ms) foi colhida quando a placa ainda era o elemento de LCP. A escolha por WebP continua certa pelo mecanismo (decodificar AVIF custa CPU, publico majoritariamente celular, 39,9 KB nao doem em banda), mas aqueles dois numeros nao valem mais na condicao de hoje — a ressalva ficou escrita no gerador."
+  ],
+  "verificador_o_que_ganhou": [
+   "Secao 7 nova — contraste REAL do texto da capa contra o pixel efetivamente pintado atras dele, em 3 larguras. contraste.mjs compara pares de tokens, e token nenhum descreve 'o pixel do carro branco'. Esconde o texto, fotografa o fundo e procura o PIOR pixel de cada caixa. A decodificacao do PNG e feita pelo proprio Chromium (canvas + getImageData) em vez de uma biblioteca nova.",
+   "Falso positivo pago na mesma secao: a .barra fixa de acao e o cabecalho ficam POR CIMA do conteudo, e sem esconde-los a barra branca entrava na conta como se fosse fundo e reprovava 1.00:1 um texto correto. Mesmo tipo do honeypot em left:-9999px que a secao 3 ja tinha tido.",
+   "Amostra de LCP igual a 0 passou a ser DESCARTADA e nao promediada: 0 significa que o observador nao pegou entrada nenhuma, e deixa-la entrar empurra a mediana para baixo — o medidor mentindo a favor de quem esta sendo medido. Menos de 3 amostras validas agora REPROVA por inconclusivo.",
+   "TIPOS ganhou .webp, .avif e .woff2. Sem eles o servidor devolvia octet-stream, o Chromium recusava o arquivo e a pagina caia no fallback — a falha passaria como sucesso."
+  ],
+  "custo": {
+   "faixa": "captacao",
+   "js_gzip_kb": 0,
+   "deps_novas": [],
+   "peso_novo_kb": {
+    "placa_1200": 39.9,
+    "placa_600": 14.2,
+    "fonte_local": 14.9,
+    "nota": "a fonte nao e peso novo — ela ja era baixada, so mudou de origem"
+   },
+   "lcp_ms": {
+    "mediana": 1064,
+    "amostras": [
+     796,
+     912,
+     1064,
+     1264,
+     1820
+    ],
+    "alvo": 2000,
+    "condicao": "build servido estatico, CPU 4x estrangulada, 1440x900",
+    "antes_da_direcao": 1600,
+    "nota": "o log de 24/08 registrava 1100ms de baseline; a mesma build mediu ~1600ms nesta sessao — a maquina estava mais lenta, e por isso todo A/B deste ciclo foi feito lado a lado no mesmo momento, nunca contra numero de outro dia"
+   },
+   "cls": 0.001,
+   "contraste_pior_par": "6.58:1 (.olho a 360px), minimo 4.5"
+  },
+  "divida_declarada": "Escopo foi so a capa: /sobre, legais, 404 e o og.png seguem sem nada de `asfalto` — nem grao, nem luz da via. A placa e a unica fotografia do site e nao ha segunda para as internas (o recorte limpo da peca e um so). A camada de ponteiro continua inexistente nesta pagina, coerente com o trafego ser majoritariamente celular. E o TBT caiu de ~2900 para ~1400ms com o destravamento, mas 1400ms sob CPU 4x ainda e alto — o que sobra e script proprio (formulario, barra fixa) e nunca foi perfilado."
+ }
 ]

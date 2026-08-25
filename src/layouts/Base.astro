@@ -25,6 +25,10 @@ interface Props {
    *  específico. Mesmo raciocínio do `atualizado` acima: estende o nó que já
    *  existe em vez de criar um segundo "esta página é sobre X" na mesma URL. */
   tipoPagina?: string | string[];
+  /** A página abre com a placa fotográfica da capa (direção `asfalto`). Só a
+   *  home tem. Existe como prop, e não como preload fixo no <head>, porque
+   *  pré-carregar em /termos baixaria 54 KB que aquela página nunca pinta. */
+  placa?: boolean;
 }
 const {
   titulo,
@@ -35,6 +39,7 @@ const {
   noindex = false,
   atualizado,
   tipoPagina = "WebPage",
+  placa = false,
 } = Astro.props;
 
 const site = Astro.site ?? new URL("https://seguros.roilabs.com.br");
@@ -153,18 +158,37 @@ const grafo: Record<string, unknown>[] = [
     <link rel="icon" href="/favicon.png" type="image/png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 
-    {/* Uma requisição de fonte, um peso. Chivo substitui a Anton (e a Big
-         Shoulders antes dela) porque as duas eram condensada de cartaz e o
-         dono recusou as duas — o raciocínio inteiro está em global.css, no
-         bloco `--display`. Pedimos `wght@800` e não a faixa variável: 800 é o
-         único peso que o site usa, inclusive na sobrancelha. `preconnect` para
-         o handshake TLS não competir com o CSS; o Google já entrega só o
-         subset latin para quem lê português. `display=optional` porque com o
-         fallback de métrica casada medido não há ganho em bloquear a pintura
-         esperando o arquivo chegar. */}
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Chivo:wght@800&display=optional" rel="stylesheet" />
+    {/* Uma requisição de fonte, um peso, e agora do PRÓPRIO domínio: o
+         `@font-face` mora em global.css e o arquivo em /fonts. Saíram daqui a
+         folha externa do Google (bloqueava a pintura por 262ms, medido) e os
+         dois `preconnect` que existiam só para amortecer o TLS dela. O
+         raciocínio completo da troca está no topo de global.css.
+
+         `crossorigin` mesmo sendo mesma origem: sem ele o preload de fonte é
+         descartado e o arquivo é baixado duas vezes — fonte é sempre buscada
+         em modo CORS, e o preload precisa casar com esse modo. */}
+    <link rel="preload" as="font" type="font/woff2" href="/fonts/chivo-800-latin.woff2" crossorigin />
+
+    {/* A placa é a única imagem da primeira tela e o preload a coloca em 8ms
+         (medido no PerformanceResourceTiming) — sem ele o navegador só a
+         descobre depois de montar o CSSOM, e ela chega com a página já
+         pintada. Ela NÃO é o elemento de LCP: o H1 é, e o porquê disso ter
+         sido uma decisão e não sorte está no bloco `A CAMADA QUE FOI CORTADA`,
+         em index.astro.
+
+         `imagesrcset`/`imagesizes` precisam bater EXATAMENTE com o <img> da
+         capa; qualquer divergência faz o preload baixar um segundo arquivo em
+         vez de adiantar o que a página realmente usa. */}
+    {placa && (
+      <link
+        rel="preload"
+        as="image"
+        type="image/webp"
+        imagesrcset="/img/placa-600.webp 600w, /img/placa-1200.webp 1200w"
+        imagesizes="100vw"
+        fetchpriority="high"
+      />
+    )}
 
     {/* Um valor só, sem par claro/escuro: este site não tem tema alternativo
          (decisão de direção — ver o carimbo em global.css). É o próprio
@@ -175,16 +199,29 @@ const grafo: Record<string, unknown>[] = [
         mandaria pageview de localhost para a mesma propriedade, e aí o número
         que a decisão usa vira o tráfego do time somado ao do cliente.
         `is:inline` para o Astro não empacotar o snippet num módulo com defer —
-        o gtag precisa existir antes de qualquer chamada. */}
+        o gtag precisa existir antes de qualquer chamada.
+
+        O SCRIPT DO GOOGLE ENTRA DEPOIS DA PINTURA, e isso foi medido. Como
+        `<script async>` no <head> ele chegava em ~480ms e passava a executar
+        na thread principal exatamente na janela em que o navegador queria
+        pintar a primeira tela. Custo: 212ms de LCP (2064ms com ele, 1852ms
+        sem — CPU 4x estrangulada, 5 amostras cada).
+
+        NADA DE MEDIÇÃO SE PERDE. A fila do `dataLayer` é criada aqui, antes de
+        tudo, e o `gtag('config')` entra nela imediatamente; quando o gtag.js
+        sobe, ele processa a fila inteira e o pageview é contado com os mesmos
+        dados. O único caso que escapa é quem fecha a página antes do evento
+        `load` — e é por isso que o gatilho é `load` e não um `setTimeout`
+        longo: assim que a tela terminou, o script vai.
+
+        A troca completa (isto + a fonte local) fecha os 2000ms do orçamento
+        declarado com a fotografia na primeira tela. */}
     {
       import.meta.env.PROD && (
-        <>
-          <script is:inline async src={`https://www.googletagmanager.com/gtag/js?id=${GA4}`} />
-          <script
-            is:inline
-            set:html={`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${GA4}');`}
-          />
-        </>
+        <script
+          is:inline
+          set:html={`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${GA4}');addEventListener('load',function(){var s=document.createElement('script');s.async=true;s.src='https://www.googletagmanager.com/gtag/js?id=${GA4}';document.head.appendChild(s);});`}
+        />
       )
     }
 

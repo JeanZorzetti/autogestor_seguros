@@ -9,6 +9,7 @@
     "check": "astro check",
     "test": "node --test test/*.test.mjs",
     "marca": "python logos/gerar-marca.py && node logos/rasterizar.mjs && node logos/gerar-og.mjs",
+    "placa": "python logos/gerar-placa.py",
     "contraste": "node logos/contraste.mjs"
   },
   "dependencies": {

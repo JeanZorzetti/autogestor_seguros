@@ -41,6 +41,35 @@
    (Big Shoulders, depois Anton) ela começava por Arial Narrow. Com uma
    grotesca de largura normal, o desvio caiu de 9,1% para 1,2% — o fallback
    agora é quase a própria fonte, que é o melhor caso deste mecanismo. */
+/* A CAPA, SERVIDA DA PRÓPRIA CASA. Era um <link> para fonts.googleapis.com no
+   <head>, e esse <link> é folha de estilo EXTERNA — ou seja, bloqueia a
+   pintura. Medido: 262ms de bloqueio, mais o segundo salto até
+   fonts.gstatic.com para buscar o woff2 que a folha só então revela.
+
+   Trocar por arquivo local apaga a cadeia inteira de uma vez: a folha
+   bloqueante, os dois `preconnect` que existiam só para amortecer o TLS dela,
+   e o salto extra. O arquivo é exatamente o mesmo que o Google entregaria — o
+   subset `latin` de Chivo 800, 14,9 KB — e o `latin` cobre o português
+   inteiro (ã, ç, é, õ vivem em U+0000..00FF; `latin-ext` não é necessário e
+   por isso não foi baixado).
+
+   Chivo é OFL, então hospedar é permitido. Para atualizar: pegar a URL do
+   woff2 em fonts.googleapis.com/css2?family=Chivo:wght@800 e substituir o
+   arquivo — a versão de origem é a v21.
+
+   `font-display: optional` continua sendo a política, agora declarada aqui em
+   vez de vir na query da URL: com o fallback de métrica casada logo abaixo, o
+   ganho de bloquear a pintura esperando o arquivo é zero. */
+@font-face {
+  font-family: "Chivo";
+  font-style: normal;
+  font-weight: 800;
+  font-display: optional;
+  src: url("/fonts/chivo-800-latin.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
 @font-face {
   font-family: "Capa fallback";
   src: local("Segoe UI"), local("Roboto"), local("Helvetica Neue"), local("Arial");
@@ -160,6 +189,22 @@
      porque o trilho não pode competir com a parte acesa. */
   --trilho: var(--noite-600);
   --brasa: var(--laranja-400);
+
+  /* --- matéria: o grão -------------------------------------------------
+     A noite deste site era PREENCHIMENTO CHAPADO: `--fundo` sólido de borda a
+     borda, sem gradiente e sem textura, enquanto a peça que originou a paleta
+     é cheia de material (rastro de farol, céu urbano, asfalto molhado). O
+     site tinha ficado com a cor da peça e sem a matéria dela.
+
+     `feTurbulence` gerado UMA VEZ e servido como data-uri: sem requisição,
+     sem filtro em runtime, e nunca animado — ruído animado repinta a tela
+     inteira a cada quadro. O tile de 240px é maior que o padrão dos exemplos
+     de propósito: em 120px a repetição vira xadrez visível numa área grande
+     como a capa.
+
+     Quem usa aplica com `mix-blend-mode: soft-light` e opacidade entre 0.03 e
+     0.06. Acima disso, em banda escura, deixa de ser grão e vira chuvisco. */
+  --grao: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='240' height='240' filter='url(%23n)'/%3E%3C/svg%3E");
 
   /* --- tipografia ------------------------------------------------------
      UMA família de exibição e a pilha do sistema no corpo — a mesma economia

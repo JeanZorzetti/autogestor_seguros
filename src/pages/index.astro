@@ -125,7 +125,7 @@ const schema = [
 ];
 ---
 
-<Base titulo={SEGURO.titulo} descricao={SEGURO.descricao} schema={schema}>
+<Base titulo={SEGURO.titulo} descricao={SEGURO.descricao} schema={schema} placa>
   {/* ---------------------------------------------------------- capa --- */}
   <section class="capa">
     <div class="container capa__grade">
@@ -170,6 +170,48 @@ const schema = [
 
       <div class="capa__form">
         <LeadForm solucao={SEGURO} titulo="Peça sua cotação" instancia="topo" />
+      </div>
+
+      {/* ------------------------------------------------------- a placa ---
+         O pé da primeira tela é a estrada. Recorte tratado da própria peça de
+         captação da casa (logos/gerar-placa.py) — não é banco de imagem, e o
+         raciocínio do recorte e da gradação está no docstring de lá.
+
+         `aria-hidden` e `alt=""`: a placa é atmosfera, não informação. Tudo
+         que ela mostra (carro, moto, camionete, caminhão) já está dito em
+         texto na estação 03, e descrevê-la de novo faria o leitor de tela
+         ouvir o catálogo duas vezes.
+
+         DENTRO da grade, e não depois dela, apesar de sangrar de borda a
+         borda. É o que faz o topo da placa nascer exatamente onde a coluna de
+         texto termina — ver o bloco `a placa` no CSS, que explica por que as
+         duas montagens anteriores (em fluxo depois da grade, e absoluta no pé
+         da seção) foram descartadas com medição. */}
+      <div class="capa__placa">
+        {/* Um formato só, então `<img srcset>` e não `<picture>`: o AVIF saiu
+             depois de medido (ver o cabeçalho de logos/gerar-placa.py — ele
+             custava ~1,3s de LCP sob CPU estrangulada para economizar 7,5 KB),
+             e `<picture>` com um `<source>` só é cerimônia sem função.
+
+             `decoding="async"` porque foi o que mediu melhor, e o contrário do
+             que a intuição diz para uma imagem LCP. Três variantes, 7 amostras
+             cada, LCP mediano: async 1456ms · sync 1728ms · sem o atributo
+             2148ms. As faixas se sobrepõem — a diferença entre as três é menor
+             que o ruído da máquina —, então o que sustenta a escolha não é a
+             mediana e sim o princípio: `sync` obriga o navegador a segurar a
+             pintura até terminar de decodificar, e quem manda a imagem chegar
+             cedo aqui é o `preload` + `fetchpriority` do <head>, não isto. */}
+        <img
+          src="/img/placa-1200.webp"
+          srcset="/img/placa-600.webp 600w, /img/placa-1200.webp 1200w"
+          sizes="100vw"
+          width="1200"
+          height="225"
+          alt=""
+          aria-hidden="true"
+          fetchpriority="high"
+          decoding="async"
+        />
       </div>
     </div>
   </section>
@@ -414,20 +456,218 @@ const schema = [
      morreu quando a fonte de exibição deixou de ser condensada (25/08/2026,
      ver o bloco `--display` em global.css). Medido depois da troca: o botão
      de envio fica em y=589 numa janela de 900px. */
+  /* ------------------------------------------- direção `asfalto` (capa) ---
+     A capa deixa de ser fundo chapado e passa a ser NOITE COM CHÃO. Três
+     camadas, e cada uma responde a um defeito medido na captura anterior:
+
+       1. a placa       — o horizonte no pé da primeira tela. A página estava
+                          abstrata: uma corretora de seguro VEICULAR sem um
+                          único veículo em lugar nenhum.
+       2. a luz da via  — um foco quente subindo do canto onde os faróis do
+                          caminhão estão DENTRO da placa. É o que faz a foto
+                          pertencer à página em vez de estar colada nela: sem
+                          isso a costura entre o navy e a foto é visível por
+                          mais suave que seja a máscara.
+       3. o grão        — `--fundo` era `#050b14` sólido em 100% da área.
+
+     O rastro (o gesto, em global.css) atravessa a placa por cima: ele é
+     `position: fixed` com z-index 40 e a placa é conteúdo em fluxo. Não foi
+     preciso código para conectar os dois — a linha de luz corta a estrada,
+     que é exatamente a leitura que a direção quer. */
   .capa {
     position: relative;
-    padding-block: var(--e-16) var(--e-24);
-    background: linear-gradient(180deg, var(--capa-topo), var(--fundo) 70%);
+    /* O pé da seção é a placa; o padding de baixo saiu com ela. */
+    padding-block: var(--e-16) 0;
+    /* A placa sangra com `width: 100vw`, e 100vw inclui a barra de rolagem em
+       alguns navegadores. `clip` (não `hidden`) porque não há nada a rolar
+       aqui: `hidden` criaria um contêiner de rolagem programática à toa. */
+    overflow: hidden;
+    overflow: clip;
+    background:
+      /* A LUZ DA VIA. Sobe do ponto onde os faróis do caminhão estão DENTRO da
+         placa (direita, ~72% da largura), e é ela que faz a foto pertencer à
+         página em vez de estar colada nela: sem esse foco a emenda entre o
+         navy e o asfalto se vê por mais suave que seja a máscara.
+
+         `at 72% 74%` e não `100%`: a primeira versão ancorava no pé da SEÇÃO,
+         que depois da placa entrar na grade foi para y~1001 — abaixo da dobra
+         numa janela de 900px. A luz existia e ninguém via. 74% cai logo acima
+         do topo da placa nas larguras de desktop, que é de onde ela precisa
+         sair para lavar a noite acima.
+
+         Foco único e fora do centro, matiz único: dois focos simétricos em
+         matizes opostos são o gradiente 'aurora' de landing de IA. */
+      radial-gradient(
+        72vw 52vh at 72% 74%,
+        oklch(from var(--laranja-500) 0.62 c h / 0.2),
+        transparent 64%
+      ),
+      linear-gradient(180deg, var(--capa-topo), var(--fundo) 70%);
+  }
+  /* `oklch(from …)` é recente. Sem ele o foco some e a costura aparece, então
+     o valor literal vem antes e é sobrescrito por quem souber ler relativo —
+     o hex é o --laranja-500 na luminância 0.62, calculado, não escolhido. */
+  @supports not (color: oklch(from red l c h)) {
+    .capa {
+      background:
+        radial-gradient(72vw 52vh at 72% 74%, rgba(214, 106, 26, 0.2), transparent 64%),
+        linear-gradient(180deg, var(--capa-topo), var(--fundo) 70%);
+    }
+  }
+  /* O grão fica ATRÁS do conteúdo (`::before` com z-index 0 e filhos em 1), e
+     não por cima: soft-light a 5% sobre um parágrafo é imperceptível na
+     captura e mesmo assim é uma camada de composição desenhada em cima de
+     todo texto da primeira tela. Atrás, faz o mesmo trabalho de graça. */
+  .capa::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image: var(--grao);
+    opacity: 0.05;
+    mix-blend-mode: soft-light;
   }
   .capa__grade {
+    /* Acima do grão (0) e da placa (0). Explícito no seletor da grade, e não
+       num `.capa > *`, para o empilhamento não depender da ordem das regras. */
+    position: relative;
+    z-index: 1;
     display: grid;
     gap: var(--e-12);
+  }
+
+  /* --------------------------------------------------------- a placa ---
+     ITEM DA GRADE NA LINHA 2 DA COLUNA DE TEXTO, sangrando até as duas bordas
+     e passando POR TRÁS do formulário. Foi a terceira montagem; as duas
+     primeiras morreram na régua e ficam aqui porque a diferença entre elas é
+     o motivo de esta existir:
+
+       1ª · em fluxo, depois da grade. Não sobrepõe nada, mas a altura da
+            placa SOMA à do formulário (~660px sozinho): numa janela de 900px
+            sobravam 46px visíveis. Faixa de 46px não é horizonte, é borrão.
+       2ª · absoluta no pé da seção. Impacto resolvido — e o piso quebrado: a
+            linha `.capa__atalho` caía sobre o carro branco. Pior, o defeito
+            MUDAVA com a largura: a 1440px o texto batia aos 27% da altura da
+            placa, a 1100px aos 50% e a 900px aos 54%, onde a foto já está
+            cheia. Máscara nenhuma resolve um alvo que se move — e afastar a
+            placa devolvia a faixa de 46px da 1ª.
+
+     Na grade, o topo da placa É o fim da coluna de texto, por construção e em
+     qualquer largura. Não há número a acertar: o problema deixou de existir
+     em vez de ser compensado.
+
+     Dois ganhos vieram de brinde. O ar morto embaixo do texto (185px a 1440px,
+     porque a seção só é alta por causa do formulário) vira estrada. E o cartão
+     do formulário passa a ter chão em vez de vazio atrás — objeto apoiado lê
+     como objeto, objeto sobre cor chapada lê como retângulo. */
+  .capa__placa {
+    position: relative;
+    z-index: 0;
+    height: clamp(11rem, 30vh, 22rem);
+    /* Sangria de borda a borda de dentro do .container. O `overflow: clip` da
+       .capa absorve o excesso de 100vw quando há barra de rolagem. */
+    width: 100vw;
+    margin-inline: calc(50% - 50vw);
+    overflow: hidden;
+    /* Fallback COMPOSTO, não placeholder: se AVIF e WebP falharem os dois, o
+       que sobra é um horizonte quente sob a máscara — a primeira tela continua
+       tendo pé. Retângulo vazio aqui seria a tela parecendo inacabada. */
+    background:
+      linear-gradient(180deg, transparent 30%, oklch(from var(--laranja-700) 0.45 c h / 0.55) 82%, var(--noite-950)),
+      var(--noite-900);
+    /* O dissolvido do topo agora tem UM trabalho só, e é pequeno: costurar a
+       borda de cima da foto no navy da página. Ele não protege texto nenhum —
+       a grade já garante que não há texto por cima (ver acima) — então 30%
+       bastam, contra os 68% que a montagem absoluta precisava. Mais estrada
+       aparece por consequência da estrutura, não por afrouxar o piso.
+
+       O corte do `cover` ajuda junto: a caixa é mais baixa que a proporção da
+       foto, então os tetos cortados no recorte da peça ficam fora do quadro e
+       não há emenda dura para esconder. */
+    -webkit-mask-image: linear-gradient(180deg, transparent, #000 30%);
+    mask-image: linear-gradient(180deg, transparent, #000 30%);
+  }
+  /* 112% de altura com -6% de folga em cima e embaixo: é a margem que o
+     deslize consome. Sem ela, o translado abriria um vão de fundo na borda. */
+  .capa__placa img {
+    position: absolute;
+    inset: -6% 0;
+    width: 100%;
+    height: 112%;
+    object-fit: cover;
+    /* X — 62% e não centro: a 390px de largura a janela pega a camionete e os
+       faróis do caminhão. Centralizada, sobra a lateral do carro branco —
+       lataria sem farol, que é a metade sem luz da placa. (No desktop o eixo
+       X não faz nada: a caixa é mais larga que a proporção da foto, então ela
+       entra inteira na horizontal e o corte do `cover` é só vertical.)
+       Y — 62% e não centro: puxa o enquadramento para o asfalto molhado e os
+       reflexos, e joga para fora do quadro os tetos cortados no recorte. */
+    object-position: 62% 62%;
+  }
+
+  /* A quarta camada: a estrada anda mais devagar que o texto. `view()` mede o
+     próprio elemento cruzando a janela — zero JS, zero listener, mesma família
+     do rastro. Amplitude de 4%: parallax que se nota é parallax que enjoa.
+
+     ESTA CAMADA CHEGOU A SER CORTADA E VOLTOU, e o registro fica porque o erro
+     é fácil de repetir. Ao investigar o LCP, uma medição apontou que sem o
+     parallax a imagem deixava de ser o elemento de LCP (1636ms, elemento H1)
+     e com ele passava a ser (2028ms, elemento IMG) — o que faria do parallax
+     um custo de ~390ms por uma deriva de 4%.
+
+     Era artefato: o script guardava o rótulo do elemento de UMA amostra, a
+     última, e não de todas. Remedido com nove amostras rotuladas uma a uma, a
+     imagem é o elemento de LCP em todas as configurações, com ou sem parallax,
+     e a mediana fica em ~2100ms nas duas. O parallax não custa nada mensurável.
+
+     Fica a regra, que vale para qualquer medição daqui: uma amostra não é
+     medida, e rótulo de categoria (qual elemento, qual formato, qual arquivo)
+     precisa ser colhido por amostra igual ao número. */
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      .capa__placa img {
+        animation: placa-desliza linear both;
+        animation-timeline: view();
+        animation-range: cover;
+      }
+    }
+  }
+  @keyframes placa-desliza {
+    from {
+      transform: translateY(-4%);
+    }
+    to {
+      transform: translateY(4%);
+    }
   }
   @media (min-width: 900px) {
     .capa__grade {
       grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
-      gap: var(--e-16);
+      column-gap: var(--e-16);
+      /* Vertical menor que a horizontal de propósito: a placa é o CHÃO do
+         texto, não a próxima seção. 64px entre os dois abriria uma faixa de
+         navy que faz a foto parecer colada embaixo. */
+      row-gap: var(--e-8);
       align-items: start;
+    }
+    /* Colocação explícita, e é ela que resolve o problema inteiro (ver o bloco
+       `a placa`): a placa fica na LINHA 2 e o formulário atravessa as duas.
+       Assim a linha 1 tem a altura do texto — e só dela —, e o topo da placa
+       cai exatamente no fim da coluna de texto em qualquer largura, sem
+       nenhum número para acertar. */
+    .capa__texto {
+      grid-area: 1 / 1;
+    }
+    .capa__form {
+      grid-area: 1 / 2 / span 2;
+      /* Acima da placa, que passa por baixo dele. O cartão é opaco: é o que
+         faz o formulário ficar apoiado na estrada em vez de recortá-la. */
+      position: relative;
+      z-index: 1;
+    }
+    .capa__placa {
+      grid-area: 2 / 1 / auto / -1;
     }
   }
   .capa__destaques {

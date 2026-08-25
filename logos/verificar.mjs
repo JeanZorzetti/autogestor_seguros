@@ -30,6 +30,16 @@ const TIPOS = {
   ".js": "text/javascript; charset=utf-8",
   ".svg": "image/svg+xml",
   ".png": "image/png",
+  // A placa da capa (direção `asfalto`). Sem estes dois o servidor devolvia
+  // `application/octet-stream` e o Chromium recusava decodificar: a seção 7
+  // reprovava por "a placa não pintou" com a placa perfeitamente gerada.
+  ".avif": "image/avif",
+  ".webp": "image/webp",
+  // A capa passou a ser servida do próprio domínio (25/08/2026, ver o topo de
+  // global.css). Sem este tipo o Chromium recusa o woff2 e a página cai no
+  // fallback de métrica casada — que é justamente o que deveria estar sendo
+  // testado, e a falha passaria como sucesso.
+  ".woff2": "font/woff2",
   ".xml": "application/xml",
   ".txt": "text/plain; charset=utf-8",
 };
@@ -199,7 +209,7 @@ const falhar = (msg) => {
 // ------------------------------------------------- 5. LCP e CLS
 {
   console.log(`\n5. LCP e CLS (CPU 4x estrangulada, alvo ${LCP_ALVO_MS}ms)`);
-  const amostras = [];
+  let amostras = [];
   let clsMax = 0;
   for (let i = 0; i < 5; i++) {
     const contexto = await navegador.newContext({ viewport: { width: 1440, height: 900 } });
@@ -226,7 +236,17 @@ const falhar = (msg) => {
     clsMax = Math.max(clsMax, m.cls);
     await contexto.close();
   }
-  amostras.sort((a, b) => a - b);
+  // Amostra 0ms significa que o observador não pegou entrada nenhuma, não que
+  // a página pintou instantaneamente. Deixá-la entrar EMPURRA A MEDIANA PARA
+  // BAIXO — ou seja, o medidor mente a favor de quem está sendo medido, que é
+  // o pior jeito de um gate falhar. Descartada, e o gate reprova se sobrarem
+  // menos de três medidas de verdade.
+  const descartadas = amostras.filter((a) => a <= 0).length;
+  amostras = amostras.filter((a) => a > 0).sort((a, b) => a - b);
+  if (descartadas) console.log(`  (${descartadas} amostra(s) sem entrada de LCP, descartada(s))`);
+  if (amostras.length < 3) {
+    falhar(`só ${amostras.length} amostra(s) de LCP válidas — medição inconclusiva, não é aprovação`);
+  }
   const mediana = amostras[Math.floor(amostras.length / 2)];
   console.log(`  amostras: ${amostras.join(", ")} ms`);
   if (mediana > LCP_ALVO_MS) falhar(`LCP mediano ${mediana}ms acima do alvo de ${LCP_ALVO_MS}ms`);
@@ -256,6 +276,122 @@ const falhar = (msg) => {
     else console.log(`  ok     ${rota.padEnd(14)} descrição ${String(m.descricao.length).padStart(3)}  título ${String(m.titulo.length).padStart(3)}${m.titulo.length > TITULO_AVISO ? "  ← a marca vai truncar" : ""}`);
   }
   await pagina.close();
+}
+
+// ------------------------------------------------- 7. texto da capa sobre a placa
+// Existe por causa da direção `asfalto` (25/08/2026): a capa deixou de ter
+// fundo de cor chapada e passou a ter uma FOTOGRAFIA no pé. A partir daí,
+// `logos/contraste.mjs` não basta — ele compara pares de tokens, e token
+// nenhum descreve "o pixel do carro branco que ficou atrás daquela linha".
+//
+// A montagem que está no ar coloca a placa na linha 2 da grade, começando
+// onde a coluna de texto termina, então HOJE nada se sobrepõe. Esta seção
+// existe justamente para o dia em que alguém mexer no conteúdo da capa: se a
+// coluna crescer, encolher, ou se a placa voltar a ser absoluta, o texto cai
+// sobre a foto de novo e ninguém percebe olhando — a segunda montagem desta
+// direção quebrou exatamente assim, e a 1440px o defeito quase não aparecia.
+//
+// COMO MEDE. Esconde o texto, fotografa o que ficou atrás e procura o PIOR
+// pixel dentro da caixa de cada linha. Duas armadilhas, as duas já pagas:
+//
+//   · sobreposição fixa. A `.barra` de ação (celular) e o cabeçalho ficam
+//     por CIMA do conteúdo, não atrás. Sem escondê-los, a barra branca
+//     entrava na conta como se fosse fundo e reprovava 1.00:1 num texto que
+//     está correto. É o mesmo tipo de falso positivo do honeypot em
+//     `left:-9999px` que a seção 3 já teve.
+//   · caixa fora do quadro. Linha abaixo da dobra não tem pixel para medir, e
+//     "não medido" não pode virar "aprovado" nem "reprovado" — é relatado.
+//
+// A decodificação do PNG é feita pelo próprio navegador (canvas +
+// getImageData) em vez de uma biblioteca: o Chromium já está aberto e já sabe
+// ler PNG. Uma dependência a menos para uma coisa que ele faz de graça.
+{
+  console.log("\n7. texto da capa sobre a placa (contraste real, pixel a pixel)");
+  const ALVOS = [".olho", ".capa h1", ".chamada", ".capa__destaques li:last-child", ".capa__atalho"];
+  const MINIMO = 4.5;
+
+  for (const largura of LARGURAS) {
+    const contexto = await navegador.newContext({ viewport: { width: largura, height: 900 } });
+    const pagina = await contexto.newPage();
+    await pagina.goto(BASE + "/", { waitUntil: "networkidle" });
+
+    const placa = await pagina.evaluate(() => {
+      const img = document.querySelector(".capa__placa img");
+      if (!img) return { erro: "sem .capa__placa img" };
+      return { ok: img.complete && img.naturalWidth > 0, arquivo: img.currentSrc.split("/").pop() };
+    });
+    if (placa.erro || !placa.ok) falhar(`${largura}px: a placa não pintou (${placa.erro ?? placa.arquivo})`);
+    else console.log(`  ok     ${String(largura).padStart(4)}px  placa: ${placa.arquivo}`);
+
+    const caixas = await pagina.evaluate(
+      (sels) =>
+        sels
+          .map((s) => {
+            const el = document.querySelector(s);
+            if (!el) return null;
+            const r = el.getBoundingClientRect();
+            const [vr, vg, vb] = getComputedStyle(el).color.match(/\d+/g).map(Number);
+            return { s, cor: [vr, vg, vb], x: Math.round(r.x), y: Math.round(r.y), w: Math.round(r.width), h: Math.round(r.height) };
+          })
+          .filter(Boolean),
+      ALVOS
+    );
+
+    // Some com o texto E com quem flutua por cima dele. `visibility` e não
+    // `display`: precisa sumir sem reposicionar o resto, senão o que sobra na
+    // foto não é mais o que estava atrás do texto.
+    await pagina.addStyleTag({
+      content: ".capa__texto,.capa__form,.barra,.cabecalho,header,.rastro{visibility:hidden!important}",
+    });
+    await pagina.waitForTimeout(250);
+    const fundo = (await pagina.screenshot({ clip: { x: 0, y: 0, width: largura, height: 900 } })).toString("base64");
+
+    const medidas = await pagina.evaluate(
+      async ({ fundo, caixas, MINIMO }) => {
+        const img = new Image();
+        img.src = "data:image/png;base64," + fundo;
+        await img.decode();
+        const cv = document.createElement("canvas");
+        cv.width = img.width;
+        cv.height = img.height;
+        cv.getContext("2d").drawImage(img, 0, 0);
+        const { data } = cv.getContext("2d").getImageData(0, 0, cv.width, cv.height);
+
+        const lin = (c) => (c / 255 <= 0.03928 ? c / 255 / 12.92 : ((c / 255 + 0.055) / 1.055) ** 2.4);
+        const lum = (r, g, b) => 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b);
+        const contraste = (a, b) => {
+          const [x, y] = [a, b].sort((m, n) => n - m);
+          return (x + 0.05) / (y + 0.05);
+        };
+
+        return caixas.map((c) => {
+          const lt = lum(...c.cor);
+          let pior = Infinity;
+          let px = null;
+          let amostras = 0;
+          for (let y = Math.max(0, c.y); y < Math.min(cv.height, c.y + c.h); y += 2)
+            for (let x = Math.max(0, c.x); x < Math.min(cv.width, c.x + c.w); x += 3) {
+              const i = (cv.width * y + x) << 2;
+              amostras++;
+              const v = contraste(lt, lum(data[i], data[i + 1], data[i + 2]));
+              if (v < pior) {
+                pior = v;
+                px = [data[i], data[i + 1], data[i + 2]];
+              }
+            }
+          return { s: c.s, amostras, pior, px, passa: amostras > 0 && pior >= MINIMO };
+        });
+      },
+      { fundo, caixas, MINIMO }
+    );
+
+    for (const m of medidas) {
+      if (m.amostras === 0) console.log(`  --     ${String(largura).padStart(4)}px  ${m.s.padEnd(30)} fora do quadro, não medido`);
+      else if (m.passa) console.log(`  ok     ${String(largura).padStart(4)}px  ${m.s.padEnd(30)} ${m.pior.toFixed(2)}:1`);
+      else falhar(`${largura}px: ${m.s} a ${m.pior.toFixed(2)}:1 sobre rgb(${m.px}) — mínimo ${MINIMO}`);
+    }
+    await contexto.close();
+  }
 }
 
 await navegador.close();

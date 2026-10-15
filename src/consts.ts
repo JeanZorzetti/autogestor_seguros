@@ -16,7 +16,7 @@ export const EMPRESA = {
   nome: "Autogestor",
   nomeLegal: "Grupo Autogestor Adm de Serviços — Seguros, Financiamentos e Turismo",
   fundacao: "2004",
-  susep: "202070004",
+  susep: "252166173",
   telefone: "+5562982622220",
   telefoneExibicao: "(62) 98262-2220",
   email: "atendimento@autogestor.com.br",

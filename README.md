@@ -1,7 +1,7 @@
 # Autogestor Seguros — site da vertical de seguro veicular
 
 Site em `seguros.roilabs.com.br`, operado pelo **Grupo Autogestor** (corretora
-de seguros, SUSEP 202070004, desde 2004). Extraído do hub `autogestor`
+de seguros, SUSEP 252166173, desde 2004). Extraído do hub `autogestor`
 (`C:\dev\autogestor`) como projeto irmão independente, no mesmo padrão que o
 `coopluz` (`C:\dev\coopluz`) inaugurou.
 

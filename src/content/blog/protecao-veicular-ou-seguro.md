@@ -15,7 +15,7 @@ perguntas:
   - p: "Existe prazo para receber a indenização nos dois casos?"
     r: "No seguro, sim: as regras da SUSEP fixam prazo máximo de 30 dias para o pagamento depois de entregue a documentação completa. Na proteção veicular, o prazo é o que estiver no estatuto da associação e depende do caixa do rateio. Essa é, na prática, a diferença mais sentida por quem já precisou acionar."
   - p: "A Autogestor trabalha com as duas?"
-    r: "Sim, e dizemos qual é qual antes de você decidir. Somos corretora registrada na SUSEP sob o número 202070004, o que nos obriga a apresentar a natureza de cada produto. Se a proteção veicular for o caminho certo para o seu caso, dizemos; se o seguro for, também."
+    r: "Sim, e dizemos qual é qual antes de você decidir. Somos corretora registrada na SUSEP sob o número 252166173, o que nos obriga a apresentar a natureza de cada produto. Se a proteção veicular for o caminho certo para o seu caso, dizemos; se o seguro for, também."
   - p: "Se a associação fechar, quem paga meu prejuízo?"
     r: "É o ponto central da diferença. No seguro, a seguradora é obrigada por lei a manter reservas técnicas para honrar as indenizações, e a SUSEP fiscaliza essas reservas. Na proteção veicular, o pagamento depende da arrecadação do grupo. Foi justamente para reduzir esse risco que a LC 213/2025 passou a exigir autorização prévia — e é por isso que a transição ainda em curso importa."
 fontes:
@@ -111,4 +111,4 @@ Três verificações que você pode fazer antes de assinar qualquer coisa:
 
 1. **Peça o CNPJ** da associação ou da seguradora e confira a situação no portal da SUSEP.
 2. **Leia o estatuto ou as condições gerais** procurando por duas palavras: prazo de pagamento e rateio extraordinário. Se a proposta não entrega o documento, isso já é a resposta.
-3. **Confira o registro de quem está vendendo.** Corretor de seguros tem registro na SUSEP, conferível na consulta pública. O nosso é o 202070004.
+3. **Confira o registro de quem está vendendo.** Corretor de seguros tem registro na SUSEP, conferível na consulta pública. O nosso é o 252166173.

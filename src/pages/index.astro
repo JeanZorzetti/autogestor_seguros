@@ -9,10 +9,9 @@ import { ATENDIMENTO, EMPRESA, EXTERNOS, SEGURADORAS, SEGURADORAS_LOGO, SITE } f
 const site = Astro.site ?? new URL("https://seguros.roilabs.com.br");
 const url = new URL("/", site).href;
 
-// Contado da lista, nunca escrito à mão: o H1 promete um número e a faixa de
-// prova mostra os nomes. Se alguém tirar uma companhia da lista e o H1 for
-// literal, a página passa a mentir por um número.
-const N = SEGURADORAS.length;
+// Sem número de seguradoras no texto: a lista muda por perfil e por época
+// (decisão do dono, 14/10/2026). A faixa de prova mostra os nomes; o texto
+// diz "várias" e "melhores condições", nunca um total.
 
 const veiculos = [
   { nome: "Carro", nota: "Novo, usado ou importado", icone: ICONES.carro, href: EXTERNOS.cotacaoVeiculo },
@@ -29,7 +28,7 @@ const comparacao = [
   {
     dimensao: "Quem fiscaliza",
     seguro: "Autarquia federal do setor de seguros (registro no rodapé).",
-    protecao: "Ninguém. É associação civil, fora da regulação de seguros.",
+    protecao: "Em transição: a LC 213/2025 passou a exigir autorização da SUSEP, com regularização até maio de 2028.",
   },
   {
     dimensao: "Garantia de que vai pagar",
@@ -56,19 +55,19 @@ const comparacao = [
 const perguntas = [
   {
     p: "Qual a diferença entre seguro e proteção veicular?",
-    r: "Seguro é contrato regulado por autarquia federal, com seguradora obrigada a manter reservas técnicas e indenização prevista em apólice. Proteção veicular é rateio entre associados de uma associação: costuma ser mais barata e <strong>não tem a mesma garantia regulatória</strong> — não é fiscalizada por esse regulador. Trabalhamos com as duas e dizemos qual é qual antes de você comparar preço, não depois do sinistro.",
+    r: "Seguro é contrato regulado por autarquia federal, com seguradora obrigada a manter reservas técnicas e indenização prevista em apólice. Proteção veicular é rateio de despesas entre associados de uma associação: costuma ser mais barata e <strong>a garantia regulatória só vale a partir de maio de 2028</strong>. Trabalhamos com as duas e dizemos qual é qual antes de você comparar preço, não depois do sinistro.",
   },
   {
     p: "Vocês representam uma seguradora só?",
-    r: `Não. Somos corretora independente — o registro regulatório está no rodapé do site, com o link de verificação. Cotamos com ${N} companhias e apresentamos as opções lado a lado — prêmio, franquia, cobertura e o que ficou de fora. Se a proposta mais barata for a pior para o seu caso, a gente diz isso.`,
+    r: "Não. Cotamos em várias seguradoras e apresentamos as opções de prêmio, franquia, cobertura e forma de pagamento lado a lado. Se a proposta mais barata for a pior para o seu caso, a gente diz isso.",
   },
   {
     p: "Quanto custa a cotação?",
-    r: "Nada, e não há compromisso. A corretora é remunerada por comissão paga pela seguradora quando a apólice é emitida — o preço que você vê é o mesmo que veria indo direto na companhia. Cotar em várias ao mesmo tempo não deixa nenhuma delas mais cara.",
+    r: "Não há cobrança para realizar a cotação: fazemos várias simulações sem custo para você, e sem compromisso. A corretora é remunerada por comissão paga pela seguradora quando a apólice é emitida — o preço que você vê é o mesmo que veria indo direto na companhia.",
   },
   {
     p: "Dá para parcelar?",
-    r: "Sim, em até 12x no cartão de crédito, e a maioria das companhias também aceita débito em conta ou boleto mensal. Quantas parcelas saem sem juros depende da seguradora e do prêmio, e o número exato aparece na proposta antes de você aceitar.",
+    r: "Sim. As formas de pagamento dependem da seguradora escolhida e podem ser em até 12x sem juros no cartão de crédito, débito, boleto ou pix. As condições exatas aparecem na proposta antes de você aceitar.",
   },
   {
     p: "O que a assistência 24h cobre?",
@@ -80,7 +79,7 @@ const perguntas = [
   },
   {
     p: "Quem cuida do sinistro depois?",
-    r: "Nós. Abertura, acompanhamento da regulação e cobrança de prazo junto à seguradora fazem parte do serviço — é a razão de contratar com corretora em vez de comprar direto no site. Você não fica sozinho no 0800.",
+    r: "Damos apoio. Abertura, acompanhamento da regulação e cobrança de prazo junto à seguradora fazem parte do serviço — é a razão de contratar a Autogestor Seguros. Você não fica sozinho no 0800.",
   },
   {
     p: "Segura veículo importado ou já com muitos anos de uso?",
@@ -131,14 +130,18 @@ const schema = [
     <div class="container capa__grade">
       <div class="capa__texto">
         <span class="olho">Corretora independente · desde {EMPRESA.fundacao}</span>
-        <h1>Seu seguro de carro, moto ou caminhão cotado em {N} seguradoras de uma vez</h1>
+        <h1>Seu seguro de carro, moto ou caminhão cotado nas melhores seguradoras de uma vez</h1>
         <p class="chamada">
-          Você preenche uma vez. A gente cota nas {N} companhias, coloca as propostas lado a lado e mostra o que
-          cada apólice deixa de fora — inclusive quando a mais barata é a pior para o seu caso.
+          Você preenche uma vez. A equipe de consultores da Autogestor cota em várias companhias, coloca as
+          propostas lado a lado, faz o filtro e apresenta as melhores condições de mercado para você.
+        </p>
+        <p class="capa__pagamento">
+          Pagamento em até 12x sem juros no cartão de crédito, ou você pode escolher outras formas conforme a
+          disponibilidade da seguradora.
         </p>
         <ul class="lista-check capa__destaques" role="list">
           <li>Comparação entre companhias, não proposta de uma só</li>
-          <li>Em até 12x no cartão, sem custo para cotar</li>
+          <li>Até 12x sem juros no cartão, sem custo para cotar</li>
           <li>Assistência 24h nacional e acompanhamento do sinistro</li>
         </ul>
 
@@ -226,7 +229,7 @@ const schema = [
   <section class="prova" aria-labelledby="prova-titulo">
     <div class="container">
       <h2 id="prova-titulo" class="prova__titulo">
-        Cotamos com {N} companhias do mercado
+        Sua cotação em várias seguradoras
       </h2>
       <ul class="prova__lista lista-limpa" role="list">
         {
@@ -249,19 +252,19 @@ const schema = [
     <div class="container estacao__grade">
       <header class="estacao__cabeca">
         <span class="estacao__n" aria-hidden="true">01</span>
-        <span class="olho">Por que corretora</span>
-        <h2>O site da seguradora só mostra a proposta dela</h2>
+        <span class="olho">Por que Autogestor?</span>
+        <h2>Aqui você só não faz, se não quiser</h2>
       </header>
       <div class="estacao__corpo">
         <p class="chamada">
-          Cotar direto na companhia é rápido e devolve um preço. O que ele não devolve é a resposta que importa:
-          esse preço é bom? Sem as outras {N} na mesma tela, não dá para saber.
+          Não importa se seu carro, moto ou caminhão é novo ou usado, nacional ou importado: vamos achar a melhor
+          solução do mercado para proteger seu bem e deixar você tranquilo.
         </p>
         <div class="grade grade--2">
           <div class="cartao">
             <h3>Antes de contratar</h3>
             <ul class="lista-check" role="list">
-              <li>Cotação nas {N} companhias com o mesmo perfil, na mesma hora</li>
+              <li>Cotação em várias seguradoras com o mesmo perfil, na mesma hora</li>
               <li>Análise de risco: uso do veículo, garagem, condutor jovem, região</li>
               <li>Franquia, carro reserva e vidros comparados linha a linha</li>
               <li>Leitura das exclusões — o que a apólice <em>não</em> cobre</li>
@@ -270,8 +273,7 @@ const schema = [
           <div class="cartao">
             <h3>Depois de contratar</h3>
             <ul class="lista-check" role="list">
-              <li>Abertura e acompanhamento do sinistro, por nossa conta</li>
-              <li>Assistência 24h nacional por 0800</li>
+              <li>Acompanhamento em caso de sinistro, com assessoria técnica e consultiva</li>
               <li>Renovação com nova comparação de mercado, não renovação automática</li>
               <li>Troca de condutor, endereço e coberturas durante a vigência</li>
             </ul>
@@ -291,12 +293,12 @@ const schema = [
       <header class="estacao__cabeca">
         <span class="estacao__n" aria-hidden="true">02</span>
         <span class="olho">Tá na dúvida?</span>
-        <h2>Seguro ou proteção veicular</h2>
+        <h2>Seguro ou proteção veicular?</h2>
       </header>
       <div class="estacao__corpo">
         <p class="chamada">
-          As duas coisas cobrem seu veículo e são <strong>juridicamente diferentes</strong>. A resposta depende do
-          seu perfil — e escolher errado só aparece no dia do sinistro.
+          Os dois modelos cobrem seu veículo e são <strong>juridicamente diferentes</strong>. A resposta depende do
+          seu perfil — e escolher errado pode trazer transtorno em caso de sinistro.
         </p>
 
         {/* Tabela de verdade, com `scope` nos cabeçalhos: numa comparação, quem
@@ -400,17 +402,18 @@ const schema = [
             </p>
           </li>
           <li>
-            <h3>A gente cota nas {N} companhias</h3>
+            <h3>A gente cota em várias seguradoras</h3>
             <p>
-              Mesmo perfil, mesmas coberturas, {N} propostas. Você recebe a comparação com prêmio, franquia, o que
-              está incluso e o que ficou de fora, {ATENDIMENTO.prazo}.
+              Mesmo perfil, mesmas coberturas, várias propostas. Você recebe a comparação com prêmio, franquia, o
+              que está incluso e o que ficou de fora, {ATENDIMENTO.prazo}.
             </p>
           </li>
           <li>
-            <h3>Você escolhe e a apólice é emitida</h3>
+            <h3>Você escolhe o orçamento e emitimos a proposta</h3>
             <p>
-              Pagamento em até 12x no cartão, débito ou boleto. Depois disso, sinistro, alteração e renovação
-              passam por nós — não pelo 0800.
+              Formas de pagamento conforme a disponibilidade da seguradora escolhida, podendo ser em até 12x sem
+              juros, débito, boleto ou pix. Depois disso, sinistro, alteração e renovação passam por nós — não pelo
+              0800.
             </p>
           </li>
         </ol>
@@ -432,9 +435,7 @@ const schema = [
         <span class="olho">Próximo passo</span>
         <h2>{SEGURO.fechamento}</h2>
         <p class="chamada">
-          Um consultor da {SITE.nome} responde no seu WhatsApp {ATENDIMENTO.prazo}. Corretora independente desde
-          {EMPRESA.fundacao}, com sede em {EMPRESA.endereco.cidade} e atendimento em todo o Brasil — o registro
-          regulatório está no rodapé.
+          Um consultor da {SITE.nome} responde no seu WhatsApp {ATENDIMENTO.prazo}.
         </p>
       </div>
       <LeadForm solucao={SEGURO} titulo="Peça sua cotação" destaque instancia="fim" />
@@ -673,6 +674,11 @@ const schema = [
   .capa__destaques {
     margin-top: var(--e-6);
     font-weight: 600;
+  }
+  .capa__pagamento {
+    margin-top: var(--e-4);
+    max-width: 62ch;
+    color: var(--texto-suave);
   }
   .capa__atalho {
     margin-top: var(--e-6);

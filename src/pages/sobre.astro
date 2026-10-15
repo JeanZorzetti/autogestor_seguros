@@ -3,9 +3,7 @@ import Base from "../layouts/Base.astro";
 import Faq from "../components/Faq.astro";
 import BarraAcao from "../components/BarraAcao.astro";
 import { SEGURO } from "../data/solucoes";
-import { EMPRESA, EXTERNOS, SEGURADORAS, SITE, enderecoLinha, whatsapp } from "../consts";
-
-const N = SEGURADORAS.length;
+import { EMPRESA, EXTERNOS, SITE, enderecoLinha, whatsapp } from "../consts";
 
 const perguntas = [
   {
@@ -14,7 +12,7 @@ const perguntas = [
   },
   {
     p: "Corretora, seguradora ou associação: o que vocês são?",
-    r: "Corretora. Não emitimos apólice nem pagamos indenização — quem faz isso é a seguradora que você escolher. O papel da corretora é intermediar: cotar em várias companhias, explicar a diferença entre as propostas e representar você na regulação do sinistro. Também intermediamos proteção veicular, que é rateio entre associados de uma associação e não é regulada pela SUSEP; a diferença está dita na home, antes de qualquer proposta.",
+    r: "Corretora. Não emitimos apólice nem pagamos indenização — quem faz isso é a seguradora que você escolher. O papel da corretora é intermediar: cotar em várias companhias, explicar a diferença entre as propostas e representar você na regulação do sinistro. Também intermediamos proteção veicular, que é rateio de despesas entre associados de uma associação, com garantia regulatória só a partir de maio de 2028; a diferença está dita na home, antes de qualquer proposta.",
   },
   {
     p: "Quanto custa falar com vocês?",
@@ -76,6 +74,31 @@ const schema = [
     </div>
   </section>
 
+  <section class="secao">
+    <div class="container">
+      <span class="olho">Por que escolher a {SITE.nome}?</span>
+      <h2>Comparamos as modalidades sem torcer por uma</h2>
+      <p class="chamada">
+        Somos canal de vendas com mais de 20 anos de experiência: não emitimos apólice nem pagamos indenização, e
+        por isso podemos comparar as modalidades sem torcer por uma delas. Temos acesso às melhores opções para
+        cotação de seguro tradicional ou, caso você prefira, às melhores associações de proteção patrimonial
+        mutualista do Brasil.
+      </p>
+      <p>
+        A {EMPRESA.nome} nasceu em {EMPRESA.fundacao} com o propósito de ser mais que uma empresa de serviços: somos
+        um hub de negócios que conecta pessoas, empresas e associações a soluções inteligentes em diferentes áreas.
+        Nosso compromisso é oferecer praticidade, transparência e qualidade em cada segmento onde atuamos,
+        construindo parcerias sólidas e entregando confiança para clientes e parceiros.
+      </p>
+      <h3>Nossas áreas de atuação</h3>
+      <p>
+        <strong>{SITE.nome} &amp; Proteção Veicular:</strong> apoio na contratação e renovação de seguros, proteção
+        veicular e serviços de assistência 24h nacional via 0800, regulagem de sinistro, gestão e análise de risco e
+        demais serviços.
+      </p>
+    </div>
+  </section>
+
   <section class="secao secao--suave" id="papeis" tabindex="-1">
     <div class="container">
       <span class="olho">Divisão de papéis</span>
@@ -88,21 +111,21 @@ const schema = [
         <div class="cartao">
           <h3>Você</h3>
           <p>
-            Escolhe a proposta. Declara o uso do veículo, quem dirige e onde ele dorme — é o que define o preço e o
-            que pode invalidar a indenização se estiver errado.
+            Escolhe a proposta. Declara o uso do veículo, quem dirige e onde ele pernoita — é o que define o preço e
+            o que pode invalidar a indenização se estiver errado.
           </p>
         </div>
         <div class="cartao">
           <h3>A seguradora</h3>
           <p>
-            Emite a apólice, aceita o risco e paga a indenização. É dela a obrigação legal de manter reservas
+            Aceita o risco, emite a apólice e paga a indenização. É dela a obrigação legal de manter reservas
             técnicas para isso, e é ela quem regula o sinistro.
           </p>
         </div>
         <div class="cartao">
           <h3>A {EMPRESA.nome}</h3>
           <p>
-            Cota nas {N} companhias, compara as propostas linha a linha, explica as exclusões e representa você na
+            Cota nas principais seguradoras, compara as propostas linha a linha, explica as exclusões e representa você na
             regulação. Não emitimos apólice nem pagamos indenização.
           </p>
         </div>

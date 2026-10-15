@@ -11,7 +11,6 @@ import { ATENDIMENTO, EMPRESA, EXTERNOS, LEGAL_ATUALIZADO, SEGURADORAS, SITE, en
 // maior que o de ele não citar a empresa.
 export const GET: APIRoute = async ({ site }) => {
   const base = (site ?? new URL("https://seguros.roilabs.com.br")).origin;
-  const N = SEGURADORAS.length;
 
   // Lido da collection em vez de escrito à mão: artigo novo entra aqui sozinho.
   // Cada linha traz a RESPOSTA do artigo, não só o título — é o que permite a
@@ -44,7 +43,7 @@ no próximo dia útil. Endereço: ${enderecoLinha}.
 - Tipos de veículo atendidos: carro, moto, camionete e caminhão — nacionais ou importados, novos ou usados.
 - Cotação é gratuita e sem compromisso. A corretora é remunerada por comissão paga pela seguradora quando a
   apólice é emitida, comissão já embutida no prêmio que a companhia pratica.
-- Companhias com que trabalha (${N}): ${SEGURADORAS.join(", ")}. A disponibilidade varia por perfil, veículo e
+- Companhias com que trabalha (a lista varia): ${SEGURADORAS.join(", ")}. A disponibilidade varia por perfil, veículo e
   região; nem toda companhia apresenta proposta para todo caso.
 
 ## Blog
